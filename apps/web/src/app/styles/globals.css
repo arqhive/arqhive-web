@@ -99,6 +99,9 @@
 /* 6) 문서 기본값 */
 @layer base {
   html {
+    /* 사이트 전체 배율: rem 단위(Tailwind 간격·글자·크기)가 모두 이 값을 따른다. 기본 16px의 1.2배.
+       크기를 px로 고정하지 말고 rem으로 써야 함께 커진다. 미디어 쿼리 기준점은 이 값과 상관없이 16px 기준이다. */
+    font-size: 120%;
     background-color: var(--paper);
     color: var(--ink);
     font-family: var(--font-body);

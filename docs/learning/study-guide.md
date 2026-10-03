@@ -305,6 +305,15 @@
   - `perspective` **속성**은 바로 아래 자식의 3D 회전에 원근을 줍니다. transform 안의 `perspective()` 함수와 결과는 같지만, 클래스가 간단해집니다.
 - **문서**: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
 
+### 사이트 배율과 단위 고르기(rem·em·cqw·dvh) ★★
+- **볼 것**: `src/app/styles/globals.css`(html font-size), `widgets/case-viewer/ui/case-liner.tsx`
+- **핵심**
+  - `html { font-size: 120% }` 하나로 rem 단위(Tailwind 간격·글자·크기)가 모두 1.2배가 된다. 그래서 크기를 px로 고정하지 말고 rem으로 쓴다.
+  - 미디어 쿼리의 rem은 html 글자 크기와 상관없이 브라우저 기본값(16px) 기준이라, 배율을 바꿔도 반응형 기준점은 그대로다.
+  - CSS `zoom`도 한 번에 키울 수 있지만, 좌표 계산(getBoundingClientRect)·transform 이동·dvh와 어긋날 수 있어 피했다.
+  - 화면 크기에 묶인 상자(dvh·vw) 안의 글자를 rem으로 쓰면 배율을 올릴 때 넘친다. 이런 곳은 글자 기준을 상자 폭(cqw)에 두고 나머지를 em으로 쓰면 인쇄물처럼 같은 비율로 커지고 작아진다.
+- **문서**: https://developer.mozilla.org/docs/Web/CSS/length
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -324,6 +333,7 @@
 | GC 종이상자 케이스 | 10절: 단계(phase)로 연출 순서 짜기, 취소 토큰, perspective 속성. 홀로그램 색을 CSS 변수 기본값(`var(--holo-1, …)`)으로 열어 두고 `holo-cool`로 바꾸기, 기종별 디스크 라벨 표(DISC_PRINTS) |
 | 3DS·NDS 킵 케이스·실물 비율 크기 | 10절(색 묶음): 같은 킵 케이스 부품에 받침(holder)만 바꿔 3DS 카드 받침 추가, NDS는 같은 구조에 차콜 색 묶음. 받침 안쪽(T자 경첩 표시·카드 틀·고정 탭·손가락 홈·긴 걸쇠)은 실물 사진 기준. 재질 파일이 300줄을 넘어 `cart-materials.css`로 나눔(noExcessiveLinesPerFile). 실물 치수를 기준 기종 대비 비율로 바꿔 Tailwind 고정 클래스로 적기, 작은 화면에서 내용 줄이기(compact) |
 | SFC·GB·GBA 카트리지 상자·게임팩 모양 | 10절: 같은 열기 단계에 다른 부품(설명서·카트리지)을 끼우기, clip-path로 윤곽 자르기(그림자는 drop-shadow), 형태 판단을 함수 하나(`hasOuterBox`)로 모으기, CSS 파일 나누기(재질별) |
+| 사이트 1.2배 | 10절: 사이트 배율과 단위 고르기(rem·em·cqw·dvh), 모양은 도면 좌표로 SVG 그리기 |
 
 ## 11. 다음 단계에서 만날 것 ★
 
