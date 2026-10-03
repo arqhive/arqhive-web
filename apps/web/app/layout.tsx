@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import type { ReactNode } from 'react';
 // 전역 CSS는 루트 레이아웃에서 한 번만 불러온다. 파일은 FSD의 app 층(src/app)에 있다.
 import '@/app/styles/globals.css';
 import { fontVariables } from '@/app/styles/fonts';
+import { THEME_INIT_SCRIPT } from '@/app/theme/init-script';
 import { SITE } from '@/shared/config';
 
 /**
@@ -20,15 +22,21 @@ export const metadata: Metadata = {
 /**
  * Next.js 라우팅 전용 루트 레이아웃. 모든 페이지를 감싸며, 페이지를 이동해도 다시 그려지지 않는다.
  * 화면 구성은 FSD 층(src/)에서 하고, 여기서는 <html>·<body> 뼈대와 전역 설정만 둔다.
- * 이 파일은 서버 컴포넌트다('use client'가 없음). 브라우저로 JS가 내려가지 않는다.
  *
  * - fontVariables: 글꼴 CSS 변수(--font-nanum-myeongjo 등)를 문서 전체에 정의한다.
- * - suppressHydrationWarning: 화면 모드 전환이 <html>에 data-theme을 붙이면서 생기는 경고를 막는다(1단계 헤더에서 추가).
+ * - 화면 모드 초기화: strategy="beforeInteractive"는 페이지가 그려지기 전에 실행된다(루트 레이아웃에서만 쓸 수 있음).
+ * - suppressHydrationWarning: 초기화 스크립트가 <html>에 data-theme을 붙여 서버 HTML과 달라지는 것을 허용한다.
  */
 export default function RootLayout({ children }: { readonly children: ReactNode }) {
   return (
     <html lang="ko" className={fontVariables} suppressHydrationWarning={true}>
-      <body className="min-h-dvh bg-paper text-ink">{children}</body>
+      <body className="min-h-dvh bg-paper text-ink">
+        {/* biome-ignore lint/correctness/useUniqueElementIds: Next.js가 인라인 스크립트에 고정 id를 요구한다(문서 전체에 하나뿐) */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }

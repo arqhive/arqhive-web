@@ -236,6 +236,65 @@
 - 지킨 규칙: `noExcessiveLinesPerFunction`(함수 50줄) → 속지·상태 훅을 분리, `noLeakedRender`(`&&` 렌더링) → 명시적 조건, `useGlobalThis`
 - 도구 차이: Steiger의 파일 패턴이 윈도우 경로(역슬래시)에서 맞지 않는 문제가 있었습니다. 로컬(윈도우)과 CI(리눅스)의 결과가 달라지는 설정은 피합니다.
 
+## 10. 홈 진열장에서 새로 등장한 것
+
+### FSD: 위젯끼리는 서로 가져다 쓸 수 없다 ★★★
+- 목록 위젯이 선반 위젯의 타입(`PickHandler`)을 가져오려다 규칙에 걸렸습니다. **같은 층끼리는 import 금지**라서, 두 위젯이 함께 쓰는 것은 **아래 층**(`entities/patch`)으로 내렸습니다. FSD에서 가장 자주 하게 되는 판단입니다.
+- 헤더·푸터처럼 모든 페이지에 공통인 틀은 **app 층**(`src/app/layouts`)에서 조립합니다. app 층에서 쓰는 위젯은 Steiger의 "한 곳에서만 쓰임" 검사에서도 제외됩니다.
+
+### 깜빡임 없는 화면 모드 ★★
+- **FOUC**(잘못된 스타일이 잠깐 보이는 현상): 저장된 모드를 React가 실행된 뒤에 적용하면, 어두운 모드 사용자에게 밝은 화면이 잠깐 번쩍입니다. 그래서 `<head>`에서 아주 작은 스크립트로 먼저 적용합니다(`next/script`의 `strategy="beforeInteractive"`).
+- **hydration 불일치 피하기**: 서버가 모르는 값(사용자 모드, 지금 시각, 브라우저 시간대)은 첫 렌더에서 서버와 같은 값으로 그리고, `useEffect` 이후에 바꿉니다.
+- **문서**: Next.js `Script` 컴포넌트, React "Hydration" 오류 설명
+
+### 날짜와 시간대 ★★
+- Velite는 날짜를 `2026-10-02T00:00:00.000Z` 같은 ISO 문자열로 내보냅니다. 문자열을 잘라 쓰다가 `10.02T00:00…`가 화면에 나온 적이 있습니다.
+- `Intl.DateTimeFormat`에 `timeZone: 'Asia/Seoul'`을 **명시**하면 서버(보통 UTC)와 브라우저(KST)가 같은 날짜를 그립니다. 시간대를 안 정하면 자정 근처에서 서버와 브라우저의 날짜가 달라 hydration 오류가 날 수 있습니다.
+
+### hydration 에러를 받았을 때 가르는 법 ★★
+- **실제 사례**: 개발 중 "A tree hydrated but some attributes … didn't match" 에러가 났는데, 모든 요소에 `style="user-select: auto"`가 붙어 있었습니다. 코드에도 서버 HTML에도 없는 값이었고, **브라우저 확장 프로그램**(복사·우클릭 허용류)이 React 실행 전에 DOM을 고친 것이었습니다.
+- **가르는 순서**
+  1. 에러의 차이(diff)가 어떤 속성인지 본다. 내가 쓴 적 없는 속성이 **모든 요소에** 붙어 있으면 거의 확장 프로그램이다.
+  2. 서버 HTML을 직접 받아(`curl http://localhost:3000/`) 그 속성이 있는지 본다. 없으면 브라우저 쪽 문제다.
+  3. 시크릿 창(확장 프로그램 꺼짐)에서 다시 열어 본다. 사라지면 확장 프로그램이 원인이다.
+- 코드 쪽 원인이라면 대개 날짜·시간대, `Math.random()`, `typeof window` 분기, 잘못된 HTML 중첩입니다(이 문서의 "깜빡임 없는 화면 모드", "날짜와 시간대" 참고).
+- **덤으로 확인할 것**: 콘솔의 404. 이번에는 사이트 아이콘이 없어서 페이지마다 `/favicon.ico` 404가 났습니다. Next.js는 `app/icon.svg`를 두면 `<link rel="icon">`을 자동으로 넣어 줍니다.
+
+### CSS로 실물 재질 그리기 (Wii 케이스) ★★
+- **볼 것**: `src/entities/patch/ui/case-materials.css`, `wii-keepcase.tsx`
+- **Tailwind v4 `@utility`**: 긴 CSS를 이름 하나(`plastic-white`, `disc-surface` …)로 묶어 클래스처럼 씁니다. 재질처럼 여러 속성이 한 덩어리인 스타일에 좋습니다.
+- **재질 표현 도구**
+  - 플라스틱 광택: `linear-gradient`(빛 방향) + `box-shadow: inset …`(턱·오목한 면)
+  - 디스크 금속 반사: `conic-gradient`(원뿔형, 각도에 따라 밝기가 바뀜) 두 겹(은빛 + 옅은 무지개)
+  - 허브의 꽃잎 무늬: `repeating-conic-gradient`(같은 무늬를 각도마다 반복)
+- **실물 색과 화면 모드 색을 나누기**: 케이스·디스크 라벨처럼 실제 물건의 색은 어두운 화면에서도 바뀌지 않아야 합니다. 라벨 글자에 화면 모드 토큰(`text-ink`)을 썼다가 어두운 화면에서 흰 라벨에 밝은 글자가 올라간 적이 있습니다.
+- **크기는 전부 비율로**: 케이스 폭·높이에 대한 %와 cqw로 잡아서, 진열장의 작은 표지와 열린 큰 케이스가 같은 그림입니다.
+- **0으로 나누기 방어**: 화면이 접혀 크기가 0이면 이동 계산에서 `NaN`, `Infinity`가 나옵니다(콘솔 경고로 발견). 크기를 잴 수 없으면 연출을 건너뜁니다.
+- **문서**: MDN `conic-gradient()`, `repeating-conic-gradient()`, Tailwind v4 "Adding custom utilities"
+
+### 마우스를 따라가는 홀로그램 글자 ★★
+- **볼 것**: `src/shared/ui/holo-text.tsx`, `holo-text.css`
+- **글자 모양으로 그라데이션 자르기**: `background-clip: text` + `color: transparent`. 무지개 그라데이션(위)과 은빛 바탕(아래)을 `background-blend-mode: overlay`로 겹쳐 금속 홀로그램처럼 보이게 합니다.
+- **마우스 따라가기**: 마우스 위치를 글자 중심 기준 비율로 바꿔 CSS 변수(`--holo-x`, `--holo-angle`)에 넣고, CSS가 그 변수로 그라데이션 위치·각도를 정합니다.
+  - React 상태로 하면 마우스가 움직일 때마다 다시 렌더링되므로, **요소의 style을 직접** 바꿉니다(`style.setProperty`).
+  - 마우스 이벤트는 화면 갱신보다 훨씬 자주 오므로 `requestAnimationFrame`으로 한 프레임에 한 번만 계산합니다.
+- **마우스가 없을 때**(휴대폰): CSS `@keyframes`로 반사가 저절로 흐르게 하고, 마우스가 움직이면 그 애니메이션을 끄고(`holo-tracking`) 마우스를 따릅니다.
+- **범용 효과는 shared**: 특정 작품·기종을 모르는 효과라 `shared/ui`에 두었습니다. 상세 페이지 제목 등에서 다시 쓸 수 있습니다.
+
+### 엄격한 도구끼리 부딪칠 때 ★
+- TS의 `noPropertyAccessFromIndexSignature`는 `obj['key']`를, Biome의 `useLiteralKeys`는 `obj.key`를 요구해서 서로 반대입니다(`dataset`, `Object.fromEntries` 결과에서 겪음). 둘 다 만족하는 다른 방법(`getAttribute`, 배열에서 `find`)을 썼습니다. 규칙을 끄기 전에 "둘 다 만족하는 표현"을 먼저 찾아봅니다.
+
+### 접근성 기본기 ★★
+- 버튼 묶음은 `<fieldset>` + `<legend>`(화면에는 `sr-only`로 숨김), 켜짐 상태는 `aria-pressed`
+- 섹션 제목 연결은 `aria-labelledby` + `useId()`(고정 id 문자열은 컴포넌트를 여러 번 쓰면 겹침)
+- 휴대폰 접는 메뉴는 JS 없이 `<details>`/`<summary>`
+- 등줄기 버튼에는 `aria-label="○○ 케이스 꺼내기"`로 무엇을 하는지 알림
+
+### 세로쓰기와 가로 넘기기 ★
+- `writing-mode: vertical-rl`: 한글은 바로 서고 로마자는 눕습니다. 그래서 기종 이름(GC, Wii)은 가로로 따로 썼습니다.
+- 세로쓰기에서도 `whitespace-nowrap` + `text-overflow: ellipsis`로 한 줄 말줄임이 됩니다.
+- 휴대폰 선반은 `overflow-x-auto` + `scroll-snap`으로 손가락으로 넘길 때 케이스 단위로 멈춥니다.
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -246,8 +305,12 @@
 | 케이스 열기 시제품 | 9절: FSD 실전 배치, `<dialog>`, CSS 3D·transition, 서버/클라이언트 경계, 린트 타협 |
 | 케이스가 제자리에서 날아와 열리게 수정 | 9절: FLIP 애니메이션과 Web Animations API |
 | 표지 줄바꿈 고정, 적용 문구 한국어화 | 9절: 컨테이너 쿼리 단위(cqw)와 한글 줄바꿈(keep-all) |
+| 홈 진열장 | 10절: FSD 같은 층 import 금지·app 층 레이아웃, 화면 모드(FOUC·hydration), 날짜·시간대, 도구 충돌, 접근성, 세로쓰기 |
+| 콘솔 에러 정리 | 10절: hydration 에러를 가르는 법(확장 프로그램), 사이트 아이콘(app/icon.svg) |
+| Wii 실물 케이스 | 10절: CSS로 실물 재질 그리기(@utility, conic-gradient), 실물 색과 화면 모드 색 |
+| Wii 케이스 피드백 반영 | 10절: 마우스를 따라가는 홀로그램 글자(background-clip, CSS 변수, rAF). 경첩 쪽 모서리, cqw 기준 컨테이너 통일 |
 
-## 10. 다음 단계에서 만날 것 ★
+## 11. 다음 단계에서 만날 것 ★
 
 | 단계 | 도구·개념 | 문서 |
 |---|---|---|

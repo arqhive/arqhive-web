@@ -117,7 +117,13 @@
     },
     {
       // 디자인 토큰을 정의하는 유일한 파일. 다른 곳에서는 16진수 색을 쓰지 못하게 해서 토큰 사용을 강제한다.
-      "includes": ["apps/web/src/app/styles/globals.css"],
+      "includes": [
+        "apps/web/src/app/styles/globals.css",
+        // 케이스 재질: 실물 플라스틱·디스크 색이라 토큰이 아닌 고정 색을 쓴다
+        "apps/web/src/entities/patch/ui/case-materials.css",
+        // 홀로그램 무지개 색
+        "apps/web/src/shared/ui/holo-text.css"
+      ],
       "linter": {
         "rules": {
           "style": {

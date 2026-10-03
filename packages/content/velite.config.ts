@@ -41,6 +41,8 @@ const patches = defineCollection({
   pattern: 'patches/*/index.mdx',
   schema: s.object({
     slug: s.slug('patches'),
+    // 분류 번호: ARQ-<기종>-<기종 안에서 저장소를 만든 순서>. 목록 보기에 쓴다.
+    catalogNo: s.string().regex(/^ARQ-[A-Z0-9]+-\d{3}$/),
     titleKo: s.string(),
     titleOriginal: s.string(),
     titleEn: s.string().nullable(),

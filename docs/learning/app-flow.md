@@ -7,6 +7,7 @@
 | 0단계 | 골격: web·api·shared, 검사·CI |
 | 1단계 (콘텐츠·토큰) | 콘텐츠 파이프라인(MDX → Velite), 디자인 토큰(@theme, 글꼴, 화면 모드) — 8·9절 |
 | 1단계 (케이스 열기 시제품) | 서버 → 클라이언트 데이터 전달, 케이스 열기 연출 — 10절 |
+| 1단계 (홈 진열장) | 공통 레이아웃(헤더·푸터), 화면 모드 저장·초기화, 진열장 화면 구성 — 11절. 시제품 페이지 `/lab/case`는 삭제 |
 
 > 아직 web과 api는 서로 연결되어 있지 않습니다. 둘을 잇는 `/api/*` 프록시는 3단계에서 붙입니다(마지막 절 참고).
 
@@ -207,7 +208,7 @@ flowchart TB
 - **글꼴**: `next/font`가 빌드할 때 Google Fonts에서 파일을 받아 사이트에 함께 올립니다. 방문자는 Google 서버에 요청하지 않습니다. 한글 글꼴은 글자 범위별로 나뉜 파일 중 필요한 것만 받습니다.
 - 16진수 색은 `globals.css`에서만 쓸 수 있습니다(Biome `noHexColors`). 다른 파일은 토큰을 써야 합니다.
 
-## 10. 케이스 열기 (시제품 `/lab/case`)
+## 10. 케이스 열기 (지금은 홈 진열장에서 사용)
 
 ### 데이터가 화면까지
 
@@ -253,7 +254,48 @@ sequenceDiagram
 - **크기**: 데스크톱은 케이스 한 칸 최대 480×640(펼치면 960×640), 화면이 작으면 높이 86%·폭 61% 안에 맞춰 줄어듭니다. 휴대폰은 펼친 전체가 화면 높이 88% 안에 들어가게 맞춥니다.
 - **FLIP**: First(처음 위치) → Last(끝 위치) → Invert(끝 위치의 요소를 처음 위치로 보이게 transform) → Play(transform을 없애며 이동). 위치를 바꾸는 대신 transform만 움직여서 부드럽습니다.
 
-## 11. 다음 단계에서 이어질 부분
+## 11. 홈 진열장 (`/`)
+
+### 화면이 조립되는 길
+
+```mermaid
+flowchart TB
+  root["app/layout.tsx (루트)<br/>글꼴·전역 CSS·화면 모드 초기화 스크립트"] --> grp["app/(site)/layout.tsx"]
+  grp --> sl["src/app/layouts/site-layout.tsx (FSD app 층)<br/>SiteHeader + main + SiteFooter"]
+  grp --> page["app/(site)/page.tsx → src/pages/home"]
+  page --> hp["home-page.tsx (서버)<br/>콘텐츠 읽기 → toCaseData → 분류 번호 순 정렬<br/>최근 갱신 3개 고르기"]
+  hp --> hc["home-client.tsx ('use client')<br/>상태: 필터 · 보기(진열장/목록) · 꺼낸 작품"]
+  hc --> tb["home-toolbar.tsx<br/>기종 필터 · 보기 전환"]
+  hc --> fo["widgets/shelf FaceOutRow<br/>최근 갱신 표지"]
+  hc --> sh["widgets/shelf Shelf<br/>기종별 선반(등줄기)"]
+  hc --> pt["widgets/patch-table<br/>목록(표·카드)"]
+  hc --> cv["widgets/case-viewer"]
+```
+
+- **왜 헤더·푸터가 app 층인가**: 모든 공개 페이지에 공통이라 화면(pages)이 아니라 앱 전체 틀(app 층)의 일입니다. Next.js의 `app/(site)/layout.tsx`는 FSD의 `SiteLayout`을 불러오기만 합니다.
+- **필터·보기 전환을 features로 빼지 않은 이유**: 지금은 홈에서만 씁니다. FSD도 "여러 곳에서 쓰이기 전까지는 쓰는 곳 가까이"를 권합니다.
+- **누른 요소 감추기**: 같은 작품이 "최근 갱신"과 선반에 동시에 있을 수 있어서, 작품이 아니라 **실제로 누른 요소**(`element.style.visibility`)를 감추고 닫힐 때 되돌립니다.
+
+### 화면 모드(밝게·어둡게)
+
+```mermaid
+sequenceDiagram
+  participant B as 브라우저
+  participant S as 초기화 스크립트(head)
+  participant R as React
+  participant T as ThemeToggle
+  B->>S: HTML을 받자마자 실행(beforeInteractive)
+  S->>B: localStorage에 저장값 있으면 <html data-theme> 설정
+  Note over B: 첫 화면부터 올바른 색(번쩍임 없음)
+  R->>T: hydration (처음엔 theme=null → "화면")
+  T->>T: useEffect에서 현재 모드 읽기 → "밝게"/"어둡게"
+  T->>B: 누르면 data-theme 변경 + localStorage 저장
+```
+
+- 저장값이 없으면 시스템 설정(`prefers-color-scheme`)을 따릅니다(globals.css의 미디어 쿼리).
+- 버튼 글자를 처음에 `null`("화면")로 두는 이유: 서버는 사용자의 모드를 모르므로, 서버 HTML과 브라우저 첫 렌더를 같게 해야 hydration 오류가 나지 않습니다.
+
+## 12. 다음 단계에서 이어질 부분
 
 ```mermaid
 flowchart LR

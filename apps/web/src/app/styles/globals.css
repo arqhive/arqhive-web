@@ -1,5 +1,9 @@
 /* Tailwind CSS v4: 설정 파일(tailwind.config.js) 없이 CSS에서 바로 불러오고, 토큰도 여기서 정한다. */
 @import "tailwindcss";
+/* 케이스 재질(실물 느낌)은 작품 엔티티 옆에 두고 여기서 불러온다 */
+@import "../../entities/patch/ui/case-materials.css";
+/* 범용 효과(홀로그램 글자) */
+@import "../../shared/ui/holo-text.css";
 
 /* ─────────────────────────────────────────────────────────────
    디자인 토큰 2안 · 기록보관소 (ADR 0009)

@@ -1,7 +1,7 @@
 'use client';
 
 import type { RefObject } from 'react';
-import { CaseCover, CaseMedia, type PatchCaseData } from '@/entities/patch';
+import { CASE_SPECS, CaseCover, CaseInner, CaseTray, type PatchCaseData } from '@/entities/patch';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
 import { CaseLiner } from './case-liner.tsx';
 
@@ -45,13 +45,13 @@ export function CaseViewer({
           <div className="pointer-events-none flex size-full items-center justify-center perspective-[2400px]">
             <div
               ref={caseRef}
-              className={`pointer-events-auto relative aspect-[3/4] h-[min(44dvh,122vw)] origin-top-left transition-transform duration-700 ease-out motion-reduce:transition-none md:h-[min(640px,86dvh,61vw)] ${
+              className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} h-[min(44dvh,122vw)] origin-top-left transition-transform duration-700 ease-out motion-reduce:transition-none md:h-[min(640px,86dvh,61vw)] ${
                 isOpen ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
               }`}
             >
               {/* 트레이: 매체가 놓인 케이스 안쪽 */}
-              <div className="absolute inset-0 flex items-center justify-center border border-black/20 bg-shelf">
-                <CaseMedia patch={patch} isOpen={isOpen} />
+              <div className="absolute inset-0">
+                <CaseTray patch={patch} isOpen={isOpen} />
               </div>
 
               {/* 표지: 위(휴대폰)·왼쪽(데스크톱)으로 넘어간다. 앞면=표지, 뒷면=속지(미리 180도 돌려 둠) */}
@@ -64,7 +64,9 @@ export function CaseViewer({
                   <CaseCover patch={patch} />
                 </div>
                 <div className="absolute inset-0 rotate-x-180 backface-hidden md:rotate-x-0 md:rotate-y-180">
-                  <CaseLiner patch={patch} />
+                  <CaseInner patch={patch}>
+                    <CaseLiner patch={patch} />
+                  </CaseInner>
                 </div>
               </div>
             </div>
