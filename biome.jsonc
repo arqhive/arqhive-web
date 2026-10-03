@@ -1,0 +1,133 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["**", "!**/worker-configuration.d.ts", "!docs/design"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    // 이 프로젝트가 쓰는 기술의 규칙 묶음은 전부 켜고, 쓰지 않는 프레임워크 묶음은 끈다.
+    "domains": {
+      "react": "all",
+      "next": "all",
+      "project": "all",
+      "types": "all",
+      "test": "all",
+      "playwright": "all",
+      "drizzle": "all",
+      "tailwind": "all",
+      "turborepo": "all",
+      "solid": "none",
+      "qwik": "none",
+      "vue": "none",
+      "svelte": "none",
+      "astro": "none",
+      "reactNative": "none"
+    },
+    // 최대한 엄격하게: 모든 규칙을 켜고(실험 단계인 nursery 제외), 전부 오류로 처리한다.
+    "rules": {
+      "preset": "all",
+      "a11y": "error",
+      "complexity": "error",
+      "correctness": "error",
+      "performance": "error",
+      "security": "error",
+      "style": "error",
+      "suspicious": "error"
+    }
+  },
+  "overrides": [
+    {
+      // 프로젝트 전체에서 끄는 규칙. 끌 때마다 이유를 적는다. (ADR 0007)
+      "includes": ["**"],
+      "linter": {
+        "rules": {
+          "performance": {
+            // FSD는 조각마다 공개 창구(index.ts)로 다시 내보내기를 요구한다. 경계 검사는 Steiger가 맡는다.
+            "noBarrelFile": "off",
+            // 그룹 전체를 오류로 켜면 domains에서 끈 Solid 규칙도 다시 켜진다. React JSX에 잘못 걸리므로 끈다.
+            "useSolidForComponent": "off"
+          },
+          "correctness": {
+            // FSD 조각은 폴더 단위로 가져온다(@/pages/home). 상대 경로는 확장자를 직접 붙여 쓴다.
+            "useImportExtensions": "off",
+            // Solid·Qwik 전용 규칙(위와 같은 이유). Vue 규칙은 .vue 파일에만 걸리므로 그대로 둔다.
+            "noSolidDestructuredProps": "off",
+            "noQwikUseVisibleTask": "off",
+            "useQwikClasslist": "off",
+            "useQwikMethodUsage": "off",
+            "useQwikValidLexicalScope": "off"
+          },
+          "style": {
+            // 다국어 계획이 없다. 화면 문구는 컴포넌트 옆에 두는 편이 읽기 쉽다.
+            "noJsxLiterals": "off"
+          }
+        }
+      }
+    },
+    {
+      // Next.js 라우팅 규약 파일: 기본 내보내기와 metadata 같은 컴포넌트 외 내보내기가 규약상 필요하다.
+      "includes": ["apps/web/app/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off",
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    },
+    {
+      // 도구 설정 파일과 Workers 진입점: 도구가 기본 내보내기를 읽는다.
+      "includes": ["**/*.config.ts", "**/*.config.mjs", "apps/api/src/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      // 테스트: 기대값(상태 코드 등)을 숫자 그대로 적는 편이 읽기 쉽다.
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/e2e/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noMagicNumbers": "off"
+          }
+        }
+      }
+    }
+  ]
+}

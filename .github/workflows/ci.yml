@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 같은 PR에 새 커밋이 올라오면 이전 실행은 취소한다.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: 검사 (lint · 타입 · FSD · 테스트 · 빌드)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # package.json의 packageManager에 적힌 pnpm 버전을 쓴다.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: 의존성 설치 (잠금 파일과 다르면 실패)
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome (린트 · 포맷)
+        run: pnpm biome ci .
+
+      - name: Turborepo 캐시
+        uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+
+      - name: 타입 검사 · FSD 규칙 · 테스트 · 빌드
+        run: pnpm turbo run typecheck lint:fsd test build --cache-dir=.turbo/cache
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          TURBO_TELEMETRY_DISABLED: '1'
+          WRANGLER_SEND_METRICS: 'false'

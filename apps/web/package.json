@@ -1,0 +1,31 @@
+{
+  "name": "@arqhive/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "arqhive 웹 — Next.js(App Router) + FSD",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint:fsd": "steiger ./src"
+  },
+  "dependencies": {
+    "@arqhive/shared": "workspace:*",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@arqhive/tsconfig": "workspace:*",
+    "@feature-sliced/steiger-plugin": "0.8.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "steiger": "0.7.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  }
+}

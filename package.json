@@ -1,0 +1,26 @@
+{
+  "name": "arqhive-web",
+  "private": true,
+  "description": "arqhive(아카이브) — 한글 패치 아카이브 사이트",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "lint:fsd": "turbo run lint:fsd",
+    "check": "biome ci . && turbo run typecheck lint:fsd test build",
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "lefthook": "2.1.16",
+    "turbo": "2.11.7",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,6 @@
+# 커밋하기 전에 바뀐 파일만 Biome으로 검사하고, 고칠 수 있는 건 고쳐서 다시 스테이징한다.
+pre-commit:
+  commands:
+    biome:
+      run: pnpm biome check --staged --write --no-errors-on-unmatched
+      stage_fixed: true

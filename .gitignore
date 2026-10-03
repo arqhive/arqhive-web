@@ -1,0 +1,33 @@
+# 의존성
+node_modules/
+
+# 빌드 결과
+.next/
+dist/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# Cloudflare
+.wrangler/
+worker-configuration.d.ts
+.dev.vars
+
+# 환경 변수
+.env
+.env.*
+!.env.example
+
+# 테스트 결과
+coverage/
+playwright-report/
+test-results/
+
+# 운영체제·편집기
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

@@ -1,0 +1,7 @@
+{
+  "extends": "@arqhive/tsconfig/workers.json",
+  "compilerOptions": {
+    "types": ["./worker-configuration.d.ts"]
+  },
+  "include": ["src", "test"]
+}

@@ -1,0 +1,4 @@
+{
+  "extends": "@arqhive/tsconfig/library.json",
+  "include": ["src"]
+}

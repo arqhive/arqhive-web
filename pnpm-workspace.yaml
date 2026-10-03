@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 10은 설치 스크립트를 기본으로 막는다. 꼭 필요한 패키지만 허용한다.
+onlyBuiltDependencies:
+  - esbuild
+  - lefthook
+  - sharp
+  - workerd

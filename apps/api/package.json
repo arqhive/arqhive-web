@@ -1,0 +1,26 @@
+{
+  "name": "@arqhive/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "arqhive API — Hono on Cloudflare Workers",
+  "type": "module",
+  "exports": {
+    "./app-type": "./src/app.ts"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typegen": "wrangler types",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hono": "4.13.12"
+  },
+  "devDependencies": {
+    "@arqhive/tsconfig": "workspace:*",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11",
+    "wrangler": "4.147.0"
+  }
+}
