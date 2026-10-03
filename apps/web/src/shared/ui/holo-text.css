@@ -3,6 +3,7 @@
   두 겹: 위는 무지개(마우스 위치에 따라 각도·위치가 바뀜), 아래는 은빛 금속 바탕.
   --holo-x, --holo-y, --holo-angle은 HoloText 컴포넌트가 마우스 위치에 맞춰 바꾼다.
   마우스가 없을 때(휴대폰 등)는 holo-drift 애니메이션으로 반사가 천천히 저절로 흐른다.
+  무지개 색은 --holo-1~5 변수로 바꿀 수 있다(holo-cool: 차가운 푸른빛).
 */
 @keyframes holo-drift {
   from {
@@ -21,13 +22,13 @@
   background-image:
     linear-gradient(
       var(--holo-angle, 115deg),
-      #ff8fcf 0%,
-      #8fd8ff 16%,
-      #a8ffbf 32%,
-      #fff08f 48%,
-      #ff9fe0 64%,
-      #8fd8ff 80%,
-      #a8ffbf 100%
+      var(--holo-1, #ff8fcf) 0%,
+      var(--holo-2, #8fd8ff) 16%,
+      var(--holo-3, #a8ffbf) 32%,
+      var(--holo-4, #fff08f) 48%,
+      var(--holo-5, #ff9fe0) 64%,
+      var(--holo-2, #8fd8ff) 80%,
+      var(--holo-3, #a8ffbf) 100%
     ),
     linear-gradient(180deg, #d5dae1, #8d96a3);
   background-size:
@@ -50,4 +51,13 @@
 @utility holo-tracking {
   animation: none;
   transition: background-position 0.15s ease-out;
+}
+
+/* 차가운 홀로그램: 분홍·노랑을 빼고 하늘색·청록·보라빛 파랑·은백으로만 흐른다 */
+@utility holo-cool {
+  --holo-1: #7fb8ff;
+  --holo-2: #dff1ff;
+  --holo-3: #6fe0e8;
+  --holo-4: #a9b6ff;
+  --holo-5: #4f8fe8;
 }

@@ -1,0 +1,143 @@
+/*
+  카트리지·게임 카드 재질(3DS·NDS 킵 케이스 부품, SFC·GB·GBA 카트리지). case-materials.css의 색 묶음 변수(--p-*)를 같이 쓴다.
+  파일 줄 수 제한(300줄) 때문에 case-materials.css에서 나눴다.
+*/
+
+/* NDS 차콜: 검은색(GC)보다 밝은 짙은 회색 플라스틱 */
+@utility plastic-tone-charcoal {
+  --p-hi: #56595e;
+  --p-mid: #45484c;
+  --p-lo: #35373b;
+  --p-recess-a: #36383c;
+  --p-recess-b: #3c3e42;
+  --p-recess-c: #44464a;
+  --p-groove: #2a2c2f;
+  --p-hub-a: #55585d;
+  --p-hub-b: #303235;
+  --p-hub-core: #26282a;
+  --p-highlight: rgb(255 255 255 / 0.14);
+  --p-ink: #ececec;
+}
+
+/* 게임 카드 받침 틀: 판에서 네모나게 솟은 테두리 */
+@utility plastic-plate {
+  background: linear-gradient(160deg, var(--p-hi), var(--p-lo));
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.1),
+    1px 2px 4px rgb(0 0 0 / 0.22),
+    inset 0 1px 0 var(--p-highlight);
+}
+
+/* 경첩의 T자 표시(움푹 찍힌 자국) */
+@utility hinge-mark {
+  background: rgb(0 0 0 / 0.5);
+  box-shadow: 0 1px 0 var(--p-highlight);
+}
+
+/* 받침의 카드 홈 */
+@utility card-slot {
+  background: linear-gradient(160deg, var(--p-recess-a), var(--p-recess-c));
+  box-shadow: inset 1px 2px 4px rgb(0 0 0 / 0.3);
+}
+
+/* 꽂힌 게임 카드: 플라스틱. 색은 기종 클래스(card-ds·card-3ds)의 --g-hi·--g-lo를 따른다. 라벨은 따로 그린다 */
+@utility game-card {
+  background: linear-gradient(160deg, var(--g-hi), var(--g-lo));
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.35),
+    0 1px 2px rgb(0 0 0 / 0.35);
+  color: #1e2a3a;
+}
+
+/* NDS 카드: 짙은 회색 */
+@utility card-ds {
+  --g-hi: #5a5d63;
+  --g-lo: #3b3d42;
+}
+
+/* 3DS 카드: 밝은 회백색 */
+@utility card-3ds {
+  --g-hi: #f4f4f2;
+  --g-lo: #d9dad8;
+}
+
+/* 게임 카드 라벨: 흰 종이에 어두운 인쇄 글자 */
+@utility card-label {
+  background: linear-gradient(170deg, #fbfbfb, #e6e8ea);
+  color: #1e2a3a;
+}
+
+/* ── SFC·GB·GBA 카트리지 ── */
+
+/* 카트리지 몸통: 회색 플라스틱. 색은 기종 클래스(cart-sfc 등)의 --c-hi·--c-lo를 따른다 */
+@utility cartridge {
+  background: linear-gradient(165deg, var(--c-hi), var(--c-lo));
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    2px 4px 10px rgb(0 0 0 / 0.35);
+  color: #1e2a3a;
+}
+
+@utility cart-sfc {
+  --c-hi: #c9c9c5;
+  --c-lo: #a7a7a3;
+}
+
+@utility cart-gb {
+  --c-hi: #c4bfc6;
+  --c-lo: #a19ba4;
+}
+
+/* GBA는 단색 플라스틱: 위·아래 색을 같게 두어 그라데이션이 생기지 않게 한다 */
+@utility cart-gba {
+  --c-hi: #4c5357;
+  --c-lo: #4c5357;
+}
+
+/* 카트리지 라벨이 붙는 오목한 자리와 라벨 */
+@utility cart-label {
+  background: linear-gradient(170deg, #fbfbfa, #e7e8e9);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.15),
+    0 0 0 2px rgb(0 0 0 / 0.08);
+}
+
+/* 미끄럼 방지 홈 */
+@utility cart-groove {
+  background: rgb(0 0 0 / 0.18);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* 몸통에서 살짝 솟은 자리(원래 각인이 있는 자리): 위쪽 빛, 아래쪽 그늘 */
+@utility cart-emboss {
+  background: linear-gradient(180deg, var(--c-hi), var(--c-lo));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+/* 라벨이 붙는 오목한 자리 */
+@utility cart-recess {
+  background: linear-gradient(160deg, var(--c-lo), var(--c-hi));
+  box-shadow: inset 1px 2px 3px rgb(0 0 0 / 0.3);
+}
+
+/* 몸통 이음선 */
+@utility cart-seam {
+  background: rgb(0 0 0 / 0.16);
+}
+
+/* 나사 */
+@utility cart-screw {
+  background: radial-gradient(circle at 35% 35%, #b5b5b5, #5f5f5f);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3);
+}
+
+/* 몸통에 새긴 양각 글자: 몸통과 같은 색에 위쪽 빛·아래쪽 그늘만 주어 도드라져 보이게 한다 */
+@utility cart-emboss-text {
+  color: var(--c-hi);
+  text-shadow:
+    -1px -1px 0 rgb(255 255 255 / 0.55),
+    1px 1px 1px rgb(0 0 0 / 0.35);
+}

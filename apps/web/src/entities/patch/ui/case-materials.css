@@ -4,60 +4,131 @@
   globals.css가 이 파일을 불러온다.
 */
 
-/* ── 흰 플라스틱 케이스(Wii 계열) ── */
+/* ── 플라스틱 킵 케이스(Wii·Wii U 계열) ──
+   구조(턱, 홈, 경첩, 허브)는 같고 색만 다르다. 아래 utility들은 색을 직접 쓰지 않고 --p-* 변수를 쓰며,
+   케이스 바깥 요소에 색 묶음(plastic-tone-white, plastic-tone-blue …)을 붙이면 안쪽 부품이 그 색을 따른다.
+   새 색의 케이스(예: GC 검정)는 색 묶음 하나만 추가하면 된다. */
 
-/* 케이스 판: 위에서 빛을 받는 흰 플라스틱. 가장자리 테두리·윗면 하이라이트·아랫면 그늘 */
-@utility plastic-white {
-  background: linear-gradient(160deg, #ffffff 0%, #f4f4f1 45%, #e3e3de 100%);
+/* 색 묶음: Wii(순백 #FFFFFF 플라스틱). 면 색은 전부 흰색이고, 입체감은 테두리·안쪽 그림자로만 낸다.
+   경첩 홈과 허브 무늬처럼 흰색만으로는 안 보이는 선에만 옅은 회색을 쓴다. */
+@utility plastic-tone-white {
+  --p-hi: #ffffff;
+  --p-mid: #ffffff;
+  --p-lo: #ffffff;
+  --p-recess-a: #ffffff;
+  --p-recess-b: #ffffff;
+  --p-recess-c: #ffffff;
+  --p-groove: #e4e4e4;
+  --p-hub-a: #ffffff;
+  --p-hub-b: #e6e6e6;
+  --p-hub-core: #dcdcdc;
+  --p-highlight: rgb(255 255 255 / 0.95);
+  /* 케이스 앞면에 바로 인쇄한 글자색 */
+  --p-ink: #2a2f36;
+}
+
+/* 색 묶음: Wii U(반투명 파란 플라스틱) */
+@utility plastic-tone-blue {
+  --p-hi: #5bbdec;
+  --p-mid: #2ba0dc;
+  --p-lo: #1784c2;
+  --p-recess-a: #1a8bcc;
+  --p-recess-b: #2396d4;
+  --p-recess-c: #33a4de;
+  --p-groove: #1270aa;
+  --p-hub-a: #3fb0e8;
+  --p-hub-b: #1676b4;
+  --p-hub-core: #156fa8;
+  --p-highlight: rgb(255 255 255 / 0.45);
+  --p-ink: #ffffff;
+}
+
+/* 색 묶음: GC(검은 플라스틱) */
+@utility plastic-tone-black {
+  --p-hi: #3b3b3f;
+  --p-mid: #2a2a2d;
+  --p-lo: #1b1b1d;
+  --p-recess-a: #1d1d1f;
+  --p-recess-b: #232326;
+  --p-recess-c: #2b2b2e;
+  --p-groove: #121214;
+  --p-hub-a: #3a3a3e;
+  --p-hub-b: #18181a;
+  --p-hub-core: #101012;
+  --p-highlight: rgb(255 255 255 / 0.12);
+  --p-ink: #e8e8e8;
+}
+
+/* 케이스 판: 위에서 빛을 받는 플라스틱. 가장자리 테두리·윗면 하이라이트·아랫면 그늘 */
+@utility plastic-body {
+  background: linear-gradient(160deg, var(--p-hi) 0%, var(--p-mid) 45%, var(--p-lo) 100%);
   box-shadow:
     inset 0 0 0 1px rgb(0 0 0 / 0.14),
-    inset 2px 2px 0 rgb(255 255 255 / 0.95),
+    inset 2px 2px 0 var(--p-highlight),
     inset -2px -3px 4px rgb(0 0 0 / 0.07);
+}
+
+/* 케이스 옆면(선반의 등줄기): 둥근 모서리라 가운데가 밝고 양 끝이 어둡다 */
+@utility plastic-spine {
+  background: linear-gradient(
+    90deg,
+    var(--p-lo) 0%,
+    var(--p-hi) 30%,
+    var(--p-mid) 70%,
+    var(--p-lo) 100%
+  );
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+  color: var(--p-ink);
 }
 
 /* 판 안쪽의 오목한 면: 위·왼쪽에 그늘이 지고 아래·오른쪽이 밝다 */
 @utility plastic-recess {
-  background: linear-gradient(160deg, #e9e9e5 0%, #efefeb 55%, #f5f5f2 100%);
+  background: linear-gradient(
+    160deg,
+    var(--p-recess-a) 0%,
+    var(--p-recess-b) 55%,
+    var(--p-recess-c) 100%
+  );
   box-shadow:
     inset 3px 3px 6px rgb(0 0 0 / 0.13),
-    inset -1px -1px 0 rgb(255 255 255 / 0.9);
+    inset -1px -1px 0 var(--p-highlight);
 }
 
 /* 경첩(가운데 접히는 부분): 세로 홈 두 줄 */
 @utility plastic-hinge {
   background: linear-gradient(
     90deg,
-    #d9d9d3 0%,
-    #f2f2ee 18%,
-    #d4d4ce 30%,
-    #f2f2ee 50%,
-    #d4d4ce 70%,
-    #f2f2ee 82%,
-    #d9d9d3 100%
+    var(--p-groove) 0%,
+    var(--p-mid) 18%,
+    var(--p-groove) 30%,
+    var(--p-mid) 50%,
+    var(--p-groove) 70%,
+    var(--p-mid) 82%,
+    var(--p-groove) 100%
   );
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
 }
 
 /* 디스크 받침 턱: 둥글게 솟은 테두리 */
 @utility plastic-ring {
-  background: linear-gradient(160deg, #f8f8f5, #e2e2dd);
+  background: linear-gradient(160deg, var(--p-hi), var(--p-lo));
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.1),
-    inset 0 0 0 3px rgb(255 255 255 / 0.7),
+    inset 0 0 0 3px var(--p-highlight),
     inset 4px 4px 8px rgb(0 0 0 / 0.1);
 }
 
 /* 손가락 홈: 받침 턱을 파낸 반달 */
 @utility plastic-notch {
-  background: linear-gradient(160deg, #dcdcd6, #ecece8);
+  background: linear-gradient(160deg, var(--p-groove), var(--p-recess-b));
   box-shadow: inset 2px 2px 4px rgb(0 0 0 / 0.18);
 }
 
 /* 가운데 허브: 꽃잎처럼 갈라진 고정 돌기 */
 @utility plastic-hub {
   background:
-    radial-gradient(circle, #d2d2cc 0 22%, transparent 23%),
-    repeating-conic-gradient(#f1f1ed 0deg 14deg, #d6d6d0 14deg 22.5deg);
+    radial-gradient(circle, var(--p-hub-core) 0 22%, transparent 23%),
+    repeating-conic-gradient(var(--p-hub-a) 0deg 14deg, var(--p-hub-b) 14deg 22.5deg);
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.14),
     0 1px 3px rgb(0 0 0 / 0.15);
@@ -65,7 +136,7 @@
 
 /* 설명서 고정 탭 */
 @utility plastic-clip {
-  background: linear-gradient(90deg, #e7e7e2, #fbfbf9);
+  background: linear-gradient(90deg, var(--p-lo), var(--p-hi));
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.12),
     1px 1px 2px rgb(0 0 0 / 0.12);
@@ -118,4 +189,56 @@
   /* 인쇄면: 은은한 회색 그라데이션(참고 디스크의 은백색 라벨) */
   background: linear-gradient(170deg, #f7f8f8 0%, #eceef0 60%, #e2e5e8 100%);
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08);
+}
+
+/*
+  GC 디스크 라벨: 두 칸으로 나뉜다. 위는 그림 칸(그림 대신 짙은 남색 인쇄), 아래는 검은 띠.
+  나뉘는 선은 디스크 높이 66%(구멍 둘레 바로 아래). 라벨이 디스크 안쪽 2.5%부터 시작하므로 라벨 기준 66.8%다.
+*/
+@utility disc-label-split {
+  background: linear-gradient(
+    180deg,
+    #3a5680 0%,
+    #283f63 45%,
+    #1c2e4b 66.8%,
+    #101012 66.8%,
+    #18181b 100%
+  );
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.15);
+}
+
+/* 어두운 라벨에서 구멍 둘레의 투명한 띠: 라벨이 비치지 않게 밝은 투명 플라스틱 색으로 덮는다 */
+@utility disc-clear-solid {
+  background: radial-gradient(circle, #c3c9d0 0%, #e2e6ea 100%);
+}
+
+/* 어두운 라벨 위의 인쇄 글자(밝은 잉크) */
+@utility disc-ink-light {
+  color: #eef2f7;
+}
+
+/* ── GC 킵 케이스 전용 부품 ── */
+
+/* 육각형 디스크 받침: 판에서 솟은 육각 턱(clip-path로 모양을 자르고, 그림자는 filter로) */
+@utility plastic-hex {
+  background: linear-gradient(160deg, var(--p-hi), var(--p-lo));
+  clip-path: polygon(25% 3%, 75% 3%, 99% 50%, 75% 97%, 25% 97%, 1% 50%);
+}
+
+/* 메모리카드 홈 */
+@utility memcard-slot {
+  background: linear-gradient(160deg, var(--p-recess-a), var(--p-recess-c));
+  box-shadow: inset 2px 2px 4px rgb(0 0 0 / 0.45);
+}
+
+/* 꽂혀 있는 작은 메모리카드: 회색 플라스틱 + 라벨 자리 */
+@utility memcard {
+  background:
+    linear-gradient(#f1f1ef, #f1f1ef) 50% 30% / 74% 46% no-repeat,
+    linear-gradient(160deg, #c9ccd1, #9ea3aa);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.35),
+    0 1px 2px rgb(0 0 0 / 0.4);
 }

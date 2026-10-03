@@ -252,7 +252,31 @@ sequenceDiagram
 - **"동작 줄이기"** 설정을 켠 사용자는 transition 없이 바로 열고 닫습니다(`motion-reduce:`).
 - **반응형**: md(768px) 이상은 가로로 펼침(왼쪽 속지·오른쪽 케이스), 그보다 좁으면 세로로 펼침(위 속지·아래 케이스)입니다.
 - **크기**: 데스크톱은 케이스 한 칸 최대 480×640(펼치면 960×640), 화면이 작으면 높이 86%·폭 61% 안에 맞춰 줄어듭니다. 휴대폰은 펼친 전체가 화면 높이 88% 안에 들어가게 맞춥니다.
+- **기종별 크기**: 실물 치수(mm)를 Wii 킵 케이스(190×135) 대비 비율로 맞춥니다(`case-spec.ts`의 `scale`·`aspect`·`faceHeight`·`viewerHeight`, 선반은 `SPINE_SIZES`). GC는 0.763배, 3DS·NDS는 0.611배이고 가로가 조금 긴 정사각형에 가깝습니다. 작은 케이스는 속지에서 줄거리를 빼고 글자를 줄입니다(`CaseLiner`의 compact).
 - **FLIP**: First(처음 위치) → Last(끝 위치) → Invert(끝 위치의 요소를 처음 위치로 보이게 transform) → Play(transform을 없애며 이동). 위치를 바꾸는 대신 transform만 움직여서 부드럽습니다.
+
+### GC·SFC·GB·GBA: 종이상자에서 꺼내 여는 단계
+
+GC 소프트는 검은 킵 케이스가 종이상자에 한 번 더 들어 있습니다. 그래서 열기·닫기를 **단계(phase)** 로 나눴습니다.
+
+```mermaid
+stateDiagram-v2
+  [*] --> closed
+  closed --> lid: flyIn이 끝남 (GC만)
+  lid --> unboxed: 0.45초 뒤 — 뚜껑이 열림
+  unboxed --> open: 0.65초 뒤 — 상자가 아래로 빠짐
+  closed --> open: flyIn이 끝남 (GC 말고는 바로)
+  open --> unboxed: 닫기 — 표지 덮기 0.9초 (GC)
+  unboxed --> lid: 상자가 다시 올라옴 0.65초
+  lid --> closed: 뚜껑이 닫힘 0.45초
+  closed --> [*]: flyOut → dialog 닫기
+```
+
+- **순서는 데이터로**: `widgets/case-viewer/lib/phases.ts`의 `openSteps`·`closeSteps`가 "어느 단계로 바꾸고 몇 ms 기다릴지" 목록을 돌려주고, `runSteps`가 차례로 밟습니다. 훅(`model/use-case-dialog.ts`)은 순서를 몰라도 됩니다.
+- **취소**: 열기 도중 닫으면 앞 순서가 남은 단계를 계속 밟으면 안 됩니다. 순서마다 번호(`runRef`)를 받고, 번호가 바뀌면 멈춥니다.
+- **화면은 단계만 읽음**: 상자 `CaseOuterBox`는 `lidOpen = phase !== 'closed'`, `unboxed = phase가 unboxed·open`을 받아 CSS transition으로 움직입니다. 표지가 넘어가는 조건은 `phase === 'open'`입니다.
+- **카트리지 상자(SFC·GB·GBA, form `carton`)**: 같은 단계를 밟습니다. 상자가 빠지면 설명서(`ManualFront`)와 그 아래 카트리지(`Cartridge`)가 드러나고, 설명서가 펼쳐지면 안쪽 면(`ManualInner`)에 패치 정보가 보입니다. 상자가 있는지는 `hasOuterBox(spec)` 하나로 판단합니다.
+- **앞면**: 넘어가는 앞면은 `CaseFront`입니다. GC는 표지가 상자에 인쇄되어 있으므로 게임 이름만 쓴 검은 케이스 앞면이고, 진열장의 표지(`CaseCover`)는 상자 앞면입니다. 선반 등줄기도 상자 옆면이라 흰 종이에 윗부분만 검은 기종 띠(`paper-band`)이고, 윗뚜껑은 상자 앞면과 같은 기종 색(`caseClass`)에 판지 테두리(`paper-lid`)만 더합니다.
 
 ## 11. 홈 진열장 (`/`)
 

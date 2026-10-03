@@ -16,13 +16,16 @@ const CENTER = 50;
  *   React 상태가 아니라 요소의 style을 직접 바꿔서, 마우스를 움직일 때마다 다시 렌더링하지 않는다.
  * - requestAnimationFrame으로 화면 갱신 한 번에 한 번만 계산한다(마우스 이벤트는 그보다 훨씬 자주 온다).
  * - 마우스가 없으면(휴대폰) CSS 애니메이션이 반사를 저절로 흘려 보낸다. 동작 줄이기 설정이면 멈춘다.
+ * - tone: rainbow(무지개) · cool(차가운 푸른빛)
  */
 export function HoloText({
   children,
   className = '',
+  tone = 'rainbow',
 }: {
   readonly children: ReactNode;
   readonly className?: string;
+  readonly tone?: 'rainbow' | 'cool';
 }) {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -52,7 +55,7 @@ export function HoloText({
   }, []);
 
   return (
-    <span ref={ref} className={`holo-text ${className}`}>
+    <span ref={ref} className={`holo-text ${tone === 'cool' ? 'holo-cool' : ''} ${className}`}>
       {children}
     </span>
   );

@@ -261,13 +261,14 @@
 - **덤으로 확인할 것**: 콘솔의 404. 이번에는 사이트 아이콘이 없어서 페이지마다 `/favicon.ico` 404가 났습니다. Next.js는 `app/icon.svg`를 두면 `<link rel="icon">`을 자동으로 넣어 줍니다.
 
 ### CSS로 실물 재질 그리기 (Wii 케이스) ★★
-- **볼 것**: `src/entities/patch/ui/case-materials.css`, `wii-keepcase.tsx`
-- **Tailwind v4 `@utility`**: 긴 CSS를 이름 하나(`plastic-white`, `disc-surface` …)로 묶어 클래스처럼 씁니다. 재질처럼 여러 속성이 한 덩어리인 스타일에 좋습니다.
+- **볼 것**: `src/entities/patch/ui/case-materials.css`, `keepcase.tsx`
+- **Tailwind v4 `@utility`**: 긴 CSS를 이름 하나(`plastic-body`, `disc-surface` …)로 묶어 클래스처럼 씁니다. 재질처럼 여러 속성이 한 덩어리인 스타일에 좋습니다.
 - **재질 표현 도구**
   - 플라스틱 광택: `linear-gradient`(빛 방향) + `box-shadow: inset …`(턱·오목한 면)
   - 디스크 금속 반사: `conic-gradient`(원뿔형, 각도에 따라 밝기가 바뀜) 두 겹(은빛 + 옅은 무지개)
   - 허브의 꽃잎 무늬: `repeating-conic-gradient`(같은 무늬를 각도마다 반복)
 - **실물 색과 화면 모드 색을 나누기**: 케이스·디스크 라벨처럼 실제 물건의 색은 어두운 화면에서도 바뀌지 않아야 합니다. 라벨 글자에 화면 모드 토큰(`text-ink`)을 썼다가 어두운 화면에서 흰 라벨에 밝은 글자가 올라간 적이 있습니다.
+- **색 묶음(변수)으로 같은 구조 재사용**: Wii와 Wii U 케이스는 구조가 같고 색만 다릅니다. 재질 utility는 색을 직접 쓰지 않고 `--p-hi`, `--p-groove` 같은 변수를 쓰며, 케이스 바깥에 `plastic-tone-white`/`plastic-tone-blue`를 붙이면 안쪽 부품 전체가 그 색을 따릅니다(CSS 변수는 자식에게 상속됨). 새 색 케이스는 색 묶음 하나만 추가하면 됩니다.
 - **크기는 전부 비율로**: 케이스 폭·높이에 대한 %와 cqw로 잡아서, 진열장의 작은 표지와 열린 큰 케이스가 같은 그림입니다.
 - **0으로 나누기 방어**: 화면이 접혀 크기가 0이면 이동 계산에서 `NaN`, `Infinity`가 나옵니다(콘솔 경고로 발견). 크기를 잴 수 없으면 연출을 건너뜁니다.
 - **문서**: MDN `conic-gradient()`, `repeating-conic-gradient()`, Tailwind v4 "Adding custom utilities"
@@ -295,6 +296,15 @@
 - 세로쓰기에서도 `whitespace-nowrap` + `text-overflow: ellipsis`로 한 줄 말줄임이 됩니다.
 - 휴대폰 선반은 `overflow-x-auto` + `scroll-snap`으로 손가락으로 넘길 때 케이스 단위로 멈춥니다.
 
+### 단계(phase)로 연출 순서 짜기 ★★
+- **볼 것**: `apps/web/src/widgets/case-viewer/lib/phases.ts`, `model/use-case-dialog.ts`
+- **핵심**
+  - 여러 단계가 이어지는 연출은 boolean 여러 개보다 **상태 하나(유니언 타입)** 가 다루기 쉽습니다. 불가능한 조합(뚜껑은 닫혔는데 케이스는 열림)이 생기지 않습니다.
+  - 순서를 `{ phase, holdMs }` 목록(데이터)으로 두면, 열기·닫기를 목록만 바꿔 재사용합니다.
+  - 비동기 순서를 중간에 멈추려면 "지금 순서 번호"를 ref에 두고 비교합니다(취소 토큰). AbortController와 같은 생각입니다.
+  - `perspective` **속성**은 바로 아래 자식의 3D 회전에 원근을 줍니다. transform 안의 `perspective()` 함수와 결과는 같지만, 클래스가 간단해집니다.
+- **문서**: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -309,6 +319,11 @@
 | 콘솔 에러 정리 | 10절: hydration 에러를 가르는 법(확장 프로그램), 사이트 아이콘(app/icon.svg) |
 | Wii 실물 케이스 | 10절: CSS로 실물 재질 그리기(@utility, conic-gradient), 실물 색과 화면 모드 색 |
 | Wii 케이스 피드백 반영 | 10절: 마우스를 따라가는 홀로그램 글자(background-clip, CSS 변수, rAF). 경첩 쪽 모서리, cqw 기준 컨테이너 통일 |
+| Wii U 케이스·Wii 순백색 | 10절: 색 묶음(CSS 변수 상속)으로 같은 구조 재사용 |
+| 앞면 통일·등줄기 색 맞춤 | 10절(색 묶음): 앞면은 케이스 위에 바로 인쇄(--p-ink), 선반 등줄기도 같은 색 묶음(plastic-spine). 컴포넌트 파일에서는 컴포넌트만 내보내기(useComponentExportOnlyModules → 상수는 lib로) |
+| GC 종이상자 케이스 | 10절: 단계(phase)로 연출 순서 짜기, 취소 토큰, perspective 속성. 홀로그램 색을 CSS 변수 기본값(`var(--holo-1, …)`)으로 열어 두고 `holo-cool`로 바꾸기, 기종별 디스크 라벨 표(DISC_PRINTS) |
+| 3DS·NDS 킵 케이스·실물 비율 크기 | 10절(색 묶음): 같은 킵 케이스 부품에 받침(holder)만 바꿔 3DS 카드 받침 추가, NDS는 같은 구조에 차콜 색 묶음. 받침 안쪽(T자 경첩 표시·카드 틀·고정 탭·손가락 홈·긴 걸쇠)은 실물 사진 기준. 재질 파일이 300줄을 넘어 `cart-materials.css`로 나눔(noExcessiveLinesPerFile). 실물 치수를 기준 기종 대비 비율로 바꿔 Tailwind 고정 클래스로 적기, 작은 화면에서 내용 줄이기(compact) |
+| SFC·GB·GBA 카트리지 상자·게임팩 모양 | 10절: 같은 열기 단계에 다른 부품(설명서·카트리지)을 끼우기, clip-path로 윤곽 자르기(그림자는 drop-shadow), 형태 판단을 함수 하나(`hasOuterBox`)로 모으기, CSS 파일 나누기(재질별) |
 
 ## 11. 다음 단계에서 만날 것 ★
 
