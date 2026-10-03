@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  // 터미널에서 작업별 로그를 탭으로 나눠 보여 준다.
+  "ui": "tui",
+  // AI 에이전트가 명령을 실행할 때 루트에 AGENTS.md를 자동으로 만드는 기능을 끈다.
+  "agentGuidance": false,
+  // 각 패키지의 package.json scripts 중 같은 이름을 가진 것을 "작업"으로 묶어 실행한다.
+  "tasks": {
+    "build": {
+      // ^ 는 "내가 의존하는 패키지의 같은 작업을 먼저"라는 뜻이다(예: web 빌드 전에 shared 빌드).
+      "dependsOn": ["^build"],
+      // 캐시에 저장할 결과물. 입력이 같으면 다음엔 빌드하지 않고 이걸 되살린다.
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "test": {
+      "dependsOn": ["^test"]
+    },
+    // web에만 있는 작업(Steiger). 의존 순서가 필요 없다.
+    "lint:fsd": {},
+    "dev": {
+      // 개발 서버는 결과물이 없고 계속 켜져 있으므로 캐시하지 않는다.
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

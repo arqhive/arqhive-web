@@ -1,6 +1,7 @@
 {
   "extends": "@arqhive/tsconfig/workers.json",
   "compilerOptions": {
+    // `wrangler types`가 wrangler.jsonc를 읽어 만든 타입(Workers 런타임 API + 바인딩의 Env 타입).
     "types": ["./worker-configuration.d.ts"]
   },
   "include": ["src", "test"]

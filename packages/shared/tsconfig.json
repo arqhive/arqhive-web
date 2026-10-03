@@ -1,4 +1,5 @@
 {
+  // 브라우저·Workers 어디서나 쓰이는 순수 TS 설정
   "extends": "@arqhive/tsconfig/library.json",
   "include": ["src"]
 }

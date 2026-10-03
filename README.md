@@ -39,3 +39,8 @@ pnpm dev
 ## 설계 결정
 
 [`docs/adr/`](docs/adr/README.md)에 결정마다 이유를 남깁니다.
+
+## 학습 자료
+
+- [앱 흐름](docs/learning/app-flow.md): 지금까지 만든 것이 어떤 순서로 움직이는지
+- [공부해 볼 것](docs/learning/study-guide.md): 이 저장소에서 쓰는 도구와 개념

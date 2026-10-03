@@ -1,15 +1,18 @@
+# GitHub Actions 워크플로. GitHub가 이 파일을 읽고, 아래 조건이 되면 깨끗한 리눅스 가상 머신에서 작업을 실행한다.
 name: CI
 
+# 언제 실행할지: PR을 열거나 고칠 때, main에 푸시할 때
 on:
   pull_request:
   push:
     branches: [main]
 
-# 같은 PR에 새 커밋이 올라오면 이전 실행은 취소한다.
+# 같은 브랜치·PR에 새 커밋이 올라오면 이전 실행은 취소한다(Actions 시간 절약).
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# 이 워크플로가 가진 GitHub 권한. 검사만 하므로 읽기만 준다(최소 권한 원칙).
 permissions:
   contents: read
 
@@ -19,22 +22,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # 저장소 코드를 가상 머신으로 받는다.
       - uses: actions/checkout@v7
 
-      # package.json의 packageManager에 적힌 pnpm 버전을 쓴다.
+      # package.json의 packageManager에 적힌 pnpm 버전을 설치한다. 로컬과 CI의 pnpm 버전이 항상 같다.
       - uses: pnpm/action-setup@v6
 
+      # .nvmrc에 적힌 Node 버전을 설치하고, pnpm 내려받기 캐시를 켠다.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
+      # --frozen-lockfile: pnpm-lock.yaml과 package.json이 어긋나면 고치지 말고 실패한다.
+      # "내 PC에선 됐는데" 문제를 막는다. 잠금 파일을 커밋하지 않고 의존성을 바꾸면 여기서 걸린다.
       - name: 의존성 설치 (잠금 파일과 다르면 실패)
         run: pnpm install --frozen-lockfile
 
+      # biome ci: check와 같지만 파일을 고치지 않고 검사만 하며, CI에 맞는 형식으로 결과를 낸다.
       - name: Biome (린트 · 포맷)
         run: pnpm biome ci .
 
+      # Turborepo 결과 캐시를 실행 사이에 보관한다. 바뀌지 않은 패키지는 다시 검사하지 않는다.
       - name: Turborepo 캐시
         uses: actions/cache@v6
         with:
@@ -42,9 +51,11 @@ jobs:
           key: turbo-${{ runner.os }}-${{ github.sha }}
           restore-keys: turbo-${{ runner.os }}-
 
+      # 각 패키지의 typecheck·lint:fsd·test·build 스크립트를 의존 순서에 맞춰 병렬로 실행한다.
       - name: 타입 검사 · FSD 규칙 · 테스트 · 빌드
         run: pnpm turbo run typecheck lint:fsd test build --cache-dir=.turbo/cache
         env:
+          # 도구들의 사용 통계 전송을 끈다.
           NEXT_TELEMETRY_DISABLED: '1'
           TURBO_TELEMETRY_DISABLED: '1'
           WRANGLER_SEND_METRICS: 'false'

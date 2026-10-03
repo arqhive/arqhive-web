@@ -68,6 +68,15 @@
   },
   "overrides": [
     {
+      // 공용 TS 설정 파일은 이름이 tsconfig.json이 아니라 Biome이 일반 JSON으로 본다. TS는 주석을 허용하므로 맞춰 준다.
+      "includes": ["packages/tsconfig/*.json"],
+      "json": {
+        "parser": {
+          "allowComments": true
+        }
+      }
+    },
+    {
       // 프로젝트 전체에서 끄는 규칙. 끌 때마다 이유를 적는다. (ADR 0007)
       "includes": ["**"],
       "linter": {

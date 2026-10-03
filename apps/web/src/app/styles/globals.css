@@ -1,3 +1,5 @@
+/* Tailwind CSS v4: 설정 파일(tailwind.config.js) 없이 CSS에서 바로 불러온다.
+   디자인 토큰도 나중에 이 파일의 @theme 블록에 CSS 변수로 정의한다. */
 @import "tailwindcss";
 
 /* 디자인 토큰(글꼴·색·간격)은 1단계에서 디자인 방향(docs/project-plan.md 10장)에 맞춰 정한다. */

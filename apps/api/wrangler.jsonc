@@ -1,11 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare에 배포될 Worker 이름. 주소는 arqhive-api.<계정>.workers.dev가 된다.
   "name": "arqhive-api",
   "main": "src/index.ts",
+  // Workers 런타임의 동작 기준일. 이 날짜 이후에 바뀐 런타임 동작은 적용되지 않아서, 배포해도 갑자기 동작이 바뀌지 않는다.
   "compatibility_date": "2026-10-01",
+  // Node.js 내장 모듈(일부)을 쓸 수 있게 한다. 여러 npm 패키지가 이걸 기대한다.
   "compatibility_flags": ["nodejs_compat"],
+  // Cloudflare 대시보드에서 요청 로그(Workers Logs)를 볼 수 있게 한다.
   "observability": {
     "enabled": true
   }
   // Queues·Cron·Workers AI·Vectorize 바인딩은 각 기능을 만드는 단계에서 추가한다.
+  // 바인딩을 추가하면 `pnpm --filter @arqhive/api typegen`으로 Env 타입을 다시 만든다.
 }

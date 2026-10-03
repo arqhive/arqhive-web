@@ -2,30 +2,47 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "공통 기본 설정 (최대한 엄격하게)",
   "compilerOptions": {
+    // ── 어떤 JS를 대상으로, 어떻게 모듈을 찾을지 ──
     "target": "ES2024",
     "lib": ["ES2024"],
     "module": "ESNext",
+    // 번들러(Next.js, wrangler의 esbuild)가 import를 해석하는 방식에 맞춘다. package.json의 exports를 따른다.
     "moduleResolution": "Bundler",
+    // import/export가 없는 파일도 모듈로 본다(전역 변수 충돌 방지).
     "moduleDetection": "force",
     "resolveJsonModule": true,
+    // 파일 하나씩 따로 변환해도 안전한 코드만 허용한다. esbuild·SWC 같은 빠른 변환기가 이 조건을 요구한다.
     "isolatedModules": true,
+    // 타입만 가져올 때는 반드시 `import type`을 쓰게 한다. 변환 후 남는 import가 코드에 쓰인 그대로라 예측하기 쉽다.
     "verbatimModuleSyntax": true,
+    // `./platform.ts`처럼 확장자까지 적어 import할 수 있게 한다(noEmit이라 가능).
     "allowImportingTsExtensions": true,
+    // tsc는 타입 검사만 한다. 실제 JS 출력은 Next.js·wrangler가 맡는다.
     "noEmit": true,
+    // node_modules 안의 .d.ts는 검사하지 않는다(속도).
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
+    // ── 엄격함 ──
+    // strictNullChecks, noImplicitAny 등 기본 엄격 옵션 묶음.
     "strict": true,
+    // arr[0], obj[key]의 결과에 undefined 가능성을 붙인다. "있을 거라고 가정"하는 실수를 막는다.
     "noUncheckedIndexedAccess": true,
+    // { a?: string }에 a: undefined를 직접 넣는 것을 막는다. "없음"과 "undefined 값"을 구분한다.
     "exactOptionalPropertyTypes": true,
+    // 부모 메서드를 덮어쓸 때 override 키워드를 강제한다.
     "noImplicitOverride": true,
+    // 함수의 모든 갈래에서 값을 돌려주게 한다.
     "noImplicitReturns": true,
+    // switch에서 break 없이 다음 case로 흘러가는 것을 막는다.
     "noFallthroughCasesInSwitch": true,
+    // 인덱스 시그니처 객체는 obj.key 대신 obj['key']로 쓰게 해서, 정해진 키가 아님을 드러낸다.
     "noPropertyAccessFromIndexSignature": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    // catch (e)의 e를 any가 아닌 unknown으로 본다.
     "useUnknownInCatchVariables": true
   }
 }

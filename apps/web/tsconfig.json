@@ -1,10 +1,12 @@
 {
   "extends": "@arqhive/tsconfig/nextjs.json",
   "compilerOptions": {
+    // `@/pages/home`처럼 src 기준 경로로 가져온다. FSD 층 이름이 경로에 그대로 드러난다.
     "paths": {
       "@/*": ["./src/*"]
     }
   },
+  // next-env.d.ts와 .next/types는 `next typegen`이 만든다(라우트 타입 등).
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

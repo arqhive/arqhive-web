@@ -3,7 +3,9 @@
   "display": "Cloudflare Workers",
   "extends": "./base.json",
   "compilerOptions": {
+    // Workers는 브라우저도 Node도 아니다. DOM 타입을 빼고, 런타임 타입은 `wrangler types`가 만든 파일로 넣는다.
     "lib": ["ES2024"],
+    // @types/* 를 자동으로 끌어오지 않는다(Node 타입이 섞이면 Workers에 없는 API를 써도 통과해 버린다).
     "types": []
   }
 }
