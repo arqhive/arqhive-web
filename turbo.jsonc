@@ -10,7 +10,7 @@
       // ^ 는 "내가 의존하는 패키지의 같은 작업을 먼저"라는 뜻이다(예: web 빌드 전에 shared 빌드).
       "dependsOn": ["^build"],
       // 캐시에 저장할 결과물. 입력이 같으면 다음엔 빌드하지 않고 이걸 되살린다.
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", ".velite/**"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]

@@ -1,0 +1,47 @@
+---
+slug: "another-code-r"
+titleKo: "어나더 코드 R 기억의 문"
+titleOriginal: "アナザーコード：R 記憶の扉"
+titleEn: "Another Code: R — A Journey into Lost Memories"
+platform: "wii"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "another-code-r-korean-translation"
+baseRegion: "EU"
+baseRequirements:
+  - region: "EU"
+    gameId: "RNOP01"
+    dumpFormat: "ISO/WBFS (CISO·WIA·WDF 가능, RVZ·NKit 미지원)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "유럽판 디스크에 일본어판 원문 기준 번역을 넣음. 일본판·북미판 불가. 업데이트 파티션을 뺀 덤프도 적용. 빈 공간 약 10GB"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "disc file patcher (패치하기.bat + patch.ps1, wit + xdelta3 파일별 차분)"
+latestVersion: "v0.1"
+latestReleaseDate: "2026-09-28"
+translationScope: "대사 전체(본편·조사·상호작용·줄거리·퍼즐), 인물·아이템 설명, DAS 메일, 기억 퀴즈, 세이브·오류 메시지, 장·장소 이름, 그림 글씨(타이틀 로고, 장소 이름 띠, 지도, 인물 소개 카드, 이름표, DAS 메뉴, 장 제목, 오프닝 자막, 엔딩 이름, 스트랩 경고, 세이브 배너), 폰트 4벌에 한글 2,350자"
+compatibility:
+  - environment: "Dolphin"
+    status: "works"
+    note: null
+  - environment: "Wii U vWii (UWUVCI 주입, 60Hz)"
+    status: "works"
+    note: "PAL to NTSC 패치를 끄고 주입"
+knownIssues:
+  - "영상에 박힌 영어(엔딩 헌사 문구 등)는 그대로입니다."
+  - "장 제목의 'Chapter 1' 같은 장 번호 글씨는 영어 그대로입니다."
+  - "퍼즐의 얼굴 인증 화면에서 한 줄 문구가 상자 아래쪽에 걸쳐 나옵니다."
+extraDownloads: []
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 일부 도구는 같은 제작자의 「돌격!! 패미컴 워즈 VS」·「죄와 벌 우주의 후계자」·「디재스터」 패치 도구 기반. 상표·저작권은 Nintendo와 CING."
+summary: "Wii 「어나더 코드 R 기억의 문」을 일본어판 원문 기준으로 번역해 유럽판 디스크에 넣은 한글 패치입니다. 대사·설명·그림 글씨를 한글화했고 본체 언어 설정과 관계없이 한국어로 나옵니다."
+featured: false
+---
+
+Wii 「어나더 코드 R 기억의 문」을 일본어판 원문 기준으로 번역해 유럽판 디스크에 넣은 한글 패치입니다. 대사·설명·그림 글씨를 한글화했고 본체 언어 설정과 관계없이 한국어로 나옵니다.
+
+## 적용하기
+
+ZIP을 풀고 원본 유럽판 이미지를 패치하기.bat 위에 끌어다 놓습니다. 완료되면 같은 폴더에 Another Code R (Korean) [RNOP01].iso(또는 .wbfs)가 생깁니다. UWUVCI로 Wii U에 주입할 때는 PAL to NTSC 영상 모드 패치를 꺼야 합니다.

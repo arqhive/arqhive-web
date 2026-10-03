@@ -1,0 +1,51 @@
+---
+slug: "metroid-prime-federation-force"
+titleKo: "메트로이드 프라임 페더레이션 포스"
+titleOriginal: "メトロイドプライム フェデレーションフォース"
+titleEn: "Metroid Prime: Federation Force"
+platform: "3ds"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "mpff-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "CTR-P-BCAJ / 000400000016CE00"
+    dumpFormat: "설치된 일본판(LayeredFS) 또는 .cia / .3ds(패처)"
+    md5: "0ab9fff6f004e27f939374cdbfb46648"
+    sha1: "c18661f265c4c7a95f05b9feafcf6405ed0aa425"
+    crc32: "A2DBDBC8"
+    note: "해시는 romfs의 init.jp 값(367,785 바이트). init.dict 원본 MD5 1c3687092ba7ed23fbdfb1fb9dd299b3. 업데이트 v1.2.0 설치돼 있어도 됨. 북미판(000400000016E300) 불가. 암호화 원본은 boot9.bin·seeddb.bin 필요"
+patchMethod: "3ds-layeredfs-cia"
+patchMethodLabel: "LayeredFS 또는 CIA 패처(패치하기.bat)"
+latestVersion: "v0.3"
+latestReleaseDate: "2026-09-26"
+translationScope: "게임 내 문자열 2,119개 전부(대사, 브리핑, 메뉴, HUD, 칩 설명, 데이터뱅크 로그, 시스템 메시지), 폰트 아틀라스에 한글 775자, 타이틀 띠 2종, HOME 메뉴 배너·아이콘(패처)"
+compatibility:
+  - environment: "3DS + Luma3DS (LayeredFS)"
+    status: "works"
+    note: null
+  - environment: "3DS (패처로 만든 CIA 설치)"
+    status: "works"
+    note: null
+  - environment: "Azahar"
+    status: "works"
+    note: null
+knownIssues:
+  - "LayeredFS로는 HOME 메뉴 제목과 배너가 바뀌지 않습니다(패처 CIA는 바뀜)."
+  - "타이틀 띠 교체 때문에 pak 두 개(19MB)를 통째로 배포합니다."
+  - "시리즈 로고와 A/B/X/Y 버튼 글리프는 원문 그대로입니다."
+  - "일본판이 아닌 본체에서는 locale.txt가 없으면 시작 직후 크래시합니다."
+extraDownloads: []
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 폰트 Pretendard(Kil Hyung-jin, OFL 1.1). 상표·저작권은 Nintendo."
+summary: "3DS 일본판 「메트로이드 프라임 페더레이션 포스」의 문자열 2,119개와 타이틀 띠를 한글화한 패치입니다. 대사는 북미판 원문 기준으로 번역하고 용어는 일본판 표기를 따랐습니다."
+featured: false
+---
+
+3DS 일본판 「메트로이드 프라임 페더레이션 포스」의 문자열 2,119개와 타이틀 띠를 한글화한 패치입니다. 대사는 북미판 원문 기준으로 번역하고 용어는 일본판 표기를 따랐습니다.
+
+## 적용하기
+
+방법 A: LayeredFS ZIP의 luma 폴더를 SD 루트에 풀고 Luma3DS에서 Enable game patching을 켭니다. 방법 B: 패처 ZIP을 풀고 일본판 .cia/.3ds를 패치하기.bat에 끌어다 놓아 _KO CIA를 만들어 설치합니다(HOME 메뉴 배너까지 한글). 어느 방법이든 sd:/luma/titles/000400000016CE00/locale.txt(JPN JP)가 필요합니다.

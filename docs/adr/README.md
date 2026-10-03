@@ -14,6 +14,7 @@
 | [0006](0006-fsd-and-api-modules.md) | web은 FSD, api는 기능별 모듈로 나눈다 | 채택 |
 | [0007](0007-strict-biome.md) | 린트는 Biome을 최대한 엄격하게 쓴다 | 채택 |
 | [0008](0008-shelf-design.md) | 디자인은 진열장 콘셉트로 한다 | 채택 |
+| [0009](0009-design-tokens-archive.md) | 디자인 토큰은 2안 "기록보관소"로 한다 | 채택 |
 
 ## 양식
 

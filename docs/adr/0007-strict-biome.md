@@ -25,6 +25,7 @@
 | `noDefaultExport`, `useComponentExportOnlyModules` | `apps/web/app/**` | Next.js 라우팅 규약상 기본 내보내기와 `metadata` 내보내기가 필요하다 |
 | `noDefaultExport` | 설정 파일, Workers 진입점 | 도구가 기본 내보내기를 읽는다 |
 | `noMagicNumbers` | 테스트 | 기대값(상태 코드 등)은 숫자 그대로 적는 편이 읽기 쉽다 |
+| `noHexColors` | `apps/web/src/app/styles/globals.css` | 디자인 토큰을 정의하는 유일한 파일이다. 다른 곳에서는 색을 직접 쓰지 못하게 해서 토큰 사용을 강제한다(2026-10-03 추가) |
 
 - 한 줄만 예외가 필요하면 `biome-ignore` 주석에 이유를 적는다(예: Hono의 `Bindings` 키 이름).
 - TypeScript도 엄격하게 한다: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals` 등.

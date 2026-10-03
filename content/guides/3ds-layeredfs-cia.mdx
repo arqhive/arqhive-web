@@ -1,0 +1,24 @@
+---
+slug: "3ds-layeredfs-cia"
+title: "3DS: LayeredFS · CIA 패처"
+summary: "Luma3DS의 LayeredFS로 덮어씌우거나, 패처로 한글판 CIA를 만들어 설치합니다."
+platforms: ["3ds"]
+---
+
+> 초안입니다. 작품에 따라 LayeredFS를 쓸 수 없는 경우가 있으니 작품 페이지를 먼저 봅니다.
+
+## 방법 A: LayeredFS
+
+1. LayeredFS ZIP의 `luma` 폴더를 SD 카드 맨 위에 복사합니다.
+2. Luma3DS 설정에서 **Enable game patching**을 켭니다.
+3. 에뮬레이터(Azahar)는 Mods Location에 `romfs`를 복사합니다.
+
+## 방법 B: CIA 패처
+
+1. 패처 ZIP을 폴더째 풀고, 원본 `.cia`(또는 `.3ds`)를 `패치하기.bat`에 끌어다 놓습니다.
+2. 만들어진 `_KO` 파일을 FBI 등으로 설치합니다(기존 설치본은 먼저 지웁니다).
+3. 업데이트 데이터를 쓰고 있다면 업데이트도 한글판으로 바꿔야 합니다.
+
+## 알아 둘 것
+
+- 한국판 3DS 본체에서 일본판 게임을 돌릴 때는 `sd:/luma/titles/<타이틀 ID>/locale.txt`로 지역을 지정해야 하는 경우가 있습니다.

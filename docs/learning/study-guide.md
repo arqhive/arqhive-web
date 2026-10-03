@@ -1,4 +1,6 @@
-# 공부해 볼 것 (0단계 기준)
+# 공부해 볼 것 (1단계 진행 중 기준)
+
+> 커밋마다 새로 등장한 도구·개념을 더합니다. 맨 아래 "갱신 기록"에 무엇이 추가됐는지 적습니다.
 
 프론트엔드 경력 8년을 전제로, **이미 익숙할 부분은 빼고** 이 저장소에서 새로 만나는 도구와 개념만 골랐습니다.
 
@@ -155,12 +157,46 @@
 ### ADR ★★
 - `docs/adr/`. 결정의 이유와 버린 대안을 남기는 습관은 면접에서 설계 판단을 설명할 때 그대로 쓰입니다.
 
-## 8. 다음 단계에서 만날 것 ★
+## 8. 1단계에서 새로 등장한 것
+
+### 콘텐츠: MDX · frontmatter · Velite ★★★
+- **볼 것**: `content/patches/star-fox-assault/index.mdx`, `packages/content/velite.config.ts`
+- **핵심**
+  - **MDX**: 마크다운 안에 JSX 컴포넌트를 쓸 수 있는 형식입니다. `{`, `<`가 코드로 해석되므로 본문에 그대로 쓰면 오류가 납니다(`\{`, `&lt;`로 씁니다).
+  - **frontmatter**: 파일 맨 위 `---` 사이의 YAML 데이터입니다. 제목, 기종, 버전 같은 "구조화된 정보"를 여기에 둡니다. YAML 주석(`# 확인 필요`)도 쓸 수 있습니다.
+  - **Velite**: frontmatter를 Zod 스키마로 검사하고, 타입이 붙은 JSON + `.d.ts`로 내보냅니다. "콘텐츠도 타입 검사를 받는다"가 핵심입니다.
+  - **Velite의 Zod는 3판**입니다(`s`). 우리 `shared`는 Zod 4라서 스키마 객체를 섞지 않고 값 목록(`PLATFORMS`)만 공유합니다. 라이브러리가 의존성을 안에 묶어 배포할 때 생기는 버전 차이의 예입니다.
+- **해 볼 것**: 작품 MDX의 `platform`을 틀린 값으로 바꾸고 `pnpm --filter @arqhive/content build`를 실행해 오류 메시지를 읽어 보세요.
+- **문서**: https://velite.js.org, https://mdxjs.com
+
+### 디자인 토큰: Tailwind v4 `@theme` · CSS 변수 · 화면 모드 ★★★
+- **볼 것**: `apps/web/src/app/styles/globals.css`(단계별 주석)
+- **핵심**
+  - Tailwind v4는 설정 파일 대신 **CSS 안의 `@theme`**에 토큰을 적습니다. `--color-paper`를 정의하면 `bg-paper`, `text-paper` 같은 클래스가 생깁니다.
+  - `@theme inline`과 그냥 `@theme`의 차이: inline은 변수 참조를 그대로 넣어 런타임에 값이 바뀔 수 있게 합니다(화면 모드용).
+  - `@custom-variant dark (…)`: `dark:` 접두사가 무엇을 기준으로 동작할지 정합니다(여기서는 `data-theme`).
+  - `prefers-color-scheme`(시스템 설정)과 `color-scheme` 속성(스크롤바·폼 컨트롤 색까지 맞춤)
+- **문서**: https://tailwindcss.com/docs/theme, MDN `prefers-color-scheme`
+
+### next/font ★★
+- **볼 것**: `apps/web/src/app/styles/fonts.ts`
+- **핵심**: 빌드 때 글꼴을 받아 자체 호스팅합니다(개인정보·속도). `variable`로 CSS 변수를 만들고 `<html>`에 클래스를 붙입니다. 대체 글꼴의 크기를 자동으로 맞춰 글꼴이 바뀔 때 화면이 덜 흔들립니다(`… Fallback`).
+- **문서**: Next.js 문서의 Font Optimization
+
+### 글꼴 라이선스 ★
+- 사이트에 쓰는 글꼴은 **SIL Open Font License(OFL)**입니다. 상업적 이용과 웹 포함이 허용되지만, 글꼴 파일 자체를 따로 판매할 수는 없습니다. 패치에 쓴 글꼴을 사이트에 쓰려면 라이선스를 먼저 확인합니다.
+
+## 갱신 기록
+
+| 커밋 | 추가한 내용 |
+|---|---|
+| 0단계 골격 | 1~7절 |
+| 1단계 콘텐츠·디자인 토큰 | 8절: MDX·frontmatter·Velite, Tailwind v4 토큰·화면 모드, next/font, 글꼴 라이선스 |
+
+## 9. 다음 단계에서 만날 것 ★
 
 | 단계 | 도구·개념 | 문서 |
 |---|---|---|
-| 1 | Tailwind CSS v4의 `@theme`(CSS 변수로 디자인 토큰) | https://tailwindcss.com/docs |
-| 1 | MDX + Velite(콘텐츠를 Zod 스키마로 검사) | https://velite.js.org |
 | 1 | shadcn/ui + Radix(동작만 가져오고 모양은 재정의) | https://ui.shadcn.com |
 | 1 | Storybook, Chromatic(컴포넌트 문서·화면 회귀 검사) | https://storybook.js.org |
 | 1 | CSS 3D transform, View Transitions(진열장 케이스 연출) | MDN |

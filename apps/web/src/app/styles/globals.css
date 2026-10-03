@@ -1,5 +1,101 @@
-/* Tailwind CSS v4: 설정 파일(tailwind.config.js) 없이 CSS에서 바로 불러온다.
-   디자인 토큰도 나중에 이 파일의 @theme 블록에 CSS 변수로 정의한다. */
+/* Tailwind CSS v4: 설정 파일(tailwind.config.js) 없이 CSS에서 바로 불러오고, 토큰도 여기서 정한다. */
 @import "tailwindcss";
 
-/* 디자인 토큰(글꼴·색·간격)은 1단계에서 디자인 방향(docs/project-plan.md 10장)에 맞춰 정한다. */
+/* ─────────────────────────────────────────────────────────────
+   디자인 토큰 2안 · 기록보관소 (ADR 0009)
+   회백 종이 · 남색 잉크 · 도장 빨강, 모서리 없음, 편집 디자인
+   ───────────────────────────────────────────────────────────── */
+
+/* 1) 의미 단위 색 변수. 밝은 화면이 기본이다. */
+:root {
+  --paper: #eeeee9; /* 바탕 */
+  --card: #f8f8f5; /* 카드·표지 바탕 */
+  --ink: #1e2a3a; /* 본문 글자 */
+  --ink-sub: #5d6673; /* 보조 글자 */
+  --line: #c9cbc6; /* 괘선·테두리 */
+  --shelf: #2f3b4c; /* 선반 */
+  --stamp: #b23a2e; /* 강조(도장 빨강) */
+  --on-stamp: #eeeee9; /* 강조색 위 글자 */
+  color-scheme: light;
+}
+
+/* 2) 어두운 화면. 시스템 설정이 어둡고 사용자가 밝게를 고르지 않았을 때 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12161d;
+    --card: #1a1f28;
+    --ink: #e3e6ea;
+    --ink-sub: #8e97a3;
+    --line: #2a313c;
+    --shelf: #3b4a60;
+    --stamp: #e0584a;
+    --on-stamp: #12161d;
+    color-scheme: dark;
+  }
+}
+
+/* 3) 사용자가 직접 어둡게를 고른 경우(헤더의 전환 버튼이 <html data-theme="dark">를 붙인다) */
+:root[data-theme="dark"] {
+  --paper: #12161d;
+  --card: #1a1f28;
+  --ink: #e3e6ea;
+  --ink-sub: #8e97a3;
+  --line: #2a313c;
+  --shelf: #3b4a60;
+  --stamp: #e0584a;
+  --on-stamp: #12161d;
+  color-scheme: dark;
+}
+
+/* Tailwind의 dark: 접두사를 data-theme 기준으로 바꾼다(시스템 설정은 위의 변수가 처리). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* 4) Tailwind 토큰. `inline`은 값 대신 변수 참조를 그대로 넣으라는 뜻이라, 화면 모드가 바뀌면 함께 바뀐다.
+      예: bg-paper, text-ink, border-line, font-title, rounded-none */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-sub: var(--ink-sub);
+  --color-line: var(--line);
+  --color-shelf: var(--shelf);
+  --color-stamp: var(--stamp);
+  --color-on-stamp: var(--on-stamp);
+
+  --font-title: var(--font-nanum-myeongjo), "Noto Serif KR", serif;
+  --font-body: var(--font-gothic-a1), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-num: var(--font-ibm-plex-mono), ui-monospace, monospace;
+}
+
+/* 5) 화면 모드와 상관없는 토큰: 기종별 케이스 색(등줄기·표지). 실제 제품 로고·고유 디자인은 따라 하지 않는다. */
+@theme {
+  --color-case-gc: #2b2a2e;
+  --color-case-gc-ink: #f2f0ec;
+  --color-case-wii: #fafaf8;
+  --color-case-wii-ink: #222222;
+  --color-case-wiiu: #eaf2f7;
+  --color-case-wiiu-ink: #173a4e;
+  --color-case-3ds: #f6f4f0;
+  --color-case-3ds-ink: #202020;
+  --color-case-nds: #f1f0ec;
+  --color-case-nds-ink: #202020;
+  --color-case-sfc: #dccdb0;
+  --color-case-sfc-ink: #2e2418;
+  --color-case-gb: #cfc8b9;
+  --color-case-gb-ink: #221e18;
+  --color-case-gba: #d5d2dc;
+  --color-case-gba-ink: #24202e;
+
+  /* 모서리: 2안은 각진 편집 디자인이라 기본 둥글기를 쓰지 않는다. */
+  --radius-none: 0;
+}
+
+/* 6) 문서 기본값 */
+@layer base {
+  html {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+}

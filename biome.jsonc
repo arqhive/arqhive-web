@@ -26,6 +26,12 @@
       "arrowParentheses": "always"
     }
   },
+  "css": {
+    "parser": {
+      // Tailwind v4 문법(@theme, @custom-variant 등)을 읽을 수 있게 한다.
+      "tailwindDirectives": true
+    }
+  },
   "assist": {
     "enabled": true,
     "actions": {
@@ -100,6 +106,17 @@
           "style": {
             // 다국어 계획이 없다. 화면 문구는 컴포넌트 옆에 두는 편이 읽기 쉽다.
             "noJsxLiterals": "off"
+          }
+        }
+      }
+    },
+    {
+      // 디자인 토큰을 정의하는 유일한 파일. 다른 곳에서는 16진수 색을 쓰지 못하게 해서 토큰 사용을 강제한다.
+      "includes": ["apps/web/src/app/styles/globals.css"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noHexColors": "off"
           }
         }
       }

@@ -1,0 +1,8 @@
+{
+  // velite.config.ts는 Node에서 실행되고, src는 어느 런타임에서나 쓰이는 데이터 내보내기만 한다.
+  "extends": "@arqhive/tsconfig/library.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src", "velite.config.ts", ".velite"]
+}

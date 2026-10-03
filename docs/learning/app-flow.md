@@ -1,6 +1,11 @@
-# 앱 흐름 (0단계 기준)
+# 앱 흐름 (1단계 진행 중 기준)
 
-0단계(골격)까지 만들어진 것이 **어떤 순서로 움직이는지** 정리한 문서입니다. 단계가 진행되면 갱신합니다.
+지금까지 만들어진 것이 **어떤 순서로 움직이는지** 정리한 문서입니다. 커밋마다 흐름이 바뀌면 갱신합니다.
+
+| 갱신 | 바뀐 흐름 |
+|---|---|
+| 0단계 | 골격: web·api·shared, 검사·CI |
+| 1단계 (콘텐츠·토큰) | 콘텐츠 파이프라인(MDX → Velite), 디자인 토큰(@theme, 글꼴, 화면 모드) — 8·9절 |
 
 > 아직 web과 api는 서로 연결되어 있지 않습니다. 둘을 잇는 `/api/*` 프록시는 3단계에서 붙입니다(마지막 절 참고).
 
@@ -10,11 +15,16 @@
 flowchart LR
   subgraph repo["모노레포 arqhive-web"]
     shared["packages/shared<br/>기종 목록·Zod 스키마"]
+    content["packages/content<br/>MDX → Velite 데이터"]
+    mdx[("content/<br/>작품 19 · 가이드 6 MDX")]
     tsconfig["packages/tsconfig<br/>엄격한 TS 설정"]
     web["apps/web<br/>Next.js + FSD"]
     api["apps/api<br/>Hono on Workers"]
   end
   shared -- "import @arqhive/shared" --> web
+  shared -- "PLATFORMS 값 목록" --> content
+  mdx -- "velite build" --> content
+  content -. "(1단계 다음 작업) 진열장·상세 페이지" .-> web
   shared -. "(앞으로) 같은 스키마" .-> api
   tsconfig -- extends --> web
   tsconfig -- extends --> api
@@ -151,7 +161,49 @@ flowchart TB
 | 테스트 | Vitest | shared 스키마, api health |
 | 빌드 | next build, wrangler | 실제로 배포 가능한 결과물이 나오는지 |
 
-## 8. 다음 단계에서 이어질 부분
+## 8. 콘텐츠가 데이터가 되는 길 (MDX → Velite)
+
+```mermaid
+flowchart LR
+  mdx["content/patches/&lt;slug&gt;/index.mdx<br/>frontmatter(YAML) + 본문(MDX)"] --> v["velite build<br/>(packages/content)"]
+  g["content/guides/*.mdx"] --> v
+  v -- "frontmatter를 스키마로 검사<br/>틀리면 빌드 실패" --> out[".velite/<br/>patches.json · guides.json<br/>index.js · index.d.ts(타입)"]
+  out --> idx["packages/content/src/index.ts<br/>patches, guides, Patch, Guide 내보내기"]
+  idx -. "1단계 다음 작업" .-> web["web: 진열장·목록·상세·가이드"]
+```
+
+- **작품 하나 = 폴더 하나**(`content/patches/<slug>/index.mdx`). 나중에 스크린샷 원본도 같은 폴더에 둡니다.
+- frontmatter의 각 항목(`platform`, `status`, `patchMethod` 등)은 `packages/content/velite.config.ts`의 스키마로 검사됩니다. 예를 들어 `platform: "ps2"`라고 쓰면 빌드가 실패합니다.
+- 본문(MDX)은 Velite가 미리 **함수 코드 문자열**로 컴파일해 둡니다. web은 그 문자열을 React 컴포넌트로 바꿔 그립니다(다음 작업).
+- `.velite/`는 빌드 결과물이라 git에 올리지 않습니다. `content`의 `typecheck`·`build` 스크립트가 먼저 `velite build`를 실행합니다.
+- `patchMethod`는 가이드 slug를 가리킵니다. 작품 페이지의 "적용하기"가 해당 가이드로 연결되는 근거입니다.
+
+## 9. 디자인 토큰이 화면에 닿는 길
+
+```mermaid
+flowchart TB
+  subgraph css["src/app/styles/globals.css"]
+    vars[":root 의미 변수<br/>--paper, --ink, --stamp …"]
+    media["@media (prefers-color-scheme: dark)<br/>시스템이 어두우면 값 교체"]
+    attr[":root[data-theme=dark]<br/>사용자가 고르면 값 교체"]
+    theme["@theme inline<br/>--color-paper: var(--paper) …"]
+  end
+  fonts["src/app/styles/fonts.ts<br/>next/font: 나눔명조·고딕 A1·IBM Plex Mono"] -- "--font-* 변수" --> theme
+  vars --> theme
+  media --> vars
+  attr --> vars
+  theme -- "Tailwind가 클래스 생성" --> cls["bg-paper · text-ink · font-title …"]
+  cls --> ui["컴포넌트 className"]
+  layout["app/layout.tsx<br/>&lt;html className={fontVariables}&gt;"] --> fonts
+```
+
+- **토큰은 두 겹**입니다. 아래 겹은 의미 변수(`--paper`), 위 겹은 Tailwind 토큰(`--color-paper`)입니다. 화면 모드가 바뀌면 아래 겹의 값만 바뀌고, 컴포넌트 코드는 그대로입니다.
+- `@theme inline`은 "값이 아니라 변수 참조를 그대로 넣어라"는 뜻입니다. 그래서 모드 전환이 즉시 반영됩니다.
+- **화면 모드 우선순위**: 사용자가 고른 값(`data-theme`) > 시스템 설정(`prefers-color-scheme`) > 밝은 화면(기본)
+- **글꼴**: `next/font`가 빌드할 때 Google Fonts에서 파일을 받아 사이트에 함께 올립니다. 방문자는 Google 서버에 요청하지 않습니다. 한글 글꼴은 글자 범위별로 나뉜 파일 중 필요한 것만 받습니다.
+- 16진수 색은 `globals.css`에서만 쓸 수 있습니다(Biome `noHexColors`). 다른 파일은 토큰을 써야 합니다.
+
+## 10. 다음 단계에서 이어질 부분
 
 ```mermaid
 flowchart LR

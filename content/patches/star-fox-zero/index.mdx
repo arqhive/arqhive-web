@@ -1,0 +1,47 @@
+---
+slug: "star-fox-zero"
+titleKo: "스타폭스 제로"
+titleOriginal: "スターフォックス ゼロ"
+titleEn: "Star Fox Zero"
+platform: "wiiu"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "star-fox-zero-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "00050000101AFF00"
+    dumpFormat: "덤프한 content/data003.cpk"
+    md5: "7450ce09efac2f405f0a36fe784d44a1"
+    sha1: "9dfa60ddbb9b0e1ebcc313eae6ca081244c312b1"
+    crc32: "1DF78828"
+    note: "data003.cpk 단일 파일 값(815,910,328 바이트). 북미·유럽판 불가"
+patchMethod: "wiiu-sdcafiine"
+patchMethodLabel: "스크립트 패처(패치하기.bat, 임베디드 Python) → SDCafiine / Cemu 그래픽 팩"
+latestVersion: "v1.1"
+latestReleaseDate: "2026-09-20"
+translationScope: "게임 안 텍스트 전체(대사 2,000여 개, HUD, 타이틀·일시정지 메뉴, 브리핑, 트레이닝, 엔딩), 타이틀 로고 「スターフォックス ゼロ」, 엔딩 청구서 이미지"
+compatibility:
+  - environment: "Cemu"
+    status: "works"
+    note: null
+  - environment: "Wii U + Aroma SDCafiine"
+    status: "works"
+    note: null
+knownIssues:
+  - "음성은 일본어 그대로입니다."
+  - "스테이지 간판 등 세계관 속 영어 표기는 그대로입니다."
+  - "아케이드·챌린지 등 일부 화면은 충분히 플레이하며 확인하지 못했습니다."
+extraDownloads: []
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 폰트 Noto Sans KR·나눔손글씨 펜(OFL 1.1). tools/addrlib.py는 aboood40091/BFRES-Tool 코드(GPLv3). 상표·저작권은 Nintendo."
+summary: "Wii U 일본판 「스타폭스 제로」의 게임 내 텍스트 전체와 타이틀 로고·엔딩 청구서 이미지를 한글화한 패치입니다. 원본 data003.cpk로 한글판 파일을 만들어 SDCafiine 또는 Cemu에서 씁니다."
+featured: false
+---
+
+Wii U 일본판 「스타폭스 제로」의 게임 내 텍스트 전체와 타이틀 로고·엔딩 청구서 이미지를 한글화한 패치입니다. 원본 data003.cpk로 한글판 파일을 만들어 SDCafiine 또는 Cemu에서 씁니다.
+
+## 적용하기
+
+ZIP을 풀고 원본 data003.cpk를 패치하기.bat 옆에 두고 실행하면 out\data003.cpk가 만들어집니다. 실기는 Aroma+SDCafiine 경로(sd:\wiiu\sdcafiine\00050000101AFF00\StarFoxZero_KR\content\)에, Cemu는 그래픽 팩 폴더(rules.txt와 content\data003.cpk)에 넣습니다.

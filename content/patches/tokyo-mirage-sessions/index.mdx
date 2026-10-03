@@ -1,0 +1,49 @@
+---
+slug: "tokyo-mirage-sessions"
+titleKo: "환영이문록♯FE"
+titleOriginal: "幻影異聞録♯FE"
+titleEn: "Tokyo Mirage Sessions ♯FE"
+platform: "wiiu"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "tokyo-mirage-sessions-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "0005000010131D00"
+    dumpFormat: "복호화된 게임 파일(content\\Pack 폴더, pack_031_message.cpk 등)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "암호화 상태(.app) 불가. 북미·유럽판, Switch Encore판 불가. 빈 공간 약 6GB"
+patchMethod: "wiiu-sdcafiine"
+patchMethodLabel: "스크립트 패처(패치하기.bat, Python 동봉) → SDCafiine / Cemu 그래픽 팩"
+latestVersion: "v0.1"
+latestReleaseDate: "2026-10-02"
+translationScope: "대사 전체(28,399개 메시지), 게임 폰트 10종에 한글, 글씨 그림 259장과 이펙트 그림 26장, 타이틀 로고 영상·타이틀 로고, 이벤트 동영상 21편 한글 자막(선택)"
+compatibility:
+  - environment: "Wii U 실기 (SDCafiine)"
+    status: "works"
+    note: null
+  - environment: "Cemu 2.6"
+    status: "works"
+    note: null
+knownIssues:
+  - "타이틀 로고 영상의 조립 장면(약 1.3~3.1초)에 일본어 로고가 잠깐 보입니다."
+  - "3D 모델에 그려진 글자(간판·소품)는 일본어 그대로입니다(바꾸면 실기에서 멈춤)."
+  - "프롤로그 영상 속 신문 제목은 일본어 그대로입니다."
+extraDownloads:
+  - label: "동영상 자막 패치(구글 드라이브, 약 3.4GB)"
+    url: "https://drive.google.com/file/d/16qqc3NX-3AZecIR2Mo_DmEXbTtlPON5z/view?usp=drive_link"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·문서 MIT License. Noto Sans KR(OFL 1.1), 나눔스퀘어라운드(OFL 1.1). 패처 동봉 Python(PSF). 상표·저작권은 Nintendo와 ATLUS."
+summary: "Wii U 일본판 「환영이문록♯FE」의 대사 전체와 그림·이펙트·타이틀 로고 영상을 한글화한 첫 시험판 패치입니다. 가진 일본판 게임 파일로 한글판을 만들어 Wii U 실기(SDCafiine)나 Cemu에서 씁니다."
+featured: false
+---
+
+Wii U 일본판 「환영이문록♯FE」의 대사 전체와 그림·이펙트·타이틀 로고 영상을 한글화한 첫 시험판 패치입니다. 가진 일본판 게임 파일로 한글판을 만들어 Wii U 실기(SDCafiine)나 Cemu에서 씁니다.
+
+## 적용하기
+
+TMS_KO_v0.1_Patcher.zip을 풀고(동영상 자막을 원하면 구글 드라이브의 Movies.zip도 같은 곳에 풂) 게임 폴더나 content\Pack 폴더를 패치하기.bat에 끌어다 놓습니다. 출력\sdcafiine은 SD 카드 wiiu\sdcafiine\에, 출력\cemu\TMS_Korean은 Cemu graphicPacks에 넣습니다.
