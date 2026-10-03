@@ -39,6 +39,11 @@ jobs:
       - name: 의존성 설치 (잠금 파일과 다르면 실패)
         run: pnpm install --frozen-lockfile
 
+      # Velite가 만드는 콘텐츠 데이터(.velite/)는 git에 없다. Biome이 import 대상 파일이 실제로 있는지까지
+      # 검사하므로(noUnresolvedImports), 검사 전에 먼저 만들어 둔다.
+      - name: 콘텐츠 데이터 생성 (Velite)
+        run: pnpm --filter @arqhive/content build
+
       # biome ci: check와 같지만 파일을 고치지 않고 검사만 하며, CI에 맞는 형식으로 결과를 낸다.
       - name: Biome (린트 · 포맷)
         run: pnpm biome ci .

@@ -21,6 +21,7 @@
 
 ```bash
 pnpm install
+pnpm build   # 처음 한 번: 콘텐츠 데이터(.velite/) 등 빌드 결과물을 만든다
 pnpm dev
 ```
 

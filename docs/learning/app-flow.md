@@ -148,10 +148,13 @@ flowchart TB
   hook -- 통과 --> push["git push / PR"]
   push --> gha["GitHub Actions (ci.yml)"]
   gha --> s1["pnpm install --frozen-lockfile"]
-  s1 --> s2["biome ci (린트·포맷)"]
+  s1 --> s1b["콘텐츠 데이터 생성<br/>(velite build → .velite/)"]
+  s1b --> s2["biome ci (린트·포맷)"]
   s2 --> s3["turbo run typecheck lint:fsd test build"]
   s3 --> ok["✓ 통과 → 병합 가능<br/>(main 보호 설정 시)"]
 ```
+
+> **왜 Biome보다 Velite가 먼저인가**: Biome은 import한 파일이 실제로 있는지도 검사합니다(`noUnresolvedImports`). `.velite/`는 git에 없는 빌드 결과물이라, 먼저 만들지 않으면 "파일 없음" 오류가 납니다. 로컬에서는 이미 만들어 둔 파일이 있어 통과하고 CI에서만 실패했던 사례가 있습니다(1단계 첫 푸시).
 
 | 검사 | 도구 | 잡는 것 |
 |---|---|---|
