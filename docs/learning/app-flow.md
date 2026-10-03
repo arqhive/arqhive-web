@@ -6,6 +6,7 @@
 |---|---|
 | 0단계 | 골격: web·api·shared, 검사·CI |
 | 1단계 (콘텐츠·토큰) | 콘텐츠 파이프라인(MDX → Velite), 디자인 토큰(@theme, 글꼴, 화면 모드) — 8·9절 |
+| 1단계 (케이스 열기 시제품) | 서버 → 클라이언트 데이터 전달, 케이스 열기 연출 — 10절 |
 
 > 아직 web과 api는 서로 연결되어 있지 않습니다. 둘을 잇는 `/api/*` 프록시는 3단계에서 붙입니다(마지막 절 참고).
 
@@ -206,7 +207,53 @@ flowchart TB
 - **글꼴**: `next/font`가 빌드할 때 Google Fonts에서 파일을 받아 사이트에 함께 올립니다. 방문자는 Google 서버에 요청하지 않습니다. 한글 글꼴은 글자 범위별로 나뉜 파일 중 필요한 것만 받습니다.
 - 16진수 색은 `globals.css`에서만 쓸 수 있습니다(Biome `noHexColors`). 다른 파일은 토큰을 써야 합니다.
 
-## 10. 다음 단계에서 이어질 부분
+## 10. 케이스 열기 (시제품 `/lab/case`)
+
+### 데이터가 화면까지
+
+```mermaid
+flowchart LR
+  c["@arqhive/content<br/>patches(본문 포함, 큼)"] --> p["pages/case-lab<br/>case-lab-page.tsx (서버 컴포넌트)"]
+  p -- "toCaseData()로 필요한 필드만" --> cl["case-lab-client.tsx<br/>('use client')"]
+  cl -- "표지 목록" --> cover["entities/patch<br/>CaseCover"]
+  cl -- "고른 작품" --> v["widgets/case-viewer<br/>CaseViewer"]
+  v --> m["model/use-case-dialog.ts<br/>열기·닫기 상태"]
+  v --> ui["ui/case-viewer.tsx · case-liner.tsx<br/>표지·속지·매체 배치"]
+```
+
+- **서버 → 클라이언트 경계에서 데이터 줄이기**: 서버 컴포넌트는 콘텐츠 전체를 읽지만, 클라이언트 컴포넌트에 넘기는 값은 브라우저로 전송됩니다. 그래서 `toCaseData()`로 케이스에 필요한 10개 필드만 골라 넘깁니다(MDX 본문 제외).
+- **FSD 층 나누기**: 작품이 "어떻게 생겼나"(표지·디스크·팩)는 `entities/patch`, "어떻게 열리나"(연출·상태)는 `widgets/case-viewer`, 화면 조립은 `pages/case-lab`이 맡습니다. 위젯 안에서도 상태 로직은 `model/`, 화면은 `ui/` 칸으로 나눴습니다.
+
+### 열고 닫는 순서
+
+```mermaid
+sequenceDiagram
+  participant U as 사용자
+  participant L as case-lab-client
+  participant H as useCaseDialog
+  participant D as <dialog>
+  U->>L: 표지 클릭
+  L->>L: originRef = 누른 표지, 그 표지는 invisible(자리만 남김)
+  L->>H: selected = 작품
+  H->>D: showModal() (포커스 가두기·ESC·배경 제공)
+  H->>D: flyIn — 케이스를 누른 표지 자리에 겹쳐 두고(Invert) 가운데로 이동(Play)
+  Note over D: Web Animations API, 0.65초<br/>표지 크기 → 한 칸 최대 480×640
+  H->>H: 이동이 끝나면(finished) isOpen = true
+  Note over D: CSS transition<br/>표지가 넘어감(데스크톱 rotateY / 휴대폰 rotateX)<br/>케이스가 반 칸 옮겨져 펼친 전체가 가운데로<br/>디스크 회전·팩 올라옴
+  U->>D: ESC 또는 빈 곳 클릭
+  D->>H: cancel / click(대상이 dialog일 때만)
+  H->>H: isOpen = false (표지가 덮임, 0.9초)
+  H->>D: flyOut — 누른 표지 자리로 돌아감
+  H->>D: close()
+  H->>L: onClosed → selected = null, 원래 표지 다시 보임
+```
+
+- **"동작 줄이기"** 설정을 켠 사용자는 transition 없이 바로 열고 닫습니다(`motion-reduce:`).
+- **반응형**: md(768px) 이상은 가로로 펼침(왼쪽 속지·오른쪽 케이스), 그보다 좁으면 세로로 펼침(위 속지·아래 케이스)입니다.
+- **크기**: 데스크톱은 케이스 한 칸 최대 480×640(펼치면 960×640), 화면이 작으면 높이 86%·폭 61% 안에 맞춰 줄어듭니다. 휴대폰은 펼친 전체가 화면 높이 88% 안에 들어가게 맞춥니다.
+- **FLIP**: First(처음 위치) → Last(끝 위치) → Invert(끝 위치의 요소를 처음 위치로 보이게 transform) → Play(transform을 없애며 이동). 위치를 바꾸는 대신 transform만 움직여서 부드럽습니다.
+
+## 11. 다음 단계에서 이어질 부분
 
 ```mermaid
 flowchart LR

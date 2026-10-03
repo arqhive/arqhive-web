@@ -91,7 +91,10 @@
             // FSD는 조각마다 공개 창구(index.ts)로 다시 내보내기를 요구한다. 경계 검사는 Steiger가 맡는다.
             "noBarrelFile": "off",
             // 그룹 전체를 오류로 켜면 domains에서 끈 Solid 규칙도 다시 켜진다. React JSX에 잘못 걸리므로 끈다.
-            "useSolidForComponent": "off"
+            "useSolidForComponent": "off",
+            // props에 인라인 함수 금지. React 공식 문서상 인라인 함수 자체는 문제가 아니고, 지키려면 모든 곳에 useCallback이 필요하다.
+            // 성능 문제가 실제로 측정되면 그 지점만 대응한다.
+            "noJsxPropsBind": "off"
           },
           "correctness": {
             // FSD 조각은 폴더 단위로 가져온다(@/pages/home). 상대 경로는 확장자를 직접 붙여 쓴다.
@@ -105,7 +108,9 @@
           },
           "style": {
             // 다국어 계획이 없다. 화면 문구는 컴포넌트 옆에 두는 편이 읽기 쉽다.
-            "noJsxLiterals": "off"
+            "noJsxLiterals": "off",
+            // 삼항 연산자 전면 금지. React의 조건부 렌더링·조건부 클래스의 기본 문법이라, 금지하면 더 읽기 어려운 우회 코드가 생긴다.
+            "noTernary": "off"
           }
         }
       }

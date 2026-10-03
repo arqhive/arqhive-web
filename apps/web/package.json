@@ -12,6 +12,7 @@
     "lint:fsd": "steiger ./src"
   },
   "dependencies": {
+    "@arqhive/content": "workspace:*",
     "@arqhive/shared": "workspace:*",
     "next": "16.3.8",
     "react": "19.3.0",

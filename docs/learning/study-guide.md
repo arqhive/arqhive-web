@@ -191,6 +191,51 @@
 ### 글꼴 라이선스 ★
 - 사이트에 쓰는 글꼴은 **SIL Open Font License(OFL)**입니다. 상업적 이용과 웹 포함이 허용되지만, 글꼴 파일 자체를 따로 판매할 수는 없습니다. 패치에 쓴 글꼴을 사이트에 쓰려면 라이선스를 먼저 확인합니다.
 
+## 9. 케이스 열기 시제품에서 새로 등장한 것
+
+### FSD 실전: 어디에 둘까 ★★★
+- **볼 것**: `src/entities/patch`, `src/widgets/case-viewer`, `src/pages/case-lab`
+- **이번 판단**
+  - 표지·디스크·팩 = 작품이 **어떻게 생겼나** → `entities/patch/ui`
+  - 케이스 열기 = **큰 화면 블록 + 동작** → `widgets/case-viewer` (상태 로직은 `model/`, 화면은 `ui/`)
+  - 기종별 케이스 모양 = 작품 표시에 딸린 규칙 → `entities/patch/lib` (기종 entity를 따로 만들면 entity끼리 import하게 되어 FSD 규칙 위반)
+- **Steiger `insignificant-slice`**: "한 곳에서만 쓰는 조각은 합쳐라". 만들어 가는 중에는 흔히 걸려서 경고로 낮췄습니다. 1단계가 끝날 때 남은 경고를 정리합니다.
+
+### `<dialog>` 요소 ★★
+- `showModal()`만 부르면 포커스 가두기, ESC로 닫기(`cancel` 이벤트), 배경(`::backdrop`), 맨 위 레이어 표시를 브라우저가 해 줍니다. 모달 라이브러리 없이 접근성 좋은 모달을 만들 수 있습니다.
+- **문서**: MDN `<dialog>`
+
+### CSS 3D 변형과 transition ★★
+- `perspective`(원근), `transform-style: preserve-3d`(Tailwind `transform-3d`), `backface-visibility: hidden`(뒷면 숨기기), `rotateX`/`rotateY`
+- **transition이 시작되려면 "이전 스타일"이 계산돼 있어야** 합니다. 요소를 띄우자마자 클래스를 바꾸면 연출이 생략됩니다. 레이아웃을 강제로 한 번 계산(`getBoundingClientRect()`)하면 해결됩니다.
+- **가려진 탭에서는** `requestAnimationFrame`이 실행되지 않고 애니메이션도 멈춥니다. 처음엔 rAF로 다음 프레임을 기다렸다가 이 때문에 열리지 않는 문제를 겪었습니다.
+- `prefers-reduced-motion`: 움직임을 줄이고 싶은 사용자를 위한 설정(Tailwind `motion-reduce:`)
+- **문서**: MDN `transform`, `transition`, `prefers-reduced-motion`
+
+### FLIP 애니메이션과 Web Animations API ★★
+- **볼 것**: `src/widgets/case-viewer/lib/motion.ts`
+- **FLIP**: 요소를 A에서 B로 옮기는 연출의 정석입니다. 요소를 실제로는 B에 두고, A에 있는 것처럼 보이게 `transform`을 걸었다가 그 transform을 없애며 움직입니다. `top`·`left`·`width`를 직접 바꾸면 매 프레임 레이아웃을 다시 계산해서 버벅이지만, transform은 GPU가 처리해서 부드럽습니다.
+- **Web Animations API**: `element.animate(keyframes, options)`. CSS 애니메이션을 JS에서 만들고, `finished` Promise로 끝나는 시점을 알 수 있습니다. "이동이 끝나면 연다"처럼 순서가 중요한 연출에 좋습니다.
+- **해 볼 것**: `MOVE_MS`나 `MOVE_EASING`을 바꿔 느낌이 어떻게 달라지는지 보세요.
+- 같은 문제를 푸는 최신 방법으로 **View Transitions API**도 있습니다(페이지 이동에 강함). 케이스 → 상세 페이지 전환에서 검토합니다.
+- **문서**: MDN `Element.animate()`, "FLIP your animations"(Paul Lewis)
+
+### 컨테이너 쿼리 단위(cqw)와 한글 줄바꿈 ★★
+- **볼 것**: `src/entities/patch/ui/case-cover.tsx`
+- **문제**: 작은 표지가 날아가며 큰 표지가 될 때 제목 줄바꿈이 바뀌었습니다(작은 표지는 한 줄, 큰 표지는 두 줄). 글자 크기를 픽셀로 따로 정해서 표지 폭과 글자 크기의 비율이 달랐기 때문입니다.
+- **해결 1, `cqw`**: `@container`로 지정한 요소의 폭 1%가 1cqw입니다. 글자 크기·여백을 cqw로 쓰면 표지 크기가 바뀌어도 비율이 같아서 줄바꿈이 똑같습니다(Tailwind v4 `@container`, `text-[10cqw]`). 화면 폭 기준인 `vw`와 달리 **요소 폭 기준**이라 재사용 컴포넌트에 좋습니다.
+- **해결 2, `word-break: keep-all`**(Tailwind `break-keep`): 브라우저 기본값은 한글을 아무 음절 사이에서나 끊어서 "무/쌍"처럼 단어가 쪼개집니다. keep-all은 띄어쓰기에서만 끊습니다. 한글 제목에는 거의 항상 필요합니다.
+- **문서**: MDN "CSS container queries", `word-break`
+
+### 서버 컴포넌트와 클라이언트 컴포넌트의 경계 ★★★
+- `'use client'` 파일만 브라우저에서 실행됩니다. 서버 컴포넌트가 클라이언트 컴포넌트에 넘기는 props는 **직렬화되어 HTML과 함께 전송**됩니다. 큰 데이터를 그대로 넘기면 페이지가 무거워집니다.
+- **문서**: Next.js 문서의 Server and Client Components
+
+### 엄격한 린트와 타협하는 법 ★
+- 이번에 끈 규칙: `noTernary`(삼항 금지), `noJsxPropsBind`(인라인 함수 금지). 지켰을 때 코드가 더 나빠지는 규칙은 이유를 적고 끕니다.
+- 지킨 규칙: `noExcessiveLinesPerFunction`(함수 50줄) → 속지·상태 훅을 분리, `noLeakedRender`(`&&` 렌더링) → 명시적 조건, `useGlobalThis`
+- 도구 차이: Steiger의 파일 패턴이 윈도우 경로(역슬래시)에서 맞지 않는 문제가 있었습니다. 로컬(윈도우)과 CI(리눅스)의 결과가 달라지는 설정은 피합니다.
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -198,14 +243,17 @@
 | 0단계 골격 | 1~7절 |
 | 1단계 콘텐츠·디자인 토큰 | 8절: MDX·frontmatter·Velite, Tailwind v4 토큰·화면 모드, next/font, 글꼴 라이선스 |
 | CI 수정(Velite 먼저) | 8절: "내 PC에선 되는데 CI에서만 실패" |
+| 케이스 열기 시제품 | 9절: FSD 실전 배치, `<dialog>`, CSS 3D·transition, 서버/클라이언트 경계, 린트 타협 |
+| 케이스가 제자리에서 날아와 열리게 수정 | 9절: FLIP 애니메이션과 Web Animations API |
+| 표지 줄바꿈 고정, 적용 문구 한국어화 | 9절: 컨테이너 쿼리 단위(cqw)와 한글 줄바꿈(keep-all) |
 
-## 9. 다음 단계에서 만날 것 ★
+## 10. 다음 단계에서 만날 것 ★
 
 | 단계 | 도구·개념 | 문서 |
 |---|---|---|
 | 1 | shadcn/ui + Radix(동작만 가져오고 모양은 재정의) | https://ui.shadcn.com |
 | 1 | Storybook, Chromatic(컴포넌트 문서·화면 회귀 검사) | https://storybook.js.org |
-| 1 | CSS 3D transform, View Transitions(진열장 케이스 연출) | MDN |
+| 1 | View Transitions(케이스에서 상세 페이지로 이어지는 전환) | MDN |
 | 2 | Drizzle ORM(스키마·마이그레이션), Neon(브랜치) | https://orm.drizzle.team, https://neon.com/docs |
 | 2 | ISR·재검증(`revalidateTag` 등) | Next.js 문서 |
 | 3 | Next.js rewrites, Hono RPC 클라이언트 | Next.js·Hono 문서 |

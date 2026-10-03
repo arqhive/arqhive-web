@@ -20,6 +20,7 @@
   - FSD 층은 `src/` 아래에 둔다.
   - 맨 위에 빈 `pages/` 폴더(README만)를 두어 Next.js가 `src/pages`를 Pages Router로 읽지 않게 한다.
 - 규칙 검사는 FSD 공식 린터 **Steiger**(`@feature-sliced/steiger-plugin` 권장 설정)로 하고 CI에 넣는다.
+  - 예외(2026-10-03): `insignificant-slice`(한 곳에서만 쓰는 조각은 합쳐라)는 경고로 낮춘다. 만들어 가는 동안 곧 여러 곳에서 쓸 조각이 잠시 한 곳에서만 쓰이는 일이 많기 때문이다. 단계가 끝날 때 남은 경고를 정리한다.
 - 아직 쓰지 않는 층은 폴더를 만들지 않는다.
 - 애매한 판단(feature인가 entity인가 등)은 ADR에 이유를 남긴다.
 
