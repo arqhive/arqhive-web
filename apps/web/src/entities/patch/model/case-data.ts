@@ -23,6 +23,7 @@ export type PatchCaseData = Pick<
   | 'translationScope'
   | 'knownIssues'
   | 'compatibility'
+  | 'discArt'
 >;
 
 export function toCaseData(patch: Patch): PatchCaseData {
@@ -42,5 +43,6 @@ export function toCaseData(patch: Patch): PatchCaseData {
     translationScope: patch.translationScope,
     knownIssues: patch.knownIssues,
     compatibility: patch.compatibility,
+    discArt: patch.discArt,
   };
 }

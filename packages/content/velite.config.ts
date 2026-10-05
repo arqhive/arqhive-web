@@ -62,6 +62,9 @@ const patches = defineCollection({
     compatibility: s.array(compatibility),
     knownIssues: s.array(s.string()),
     extraDownloads: s.array(s.object({ label: s.string(), url: s.string().url() })).default([]),
+    // 디스크 라벨 그림 칸(GC 디스크 위 칸)에 까는 이미지. 게임 타이틀 화면을 로고가 가운데 오게 3:2로 잘라 작품 폴더에 둔다.
+    // s.image()는 파일을 출력 폴더로 복사하고 { src, width, height, blurDataURL }을 돌려준다. 없으면 글자 제목만 쓴다.
+    discArt: s.image().optional(),
     // 전후 비교 스크린샷. 아직 없어서 비워 두고, 화면에는 자리표시를 보여 준다.
     screenshots: s
       .array(s.object({ before: s.string(), after: s.string(), caption: s.string().nullable() }))
@@ -90,7 +93,8 @@ export default defineConfig({
   root: '../../content',
   output: {
     data: '.velite',
-    assets: '.velite/static',
+    // 이미지 등 파일은 웹 앱의 public/static으로 복사해 /static/… 주소로 바로 쓰게 한다(빌드 결과물이라 git에 올리지 않음).
+    assets: '../../apps/web/public/static',
     base: '/static/',
     clean: true,
   },

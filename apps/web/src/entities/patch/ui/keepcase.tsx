@@ -31,34 +31,48 @@ const NAME_POSITIONS = {
  * (Wii 12cm 디스크와 GC 8cm 디스크가 같은 비율로 보인다).
  * 라벨 모양·기종 이름·홀로그램 색은 기종별 DISC_PRINTS를 따른다(GC: 위아래 두 칸, GameCube, 차가운 색).
  * isOpen이면 한 바퀴 돈다. 한 바퀴라서 멈추면 라벨 글자가 바로 선다.
+ * art(그림 주소)가 있고 나뉜 라벨(GC)이면 위 칸(그림 칸)에 그 그림을 깐다. 그림 속 타이틀 로고가 제목 역할을 하므로 글자 제목은 쓰지 않는다.
  */
 function Disc({
   print,
   title,
+  art,
   isOpen,
 }: {
   readonly print: DiscPrint;
   readonly title: string;
+  readonly art?: string | undefined;
   readonly isOpen: boolean;
 }) {
   const isSplit = print.layout === 'split';
+  const showArt = isSplit && art !== undefined;
   return (
     <div className="@container absolute inset-0">
       <div
         className={`disc-surface absolute inset-0 rounded-full transition-[rotate] delay-[calc(500ms*var(--case-tempo,1))] duration-[calc(1400ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${isOpen ? 'rotate-[360deg]' : 'rotate-0'}`}
       >
         <div
-          className={`absolute inset-[2.5%] rounded-full ${isSplit ? 'disc-label-split' : 'disc-label'}`}
-        />
+          className={`absolute inset-[2.5%] overflow-hidden rounded-full ${isSplit ? 'disc-label-split' : 'disc-label'}`}
+        >
+          {/* 그림 칸: 라벨 위쪽 66.8%(나뉘는 선까지). 둥근 라벨 밖은 overflow-hidden이 자른다 */}
+          {showArt ? (
+            <div
+              className="absolute inset-x-0 top-0 h-[66.8%] bg-center bg-cover"
+              style={{ backgroundImage: `url(${art})` }}
+            />
+          ) : null}
+        </div>
         <div
           className={`disc-clear absolute top-1/2 left-1/2 aspect-square w-[24%] -translate-1/2 rounded-full ${isSplit ? 'disc-clear-solid' : ''}`}
         />
         {/* 글자 중심은 구멍 둘레(반지름 12%)와 디스크 가장자리(50%) 사이. 제목은 그 가운데보다 조금 아래 */}
-        <span
-          className={`absolute inset-x-[20%] top-[23%] -translate-y-1/2 break-keep text-center font-bold font-title text-[5.3cqw] leading-tight ${isSplit ? 'disc-ink-light' : ''}`}
-        >
-          {title}
-        </span>
+        {showArt ? null : (
+          <span
+            className={`absolute inset-x-[20%] top-[23%] -translate-y-1/2 break-keep text-center font-bold font-title text-[5.3cqw] leading-tight ${isSplit ? 'disc-ink-light' : ''}`}
+          >
+            {title}
+          </span>
+        )}
         <span
           className={`absolute inset-x-0 -translate-y-1/2 text-center font-bold leading-none ${NAME_POSITIONS[print.layout]}`}
         >
@@ -84,7 +98,12 @@ function RingHolder({
         <div className="plastic-notch absolute top-[6%] right-[6%] aspect-square w-[16%] rounded-full" />
         <div className="plastic-notch absolute bottom-[6%] left-[6%] aspect-square w-[16%] rounded-full" />
         <div className="absolute inset-[4%]">
-          <Disc print={discPrint(patch)} title={patch.titleKo} isOpen={isOpen} />
+          <Disc
+            print={discPrint(patch)}
+            title={patch.titleKo}
+            art={patch.discArt?.src}
+            isOpen={isOpen}
+          />
         </div>
         {/* 허브: 디스크 구멍을 지나 위로 나온 꽃잎 고정 돌기 */}
         <div className="plastic-hub absolute top-1/2 left-1/2 aspect-square w-[16%] -translate-1/2 rounded-full" />
@@ -101,7 +120,12 @@ function HexHolder({ patch, isOpen }: { readonly patch: PatchCaseData; readonly 
       <div className="absolute top-[10%] left-1/2 aspect-[1.12] w-[74%] -translate-x-1/2 md:left-[54%]">
         <div className="plastic-hex absolute inset-0 drop-shadow-[0_2px_3px_rgb(0_0_0/0.5)]" />
         <div className="absolute top-1/2 left-1/2 aspect-square w-[80%] -translate-1/2">
-          <Disc print={discPrint(patch)} title={patch.titleKo} isOpen={isOpen} />
+          <Disc
+            print={discPrint(patch)}
+            title={patch.titleKo}
+            art={patch.discArt?.src}
+            isOpen={isOpen}
+          />
           <div className="plastic-hub absolute top-1/2 left-1/2 aspect-square w-[22%] -translate-1/2 rounded-full" />
           <ReleaseLink patch={patch} shape="absolute inset-0 rounded-full" />
         </div>

@@ -32,5 +32,6 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 
-# Velite 출력
+# Velite 출력(데이터와 웹 앱으로 복사되는 이미지)
 .velite/
+apps/web/public/static/

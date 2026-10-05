@@ -399,6 +399,16 @@
   - 문구는 JSX 안에 씁니다(문자열 상수로 빼면 Biome noSecrets가 한글을 비밀값으로 오탐).
 - **문서**: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec
 
+### 콘텐츠 이미지를 사이트까지(Velite s.image) ★★
+- **볼 것**: `packages/content/velite.config.ts`(`discArt: s.image().optional()`, `output.assets`), `entities/patch/ui/keepcase.tsx`의 `Disc`
+- **핵심**
+  - 그림은 쓰는 작품 폴더에 함께 둡니다(콘텐츠와 그림이 같이 움직임). frontmatter에는 상대 경로만 적습니다.
+  - `s.image()`는 파일 이름 뒤에 내용 해시를 붙여 복사합니다(`disc-art-30361e80.webp`). 그림을 바꾸면 주소도 바뀌어 브라우저 캐시 문제가 없습니다.
+  - 복사 위치(`output.assets`)를 Next.js의 `public/` 아래로 두면 따로 서버 설정 없이 `/static/…` 주소로 열립니다.
+  - 그림을 바꾼 뒤 개발 중인 `velite dev`는 설정 변경을 다시 읽지 않으므로 개발 서버를 다시 켭니다.
+  - 그림이 있으면 그리고 없으면 예전 모습(`discArt?.src`가 undefined)으로 두면, 그림을 하나씩 늘려 가도 됩니다.
+- **문서**: https://velite.js.org/guide/using-mdx#assets-handling, https://velite.js.org/reference/schemas#s-image
+
 ### 스크립트로 파일을 고칠 때 줄끝 지키기 ★
 - **볼 것**: 저장소의 `.mdx`·`.md` 파일(줄끝 LF)
 - **핵심**
@@ -439,6 +449,7 @@
 | 콘텐츠 정리(속지용) | 어나더 코드 R 원제를 유럽판 제목으로(패치 대상 판 기준), 방식은 패치 종류만(Wii U는 파일 패처, 실행 방법 문구 제거), 구동 확인은 README 「실행 환경」의 확인함 기준으로 표기 통일(에뮬레이터·3DS·Wii U vWii·Wii U Aroma + SDCafiine), 알려진 문제 일부 정리. 스크립트로 파일을 고칠 때 줄끝 지키기 |
 | 데스크톱 헤더 sticky | (흐름 문서 11절) `position: sticky`는 조상에 overflow 숨김이 없어야 동작, 붙어 있는 동안 비치지 않게 바탕색, z-index는 떠오르는 요소보다 위·dialog(최상위 층)보다는 아래 |
 | 상자 기종 릴리즈 링크 클릭 수정 | 10절(투명 링크 판): 보이지 않는 층도 클릭을 받는다, 장식 층은 바깥 래퍼부터 pointer-events-none, elementFromPoint로 눌리는지 재기. 학습 문서에 섞여 들어간 CR(줄끝) 정리 |
+| 디스크 그림(스타폭스 어드벤처·어설트) | (흐름 문서 8절) 콘텐츠 이미지를 사이트까지(Velite s.image → public/static, 해시 붙은 주소), 그림 칸은 원 안에서 overflow-hidden으로 자르기, 그림이 있으면 글자 제목 생략 |
 | 푸터 저작권 표기 | 저작권 연도를 한국 시간 올해로 계산(연 해와 다르면 2026–2027), 고지는 홈 면책 조항으로 옮김 |
 
 ## 11. 다음 단계에서 만날 것 ★
