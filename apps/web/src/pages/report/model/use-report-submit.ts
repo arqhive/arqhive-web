@@ -1,5 +1,6 @@
 'use client';
 
+import type { SubmittedReport } from '@arqhive/shared';
 import { useCallback, useRef, useState } from 'react';
 import { reencodeImage } from '../lib/reencode-image.ts';
 
@@ -9,6 +10,8 @@ interface ApiResponse {
   readonly url?: string;
   /** 저장 공간 한도 때문에 스크린샷 없이 글만 등록됐으면 true */
   readonly imagesSkipped?: boolean;
+  /** 방금 만든 제보(목록 맨 위에 바로 붙인다) */
+  readonly report?: SubmittedReport;
   readonly code?: 'invalid' | 'rate' | 'bot' | 'server';
 }
 
@@ -16,7 +19,12 @@ interface ApiResponse {
 export type SubmitState =
   | { readonly status: 'idle' }
   | { readonly status: 'sending' }
-  | { readonly status: 'done'; readonly url: string; readonly imagesSkipped: boolean }
+  | {
+      readonly status: 'done';
+      readonly url: string;
+      readonly imagesSkipped: boolean;
+      readonly report: SubmittedReport | undefined;
+    }
   | {
       readonly status: 'error';
       readonly code: 'invalid' | 'rate' | 'bot' | 'server' | 'network';
@@ -48,7 +56,12 @@ export function useReportSubmit(apiUrl: string | undefined) {
         const result = (await response.json()) as ApiResponse;
         setState(
           result.ok && result.url
-            ? { status: 'done', url: result.url, imagesSkipped: result.imagesSkipped === true }
+            ? {
+                status: 'done',
+                url: result.url,
+                imagesSkipped: result.imagesSkipped === true,
+                report: result.report,
+              }
             : { status: 'error', code: result.code ?? 'server' },
         );
       } catch {

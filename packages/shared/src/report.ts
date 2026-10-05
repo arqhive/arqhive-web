@@ -89,7 +89,22 @@ function parseReportBody(body: string): {
 
 type ReportInput = z.infer<typeof reportInputSchema>;
 
-export type { ReportInput };
+/**
+ * 제보 API가 등록에 성공하면 돌려주는 방금 만든 제보. 양식이 이걸로 목록 맨 위에 바로 붙인다
+ * (목록은 GitHub 검색 + 5분 캐시라, 새로 고침을 기다리면 늦게 보인다).
+ */
+interface SubmittedReport {
+  /** GitHub 이슈 id(목록과 겹치지 않게 거르는 데 쓴다). 시험(dry run)에서는 임의값 */
+  readonly id: number;
+  /** "owner/name" */
+  readonly repo: string;
+  readonly url: string;
+  readonly createdAt: string;
+  readonly text: string;
+  readonly images: readonly string[];
+}
+
+export type { ReportInput, SubmittedReport };
 export {
   buildReportIssue,
   neutralizeMentions,

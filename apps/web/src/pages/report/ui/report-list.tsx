@@ -4,6 +4,7 @@ import { type Report, ReportCard } from '@/entities/report';
 /**
  * 들어온 제보 목록(댓글처럼 위에서 아래로, 최신이 위). 저장소 이름 → 게임 이름 표(titleOfRepo)로 카드에 게임을 붙인다.
  * 페이지(ReportPage)는 목록을 읽느라 async라서 훅(useId)을 못 쓴다. 그래서 목록 칸을 따로 둔다.
+ * 방금 보낸 제보를 붙이려고 클라이언트 칸(ReportBoard) 안에서 그린다.
  */
 export function ReportList({
   reports,

@@ -1,4 +1,9 @@
-import { buildReportIssue, REPORT_LABEL, reportInputSchema } from '@arqhive/shared';
+import {
+  buildReportIssue,
+  REPORT_LABEL,
+  reportInputSchema,
+  type SubmittedReport,
+} from '@arqhive/shared';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import type { ApiEnv } from '../../platform/env.ts';
@@ -120,6 +125,23 @@ async function upload(
   return { urls: keys.map((key) => `${env.REPORT_IMAGE_BASE_URL}/${key}`), skipped: false };
 }
 
+/** 양식이 목록 맨 위에 바로 붙일 방금 만든 제보(목록 카드와 같은 모양) */
+function submitted(
+  repo: { readonly owner: string; readonly name: string },
+  issue: { readonly url: string; readonly id: number },
+  text: string,
+  images: readonly string[],
+): SubmittedReport {
+  return {
+    id: issue.id,
+    repo: `${repo.owner}/${repo.name}`,
+    url: issue.url,
+    createdAt: new Date().toISOString(),
+    text: text.trim(),
+    images,
+  };
+}
+
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
 export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
   // 허락한 사이트에서만 양식을 보낼 수 있다(브라우저가 지키는 규칙. 서버 검사는 위 단계들이 따로 한다)
@@ -153,19 +175,27 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
           ok: true,
           url: reposUrl,
           ...imagesSkipped,
+          // 시험이라 이슈 id가 없으므로 지금 시각을 id로 쓴다(목록 카드의 key가 겹치지 않으면 된다)
+          report: submitted(repo, { url: reposUrl, id: Date.now() }, text, imageUrls),
           // 시험용: 만들었을 이슈 제목·본문(이미지 링크 포함)을 그대로 보여 준다
           dryRun: issue,
         });
       }
-      const url = await createIssue(c.env.GITHUB_ISSUES_TOKEN, repo, {
+      const created = await createIssue(c.env.GITHUB_ISSUES_TOKEN, repo, {
         ...issue,
         label: REPORT_LABEL,
       });
+      const { url } = created;
       // 운영자에게 디스코드 알림. 응답을 기다리게 하지 않고(waitUntil), 실패해도 제보는 성공이다
       c.executionCtx.waitUntil(
         notify(c.env, reportNotice({ game: repo.title, title: issue.title, text }, url, false)),
       );
-      return c.json({ ok: true, url, ...imagesSkipped });
+      return c.json({
+        ok: true,
+        url,
+        ...imagesSkipped,
+        report: submitted(repo, created, text, imageUrls),
+      });
     } catch (error) {
       const code: RejectCode = error instanceof Reject ? error.code : 'server';
       return c.json({ ok: false, code }, STATUS[code]);

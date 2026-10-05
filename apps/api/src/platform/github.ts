@@ -40,12 +40,12 @@ async function ensureLabel(token: string, repo: Repo, label: string): Promise<vo
   }
 }
 
-/** 라벨을 붙여 이슈를 만들고 이슈 주소를 돌려준다 */
+/** 라벨을 붙여 이슈를 만들고 이슈 주소·id를 돌려준다 */
 export async function createIssue(
   token: string,
   repo: Repo,
   issue: { readonly title: string; readonly body: string; readonly label: string },
-): Promise<string> {
+): Promise<{ readonly url: string; readonly id: number }> {
   await ensureLabel(token, repo, issue.label);
   const response = await fetch(`${GITHUB_API}/repos/${repo.owner}/${repo.name}/issues`, {
     method: 'POST',
@@ -56,6 +56,6 @@ export async function createIssue(
     throw new Error(`이슈 만들기 실패: ${response.status}`);
   }
   // biome-ignore lint/style/useNamingConvention: GitHub API 응답의 필드 이름을 그대로 쓴다
-  const created = (await response.json()) as { readonly html_url: string };
-  return created.html_url;
+  const created = (await response.json()) as { readonly html_url: string; readonly id: number };
+  return { url: created.html_url, id: created.id };
 }
