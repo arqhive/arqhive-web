@@ -398,6 +398,16 @@
   - 문구는 JSX 안에 씁니다(문자열 상수로 빼면 Biome noSecrets가 한글을 비밀값으로 오탐).
 - **문서**: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec
 
+### 스크립트로 파일을 고칠 때 줄끝 지키기 ★
+- **볼 것**: 저장소의 `.mdx`·`.md` 파일(줄끝 LF)
+- **핵심**
+  - Windows에서 Python `open(p, 'w')`(텍스트 모드)로 쓰면 줄끝 `
+`이 `
+`(CRLF)으로 바뀝니다. git이 "CRLF will be replaced by LF" 경고를 냅니다.
+  - 읽고 쓸 때 모두 `newline=''`을 주면 원래 줄끝을 그대로 지킵니다.
+  - 코드 파일은 Biome 포맷이 LF로 되돌려 줘서 가려지지만, Biome가 다루지 않는 콘텐츠 파일은 그대로 남습니다. 고친 뒤 `grep -cU $'' 파일`로 확인합니다.
+- **문서**: https://docs.python.org/3/library/functions.html#open
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -427,6 +437,7 @@
 | 홈·메뉴 개편 | (흐름 문서 11절) 홈은 소개, 진열장은 /korean-translation. 메뉴 목록 한 곳 + 지금 주소 판단(isCurrent, usePathname은 그 부분만 클라이언트로), 페이지별 탭 제목(metadata), 없는 페이지는 링크 대신 '준비 중'(typedRoutes), useId로 제목-영역 잇기 |
 | 케이스 그림 다듬기 | 10절: 매체를 누르면 최신 릴리즈로(투명 링크 판·`releases/latest`), 넘칠 때만 정해 둔 곳에서 줄 바꾸기(inline-block). GC는 모서리를 각지게(`hasSquareCorners` 판정 함수 하나), 3DS·NDS 카드 받침은 오목한 면 정중앙(오목한 면의 여백으로 중심 계산) |
 | 케이스 열기 화면·속지 정보 | 10절: CSS 변수 하나로 연출 속도 바꾸기(닫기 1.5배), transition이 모두 끝난 때 알기(getAnimations, 단계 하나로 상태 합치기), 규칙이 있는 표시는 판정 함수로. 동그란 X 닫기 단추는 케이스 안에 두어 함께 움직임, em·cqw 클래스를 다른 요소로 옮기면 기준이 바뀜 |
+| 콘텐츠 정리(속지용) | 어나더 코드 R 원제를 유럽판 제목으로(패치 대상 판 기준), 방식은 패치 종류만(Wii U는 파일 패처, 실행 방법 문구 제거), 구동 확인은 README 「실행 환경」의 확인함 기준으로 표기 통일(에뮬레이터·3DS·Wii U vWii·Wii U Aroma + SDCafiine), 알려진 문제 일부 정리. 스크립트로 파일을 고칠 때 줄끝 지키기 |
 | 푸터 저작권 표기 | 저작권 연도를 한국 시간 올해로 계산(연 해와 다르면 2026–2027), 고지는 홈 면책 조항으로 옮김 |
 
 ## 11. 다음 단계에서 만날 것 ★
