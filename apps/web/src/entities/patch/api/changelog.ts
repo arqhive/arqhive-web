@@ -1,4 +1,4 @@
-import { GITHUB_API, GITHUB_CACHE_SECONDS, githubHeaders } from './github.ts';
+import { GITHUB_API, GITHUB_CACHE_SECONDS, githubHeaders } from '@/shared/api';
 
 /**
  * 저장소의 CHANGELOG.md 원문(마크다운). 서버에서만 부른다(진열장 페이지가 그릴 때, 결과는 1시간 캐시).

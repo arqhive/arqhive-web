@@ -10,7 +10,7 @@
  * - 실패하면(한도 초과·네트워크 오류·저장소 없음) null. 화면은 다운로드 수만 빼고 정상으로 그린다.
  */
 
-import { GITHUB_API, GITHUB_CACHE_SECONDS, githubHeaders } from './github.ts';
+import { GITHUB_API, GITHUB_CACHE_SECONDS, githubHeaders } from '@/shared/api';
 
 /** 한 번에 받을 릴리즈 수(GitHub 최대값). 작품마다 릴리즈가 몇 개라 한 번이면 충분하다 */
 const PER_PAGE = 100;
