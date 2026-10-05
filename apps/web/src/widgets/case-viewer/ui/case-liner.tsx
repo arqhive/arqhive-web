@@ -152,9 +152,13 @@ export function CaseLiner({ patch }: { readonly patch: PatchCaseData }) {
       <div
         className={`flex size-full flex-col overflow-y-auto border border-line bg-card p-3 text-ink md:text-[4cqw] ${desk.box}`}
       >
-        <span className="font-num text-ink-sub text-xs md:text-[0.875em]">
-          {PLATFORM_LABELS[patch.platform]}
-        </span>
+        {/* 맨 위 줄: 왼쪽 기종, 오른쪽 다운로드 수(공개 작품이고 읽어 온 값이 있을 때만) */}
+        <div className="flex items-baseline justify-between gap-2 font-num text-ink-sub text-xs md:text-[0.875em]">
+          <span>{PLATFORM_LABELS[patch.platform]}</span>
+          {isReleased && patch.downloadCount !== null ? (
+            <span>{patch.downloadCount.toLocaleString('ko-KR')}회 다운로드</span>
+          ) : null}
+        </div>
         {/* 한글 제목이 먼저, 게임 원제는 그 아래 작게(10/6). 위 여백 em은 제목 자신의 큰 글자 기준이라 작게 둔다 */}
         <h2
           className={`mt-1 shrink-0 break-keep font-bold font-title leading-snug ${compact ? 'text-base' : 'text-lg'} md:mt-[0.15em] ${desk.title}`}

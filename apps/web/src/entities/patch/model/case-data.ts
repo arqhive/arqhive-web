@@ -6,7 +6,7 @@ import type { Patch } from '@arqhive/content';
  * Patch 전체에는 MDX 본문(컴파일된 코드 문자열)까지 들어 있어 크다. 클라이언트 컴포넌트로 넘기는 값은
  * 브라우저로 그대로 전송되므로, 필요한 필드만 골라 보낸다(서버 → 클라이언트 경계에서 데이터 줄이기).
  */
-export type PatchCaseData = Pick<
+type CaseContentData = Pick<
   Patch,
   | 'slug'
   | 'catalogNo'
@@ -26,6 +26,11 @@ export type PatchCaseData = Pick<
   | 'discArt'
 >;
 
+export type PatchCaseData = CaseContentData & {
+  /** 릴리즈 다운로드 수(릴리즈마다 가장 많이 받은 파일의 합). 콘텐츠가 아니라 서버가 GitHub에서 읽어 붙인다. 모르면 null */
+  readonly downloadCount: number | null;
+};
+
 export function toCaseData(patch: Patch): PatchCaseData {
   return {
     slug: patch.slug,
@@ -44,5 +49,6 @@ export function toCaseData(patch: Patch): PatchCaseData {
     knownIssues: patch.knownIssues,
     compatibility: patch.compatibility,
     discArt: patch.discArt,
+    downloadCount: null,
   };
 }
