@@ -3,3 +3,12 @@
 // 빌드 없는 내부 패키지라 TS 원본을 그대로 내보내고, 쓰는 쪽(Next.js, wrangler)이 함께 컴파일한다.
 export type { Platform } from './platform.ts';
 export { PLATFORM_FULL_NAMES, PLATFORM_LABELS, PLATFORMS, platformSchema } from './platform.ts';
+export type { ReportInput } from './report.ts';
+export {
+  buildReportIssue,
+  neutralizeMentions,
+  parseReportBody,
+  REPORT_LABEL,
+  REPORT_LIMITS,
+  reportInputSchema,
+} from './report.ts';
