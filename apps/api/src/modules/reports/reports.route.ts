@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import type { ApiEnv } from '../../platform/env.ts';
 import { createIssue } from '../../platform/github.ts';
 import { markOnce, sha256, takeToken } from '../../platform/rate-limit.ts';
+import { reserveStorage, STORAGE_LIMIT_BYTES } from '../../platform/storage-budget.ts';
 import { verifyTurnstile } from '../../platform/turnstile.ts';
 import { RELEASED_REPOS } from './released-repos.ts';
 import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './report-checks.ts';
@@ -11,7 +12,7 @@ import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './re
 /**
  * 제보 받기(POST /api/reports, multipart/form-data). 위에서부터 차례로 거르고, 하나라도 걸리면 그 자리에서 거절한다:
  * 봇 흔적(허니팟·시간) → Turnstile → 횟수 제한(IP별 시간당 3건, 사이트 하루 50건) → 입력 검사 → 같은 내용 재전송
- * → 스크린샷을 R2에 올림 → 그 패치 저장소에 "제보" 라벨 이슈 생성.
+ * → 스크린샷을 R2에 올림(누적 9GB를 넘을 것 같으면 스크린샷은 빼고 글만) → 그 패치 저장소에 "제보" 라벨 이슈 생성.
  * 실패 코드(invalid·rate·bot·server)는 양식이 알맞은 문구를 고르는 데 쓴다.
  */
 
@@ -80,8 +81,18 @@ async function validate(env: ApiEnv, form: FormData) {
   return { repo, text: parsed.data.text, images };
 }
 
-/** 스크린샷을 R2에 올리고 공개 주소들을 돌려준다. 키: 년-월/임의값.확장자 */
-async function upload(env: ApiEnv, images: readonly CheckedImage[]): Promise<string[]> {
+/**
+ * 스크린샷을 R2에 올리고 공개 주소들을 돌려준다. 키: 년-월/임의값.확장자
+ * 올리기 전에 저장 용량 예산을 잡는다. 기준(9GB)을 넘을 것 같으면 올리지 않고 skipped: true(제보는 글만 받는다).
+ */
+async function upload(
+  env: ApiEnv,
+  images: readonly CheckedImage[],
+): Promise<{ readonly urls: string[]; readonly skipped: boolean }> {
+  const total = images.reduce((sum, image) => sum + image.bytes.byteLength, 0);
+  if (total > 0 && !(await reserveStorage(env.RATE_LIMIT, total, STORAGE_LIMIT_BYTES))) {
+    return { urls: [], skipped: true };
+  }
   const month = new Date().toISOString().slice(0, YEAR_MONTH_LENGTH);
   const keys = images.map((image) => `${month}/${crypto.randomUUID()}.${image.kind}`);
   await Promise.all(
@@ -91,7 +102,7 @@ async function upload(env: ApiEnv, images: readonly CheckedImage[]): Promise<str
       }),
     ),
   );
-  return keys.map((key) => `${env.REPORT_IMAGE_BASE_URL}/${key}`);
+  return { urls: keys.map((key) => `${env.REPORT_IMAGE_BASE_URL}/${key}`), skipped: false };
 }
 
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
@@ -109,13 +120,16 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       const form = await c.req.formData();
       await guard(c.env, form, c.req.header('cf-connecting-ip') ?? null);
       const { repo, text, images } = await validate(c.env, form);
-      const imageUrls = await upload(c.env, images);
+      const { urls: imageUrls, skipped } = await upload(c.env, images);
       const issue = buildReportIssue({ text, imageUrls });
+      // 스크린샷을 저장 한도 때문에 뺐으면 양식이 알려 줄 수 있게 함께 돌려준다
+      const imagesSkipped = skipped ? { imagesSkipped: true } : {};
       // 개발 중에는 공개 저장소에 시험 이슈가 생기지 않게 만들지 않는다(wrangler.jsonc의 REPORT_DRY_RUN)
       if (c.env.REPORT_DRY_RUN === '1' || c.env.GITHUB_ISSUES_TOKEN === undefined) {
         return c.json({
           ok: true,
           url: `https://github.com/${repo.owner}/${repo.name}/issues`,
+          ...imagesSkipped,
           // 시험용: 만들었을 이슈 제목·본문(이미지 링크 포함)을 그대로 보여 준다
           dryRun: issue,
         });
@@ -124,7 +138,7 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
         ...issue,
         label: REPORT_LABEL,
       });
-      return c.json({ ok: true, url });
+      return c.json({ ok: true, url, ...imagesSkipped });
     } catch (error) {
       const code: RejectCode = error instanceof Reject ? error.code : 'server';
       return c.json({ ok: false, code }, STATUS[code]);

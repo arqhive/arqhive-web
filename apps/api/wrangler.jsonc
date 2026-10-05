@@ -16,16 +16,18 @@
   "vars": {
     // 제보 양식을 보낼 수 있는 사이트(CORS). 쉼표로 여러 개. 배포 도메인이 정해지면 더한다.
     "ALLOWED_ORIGINS": "http://localhost:3000",
-    // 제보 스크린샷을 올린 R2 버킷의 공개 주소(끝의 / 없이). 버킷의 공개 접근을 켜면 나오는 주소로 바꾼다.
-    "REPORT_IMAGE_BASE_URL": "http://localhost:8787/api/reports/images",
+    // 제보 스크린샷을 올린 R2 버킷 arqhive-reports의 공개 주소(끝의 / 없이). 이슈 본문의 이미지 링크가 된다.
+    // 개발(wrangler dev)은 PC 안의 가짜 버킷이라 이 주소로는 안 보이므로, .dev.vars에서 API의 /api/reports/images로 덮어쓴다.
+    // r2.dev 주소는 개발용이라 요청 수 제한이 있다. 사이트 도메인이 정해지면 버킷에 사용자 지정 도메인을 연결해 바꾼다.
+    "REPORT_IMAGE_BASE_URL": "https://pub-032e2a3dea5c4e4c89f0c7196a9606ca.r2.dev",
     // "1"이면 GitHub 이슈를 만들지 않고 가짜 주소를 돌려준다(개발 중 공개 저장소에 시험 이슈가 생기지 않게).
     "REPORT_DRY_RUN": "1"
   },
   // 제보 스크린샷 저장소. 개발(wrangler dev)에서는 PC 안의 가짜 버킷을 쓴다.
   "r2_buckets": [{ "binding": "REPORT_IMAGES", "bucket_name": "arqhive-reports" }],
-  // 요청 횟수 세기(IP별 시간당, 사이트 전체 하루). 개발에서는 PC 안의 가짜 저장소를 쓴다.
-  // 배포 전에 `wrangler kv namespace create RATE_LIMIT`로 만든 id로 바꿔야 한다.
-  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "replace-with-real-kv-id-before-deploy" }]
+  // 요청 횟수 세기(IP별 시간당, 사이트 전체 하루)와 R2 저장 용량 누적. 개발(wrangler dev)에서는 PC 안의 가짜 저장소를 쓴다.
+  // id는 `wrangler kv namespace create RATE_LIMIT`로 만든 Cloudflare KV(비밀값 아님).
+  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "fd69a10501a74b84841533334a70b85f" }]
   // Queues·Cron·Workers AI·Vectorize 바인딩은 각 기능을 만드는 단계에서 추가한다.
   // 바인딩을 추가하면 `pnpm --filter @arqhive/api typegen`으로 Env 타입을 다시 만든다.
 }

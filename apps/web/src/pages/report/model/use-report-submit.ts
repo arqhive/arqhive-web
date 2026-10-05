@@ -7,6 +7,8 @@ import { reencodeImage } from '../lib/reencode-image.ts';
 interface ApiResponse {
   readonly ok: boolean;
   readonly url?: string;
+  /** 저장 공간 한도 때문에 스크린샷 없이 글만 등록됐으면 true */
+  readonly imagesSkipped?: boolean;
   readonly code?: 'invalid' | 'rate' | 'bot' | 'server';
 }
 
@@ -14,7 +16,7 @@ interface ApiResponse {
 export type SubmitState =
   | { readonly status: 'idle' }
   | { readonly status: 'sending' }
-  | { readonly status: 'done'; readonly url: string }
+  | { readonly status: 'done'; readonly url: string; readonly imagesSkipped: boolean }
   | {
       readonly status: 'error';
       readonly code: 'invalid' | 'rate' | 'bot' | 'server' | 'network';
@@ -46,7 +48,7 @@ export function useReportSubmit(apiUrl: string | undefined) {
         const result = (await response.json()) as ApiResponse;
         setState(
           result.ok && result.url
-            ? { status: 'done', url: result.url }
+            ? { status: 'done', url: result.url, imagesSkipped: result.imagesSkipped === true }
             : { status: 'error', code: result.code ?? 'server' },
         );
       } catch {

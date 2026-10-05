@@ -14,6 +14,11 @@ export function FormMessage({ state }: { readonly state: SubmitState }) {
         >
           GitHub에서 보기
         </a>
+        {state.imagesSkipped ? (
+          <span className="mt-1 block text-ink-sub">
+            저장 공간이 다 차서 스크린샷 없이 글만 등록되었습니다.
+          </span>
+        ) : null}
       </p>
     );
   }
