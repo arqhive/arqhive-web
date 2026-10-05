@@ -373,6 +373,31 @@
   - 줄 나눔 위치는 등줄기용 `spineLines`를 다시 씁니다. 다만 등줄기 줄은 문장부호를 빼고 적은 경우가 있어, 글자는 원래 제목에서 잘라 씁니다(콜론 유지).
 - **문서**: https://developer.mozilla.org/docs/Web/CSS/display#inline-block
 
+### CSS 변수 하나로 연출 속도 바꾸기 ★★
+- **볼 것**: `widgets/case-viewer/lib/motion.ts`(`CLOSE_TEMPO`), `ui/case-viewer.tsx`(dialog의 `--case-tempo`)
+- **핵심**
+  - 시간을 `duration-[calc(700ms*var(--case-tempo,1))]`처럼 변수 곱으로 써 두면, 바깥(dialog)에서 변수 하나만 바꿔 안쪽 부품 전체를 한꺼번에 빠르게 할 수 있습니다. CSS 변수는 자식에게 상속됩니다.
+  - JS가 기다리는 시간(단계 `holdMs`, `flyOut`)에도 같은 상수를 곱해야 화면과 순서가 어긋나지 않습니다. 값은 한 곳(`CLOSE_TEMPO`)에서 정해 CSS 변수(style)로 넘깁니다.
+  - 속도 변수를 바꾸는 상태 변경과 단계 변경이 같은 렌더에 들어가야 첫 transition부터 빨라집니다(React가 한 이벤트 안의 setState를 묶어서 그림).
+- **문서**: https://developer.mozilla.org/docs/Web/CSS/Using_CSS_custom_properties
+
+### transition이 모두 끝난 때 알기 ★★
+- **볼 것**: `widgets/case-viewer/lib/motion.ts`의 `transitionsSettled`, `model/use-case-dialog.ts`
+- **핵심**
+  - `element.getAnimations({ subtree: true })`는 안쪽에서 진행 중인 CSS transition·animation을 모두 돌려주고, 각각의 `finished` Promise로 끝을 기다릴 수 있습니다. 시간을 손으로 더해 맞추지 않아도 됩니다.
+  - 상태를 바꾼 직후에는 transition이 아직 만들어지지 않았으므로 화면을 두 번 그린 뒤(`requestAnimationFrame` 두 번) 모읍니다.
+  - 무한 반복 애니메이션은 끝나지 않으니 `CSSTransition`만 고릅니다.
+  - 닫기 단추는 이 시점(settled)에만 보입니다. 보임·닫는 중·다 열림을 boolean 셋으로 두지 않고 단계 하나(`'idle' | 'opening' | 'settled' | 'closing' | 'leaving'`)에서 끌어내면 서로 어긋나지 않습니다.
+- **문서**: https://developer.mozilla.org/docs/Web/API/Element/getAnimations
+
+### 규칙이 있는 표시는 판정 함수로 ★
+- **볼 것**: `entities/patch/lib/release-stage.ts`, `widgets/case-viewer/ui/case-liner.tsx`
+- **핵심**
+  - "v1.0 미만은 공개 테스트, 이상은 검수판, 공개 전은 작업 중" 같은 규칙은 화면 코드가 아니라 판정 함수 하나(`releaseStage`)에 둡니다. 화면은 결과(단계 이름)만 받아 문구를 고릅니다.
+  - 버전 문자열은 `v1.2f`·`v0.1.1`처럼 모양이 제각각이라, 맨 앞 숫자만 정규식으로 읽습니다(정규식은 함수 밖 상수로: Biome useTopLevelRegex).
+  - 문구는 JSX 안에 씁니다(문자열 상수로 빼면 Biome noSecrets가 한글을 비밀값으로 오탐).
+- **문서**: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -401,6 +426,7 @@
 | 파비콘 q | (app/icon.svg) 작은 아이콘은 글꼴 글자 대신 도형으로 그려 어느 컴퓨터에서나 같은 모양, 실제 크기(16px)로 줄여 보고 확인 |
 | 홈·메뉴 개편 | (흐름 문서 11절) 홈은 소개, 진열장은 /korean-translation. 메뉴 목록 한 곳 + 지금 주소 판단(isCurrent, usePathname은 그 부분만 클라이언트로), 페이지별 탭 제목(metadata), 없는 페이지는 링크 대신 '준비 중'(typedRoutes), useId로 제목-영역 잇기 |
 | 케이스 그림 다듬기 | 10절: 매체를 누르면 최신 릴리즈로(투명 링크 판·`releases/latest`), 넘칠 때만 정해 둔 곳에서 줄 바꾸기(inline-block). GC는 모서리를 각지게(`hasSquareCorners` 판정 함수 하나), 3DS·NDS 카드 받침은 오목한 면 정중앙(오목한 면의 여백으로 중심 계산) |
+| 케이스 열기 화면·속지 정보 | 10절: CSS 변수 하나로 연출 속도 바꾸기(닫기 1.5배), transition이 모두 끝난 때 알기(getAnimations, 단계 하나로 상태 합치기), 규칙이 있는 표시는 판정 함수로. 동그란 X 닫기 단추는 케이스 안에 두어 함께 움직임, em·cqw 클래스를 다른 요소로 옮기면 기준이 바뀜 |
 | 푸터 저작권 표기 | 저작권 연도를 한국 시간 올해로 계산(연 해와 다르면 2026–2027), 고지는 홈 면책 조항으로 옮김 |
 
 ## 11. 다음 단계에서 만날 것 ★

@@ -1,4 +1,4 @@
-import { prefersReducedMotion, wait } from './motion.ts';
+import { CLOSE_TEMPO, prefersReducedMotion, wait } from './motion.ts';
 
 /**
  * 케이스 열기 단계.
@@ -34,16 +34,16 @@ export function openSteps(boxed: boolean): readonly Step[] {
   ];
 }
 
-/** 닫는 순서. 여는 순서를 거꾸로: 표지 덮기 → 상자 다시 씌우기 → 뚜껑 닫기 */
+/** 닫는 순서. 여는 순서를 거꾸로: 표지 덮기 → 상자 다시 씌우기 → 뚜껑 닫기. 기다리는 시간은 닫기 배율만큼 줄인다 */
 export function closeSteps(boxed: boolean): readonly Step[] {
-  if (!boxed) {
-    return [{ phase: 'closed', holdMs: COVER_CLOSE_MS }];
-  }
-  return [
-    { phase: 'unboxed', holdMs: COVER_CLOSE_MS },
-    { phase: 'lid', holdMs: UNBOX_MS },
-    { phase: 'closed', holdMs: LID_MS },
-  ];
+  const steps: readonly Step[] = boxed
+    ? [
+        { phase: 'unboxed', holdMs: COVER_CLOSE_MS },
+        { phase: 'lid', holdMs: UNBOX_MS },
+        { phase: 'closed', holdMs: LID_MS },
+      ]
+    : [{ phase: 'closed', holdMs: COVER_CLOSE_MS }];
+  return steps.map((step) => ({ ...step, holdMs: step.holdMs * CLOSE_TEMPO }));
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import type { RefObject } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 import {
   CASE_SPECS,
   CaseFront,
@@ -10,8 +10,10 @@ import {
   hasOuterBox,
   type PatchCaseData,
 } from '@/entities/patch';
+import { CLOSE_TEMPO } from '../lib/motion.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
 import { CaseLiner } from './case-liner.tsx';
+import { CloseButton } from './close-button.tsx';
 
 /**
  * 케이스 열기 연출(진열장의 대표 장치). 누른 표지가 화면 가운데로 날아와 커진 뒤 열린다.
@@ -24,6 +26,8 @@ import { CaseLiner } from './case-liner.tsx';
  * - SFC·GB·GBA: 같은 순서로 상자가 빠지면 카트리지와 설명서가 나오고, 설명서가 펼쳐진다.
  * - 크기: Wii 케이스가 데스크톱 한 칸 최대 480×640(펼치면 960×640)이고, 다른 기종은 실물 높이 비율만큼 작다(viewerHeight).
  *   화면이 작으면 높이·폭 안에 맞춰 줄어든다.
+ * - 속도: 연출 시간은 모두 `calc(시간 * var(--case-tempo, 1))`로 쓴다. 닫는 동안 dialog에 --case-tempo를
+ *   CLOSE_TEMPO로 바꿔 넣으면 안쪽 부품(entities 포함)이 상속받아 한꺼번에 빨라진다.
  */
 export function CaseViewer({
   patch,
@@ -35,13 +39,19 @@ export function CaseViewer({
   readonly onClose: () => void;
 }) {
   const boxed = patch !== null && hasOuterBox(CASE_SPECS[patch.platform]);
-  const { dialogRef, caseRef, isShown, phase, close, onCancel, onBackdropClick } = useCaseDialog(
-    patch?.slug ?? null,
-    boxed,
-    originRef,
-    onClose,
-  );
+  const {
+    dialogRef,
+    caseRef,
+    isShown,
+    isClosing,
+    isSettled,
+    phase,
+    close,
+    onCancel,
+    onBackdropClick,
+  } = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
   const isOpen = phase === 'open';
+  const tempo = { '--case-tempo': isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: 키보드 닫기는 dialog 기본 ESC(onCancel)가 맡는다. 클릭은 배경 닫기 전용이다
@@ -50,7 +60,8 @@ export function CaseViewer({
       aria-label={patch ? `${patch.titleKo} 케이스` : undefined}
       onCancel={onCancel}
       onClick={onBackdropClick}
-      className={`m-0 size-full max-h-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-500 ${isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
+      style={tempo}
+      className={`m-0 size-full max-h-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-[calc(500ms*var(--case-tempo,1))] ${isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
     >
       {patch === null ? null : (
         <>
@@ -59,7 +70,7 @@ export function CaseViewer({
           <div className="pointer-events-none flex size-full items-center justify-center perspective-[2400px]">
             <div
               ref={caseRef}
-              className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} origin-top-left transition-transform duration-700 ease-out motion-reduce:transition-none ${
+              className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} origin-top-left transition-transform duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${
                 isOpen ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
               }`}
             >
@@ -70,7 +81,7 @@ export function CaseViewer({
 
               {/* 표지: 위(휴대폰)·왼쪽(데스크톱)으로 넘어간다. 앞면=케이스 앞면, 뒷면=속지(미리 180도 돌려 둠) */}
               <div
-                className={`absolute inset-0 origin-top transform-3d transition-transform delay-150 duration-[900ms] ease-out motion-reduce:transition-none md:origin-left ${
+                className={`absolute inset-0 origin-top transform-3d transition-transform delay-[calc(150ms*var(--case-tempo,1))] duration-[calc(900ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none md:origin-left ${
                   isOpen ? 'rotate-x-180 md:rotate-x-0 md:-rotate-y-180' : ''
                 }`}
               >
@@ -90,16 +101,11 @@ export function CaseViewer({
                 lidOpen={phase !== 'closed'}
                 unboxed={phase === 'unboxed' || isOpen}
               />
+
+              {/* 닫기 단추: 케이스 안에 두어 케이스가 날아오고 펼쳐질 때 함께 따라다닌다 */}
+              <CloseButton isVisible={isSettled} onClick={close} />
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={close}
-            className={`fixed top-4 right-4 border border-line bg-paper px-3 py-1.5 text-ink text-sm transition-opacity duration-300 hover:bg-card ${isShown ? 'opacity-100' : 'opacity-0'}`}
-          >
-            닫기
-          </button>
         </>
       )}
     </dialog>

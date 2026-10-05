@@ -244,9 +244,10 @@ sequenceDiagram
   Note over D: Web Animations API, 0.65초<br/>표지 크기 → 한 칸 최대 480×640
   H->>H: 이동이 끝나면(finished) isOpen = true
   Note over D: CSS transition<br/>표지가 넘어감(데스크톱 rotateY / 휴대폰 rotateX)<br/>케이스가 반 칸 옮겨져 펼친 전체가 가운데로<br/>디스크 회전·팩 올라옴
-  U->>D: ESC 또는 빈 곳 클릭
+  H->>H: 안쪽 transition이 다 끝나면 settled → 닫기 단추(X) 보임
+  U->>D: ESC · 빈 곳 클릭 · X 단추
   D->>H: cancel / click(대상이 dialog일 때만)
-  H->>H: isOpen = false (표지가 덮임, 0.9초)
+  H->>H: closing — --case-tempo를 2/3로(닫기는 1.5배 빠르게), 표지가 덮임
   H->>D: flyOut — 누른 표지 자리로 돌아감
   H->>D: close()
   H->>L: onClosed → selected = null, 원래 표지 다시 보임
@@ -255,7 +256,9 @@ sequenceDiagram
 - **"동작 줄이기"** 설정을 켠 사용자는 transition 없이 바로 열고 닫습니다(`motion-reduce:`).
 - **반응형**: md(768px) 이상은 가로로 펼침(왼쪽 속지·오른쪽 케이스), 그보다 좁으면 세로로 펼침(위 속지·아래 케이스)입니다.
 - **크기**: 데스크톱은 케이스 한 칸 최대 480×640(펼치면 960×640), 화면이 작으면 높이 86%·폭 61% 안에 맞춰 줄어듭니다. 휴대폰은 펼친 전체가 화면 높이 88% 안에 들어가게 맞춥니다.
-- **기종별 크기**: 실물 치수(mm)를 Wii 킵 케이스(190×135) 대비 비율로 맞춥니다(`case-spec.ts`의 `scale`·`aspect`·`faceHeight`·`viewerHeight`, 선반은 `SPINE_SIZES`). GC는 0.763배, 3DS·NDS는 0.611배이고 가로가 조금 긴 정사각형에 가깝습니다. 작은 케이스는 속지에서 줄거리를 빼고 글자를 줄입니다(`CaseLiner`의 compact).
+- **기종별 크기**: 실물 치수(mm)를 Wii 킵 케이스(190×135) 대비 비율로 맞춥니다(`case-spec.ts`의 `scale`·`aspect`·`faceHeight`·`viewerHeight`, 선반은 `SPINE_SIZES`). GC는 0.763배, 3DS·NDS는 0.611배이고 가로가 조금 긴 정사각형에 가깝습니다. 작은 케이스는 속지 글자를 줄입니다(`CaseLiner`의 compact).
+- **닫기 단추**: 케이스 안 오른쪽 위에 붙어 케이스와 함께 움직이고, 여는 연출이 모두 끝난 뒤(settled)에만 보입니다(`close-button.tsx`).
+- **속지 내용**: 기종 → 한글 제목(넘치면 등줄기 줄 위치에서 줄바꿈) → 원제 → 상태·버전·원본·방식·구동 확인·번역 범위·알려진 문제. 상태는 `releaseStage`(공개 전 = 작업 중, v1.0 미만 = 공개 테스트 배포, 이상 = 검수판 배포)이고, 작업 중이면 나머지는 "-"입니다. 내용이 길면 속지 안에서 스크롤됩니다.
 - **FLIP**: First(처음 위치) → Last(끝 위치) → Invert(끝 위치의 요소를 처음 위치로 보이게 transform) → Play(transform을 없애며 이동). 위치를 바꾸는 대신 transform만 움직여서 부드럽습니다.
 
 ### GC·SFC·GB·GBA: 종이상자에서 꺼내 여는 단계
