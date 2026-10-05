@@ -288,7 +288,7 @@ stateDiagram-v2
 ```mermaid
 flowchart TB
   root["app/layout.tsx (루트)<br/>글꼴·전역 CSS·화면 모드 초기화 스크립트"] --> grp["app/(site)/layout.tsx"]
-  grp --> sl["src/app/layouts/site-layout.tsx (FSD app 층)<br/>SiteHeader + main + SiteFooter"]
+  grp --> sl["src/app/layouts/site-layout.tsx (FSD app 층)<br/>SiteHeader + main + SiteFooter + BottomNav(휴대폰)"]
   grp --> page["app/(site)/page.tsx → src/pages/home"]
   page --> hp["home-page.tsx (서버, 1시간마다 다시 그림)<br/>콘텐츠 읽기 → toCaseData → 분류 번호 순 정렬<br/>최근 2주 안에 갱신된 것 최대 4개 고르기"]
   hp --> hc["home-client.tsx ('use client')<br/>상태: 필터 · 보기(진열장/목록) · 꺼낸 작품"]
@@ -300,6 +300,7 @@ flowchart TB
 ```
 
 - **왜 헤더·푸터가 app 층인가**: 모든 공개 페이지에 공통이라 화면(pages)이 아니라 앱 전체 틀(app 층)의 일입니다. Next.js의 `app/(site)/layout.tsx`는 FSD의 `SiteLayout`을 불러오기만 합니다.
+- **휴대폰 메뉴는 화면 아래 고정**: 헤더 메뉴와 하단 메뉴(`BottomNav`)는 같은 메뉴 목록(`site-header/model/nav.ts`)을 씁니다. 하단 메뉴가 페이지 끝을 가리지 않게 레이아웃이 같은 높이만큼 아래 여백을 둡니다(아이폰 홈 표시줄 자리 `env(safe-area-inset-bottom)` 포함).
 - **필터·보기 전환을 features로 빼지 않은 이유**: 지금은 홈에서만 씁니다. FSD도 "여러 곳에서 쓰이기 전까지는 쓰는 곳 가까이"를 권합니다.
 - **누른 요소 감추기**: 같은 작품이 "최근 갱신"과 선반에 동시에 있을 수 있어서, 작품이 아니라 **실제로 누른 요소**(`element.style.visibility`)를 감추고 닫힐 때 되돌립니다.
 - **최근 갱신과 "오늘"**: 홈은 서버가 미리 만들어 두는 페이지라 "오늘"이 만든 시점에 고정됩니다. 라우트 파일(`app/(site)/page.tsx`)의 `revalidate = 3600`으로 1시간마다 다시 그려, 2주가 지난 작품이 저절로 빠지게 합니다. 2주 안에 갱신이 없으면 칸 자체를 숨깁니다.
