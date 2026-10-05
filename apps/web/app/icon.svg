@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
   <title>arqhive</title>
-  <rect width="64" height="64" fill="#1e2a3a"/>
-  <rect x="14" y="12" width="9" height="40" fill="#eeeee9"/>
-  <rect x="27" y="18" width="9" height="34" fill="#eeeee9"/>
-  <rect x="40" y="12" width="10" height="40" fill="#b23a2e"/>
-  <rect x="10" y="52" width="44" height="4" fill="#eeeee9"/>
+  <!-- 사이트 이름 arqhive의 q. 글꼴에 따라 모양이 바뀌지 않게 원(몸통)과 막대(줄기)로 직접 그린다. -->
+  <!-- 바탕은 어두운 화면 바탕색, 글자는 종이색(globals.css 토큰과 같은 값) -->
+  <rect width="64" height="64" rx="12" fill="#12161d"/>
+  <circle cx="31.5" cy="26" r="10.5" fill="none" stroke="#eeeee9" stroke-width="7"/>
+  <rect x="39.5" y="12" width="7" height="40" rx="1" fill="#eeeee9"/>
 </svg>
