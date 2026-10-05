@@ -342,7 +342,7 @@
 - **문서**: https://developer.mozilla.org/docs/Web/API/ResizeObserver
 
 ### 여러 개 고르는 필터와 펼침 목록 ★★
-- **볼 것**: `entities/patch/lib/platform-groups.ts`(`toggleFilter`), `pages/home/ui/platform-dropdown.tsx`
+- **볼 것**: `entities/patch/lib/platform-groups.ts`(`toggleFilter`), `pages/korean-translation/ui/platform-dropdown.tsx`
 - **핵심**
   - 필터 값을 "고른 것들의 목록"으로 두고 빈 목록을 "전체"로 정하면, 전체·여러 개·하나를 같은 규칙으로 다룹니다.
   - 다음 상태가 이전 상태에 달려 있으면 `setState((prev) => …)`로 씁니다. 같은 순간 두 번 눌러도 앞 선택이 사라지지 않습니다.
@@ -350,7 +350,7 @@
 - **문서**: https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state
 
 ### 날짜에 따라 바뀌는 정적 페이지(ISR) ★★
-- **볼 것**: `app/(site)/page.tsx`의 `revalidate`, `shared/lib/date.ts`의 `kstDayNumber`
+- **볼 것**: `app/(site)/korean-translation/page.tsx`의 `revalidate`, `shared/lib/date.ts`의 `kstDayNumber`
 - **핵심**
   - 미리 만들어 둔 페이지는 만든 시점의 "오늘"에 묶입니다. `export const revalidate = 초`를 라우트 파일에 두면 그 주기마다 다시 그립니다.
   - 이런 설정은 Next.js가 **라우트 파일에서만** 읽습니다(FSD pages 칸에 두면 무시됨).
@@ -383,6 +383,7 @@
 | 휴대폰 하단 메뉴 | (흐름 문서 11절) 메뉴 목록 한 곳에 두고 헤더·하단 메뉴가 함께 쓰기, 고정 요소가 내용을 가리지 않게 여백 주기(safe-area-inset), aria-current로 지금 페이지 알리기 |
 | 최근 갱신 받침 선 | (재질 정리) 쓰지 않게 된 @utility(shelf-ledge)는 지워 재질 파일을 가볍게 유지 |
 | 파비콘 q | (app/icon.svg) 작은 아이콘은 글꼴 글자 대신 도형으로 그려 어느 컴퓨터에서나 같은 모양, 실제 크기(16px)로 줄여 보고 확인 |
+| 홈·메뉴 개편 | (흐름 문서 11절) 홈은 소개, 진열장은 /korean-translation. 메뉴 목록 한 곳 + 지금 주소 판단(isCurrent, usePathname은 그 부분만 클라이언트로), 페이지별 탭 제목(metadata), 없는 페이지는 링크 대신 '준비 중'(typedRoutes), useId로 제목-영역 잇기 |
 
 ## 11. 다음 단계에서 만날 것 ★
 

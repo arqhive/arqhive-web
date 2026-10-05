@@ -122,17 +122,17 @@ Next.js (Vercel) ── /api/* 프록시 ──▶ Hono (Cloudflare Workers)
 ## 5. 페이지 구성
 
 ```
-/                         홈 (진열장)
-/patches                  패치 목록
-/patches/[slug]           패치 상세
-/patches/[slug]/reports   해당 패치의 제보 목록
-/guides                   적용 가이드 목록
+# 10/5 변경: 홈이 소개 역할을 맡고(/about 없음), 진열장은 /korean-translation으로 옮김. 메뉴는 홈·한글 패치·가이드·제보
+/                                    홈 (사이트 소개 — 원칙·FAQ도 여기에)
+/korean-translation                  한글 패치 (진열장·목록·최근 갱신)
+/korean-translation/[slug]           패치 상세
+/korean-translation/[slug]/reports   해당 패치의 제보 목록
+/guides                   가이드 (Q&A 형식: 적용 방법·자주 묻는 질문, 10/5)
 /guides/[slug]            가이드 상세
 /reports                  전체 제보 목록
 /reports/new              제보 작성 (로그인 없음)
 /reports/[id]             제보 상세 (GitHub 이슈로 가는 링크 포함)
 /search                   통합 검색
-/about                    소개·원칙·FAQ
 /colophon                 판권면(글꼴·색·기술·디자인 결정)
 /feed.xml                 새 릴리즈 RSS
 ```

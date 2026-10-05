@@ -1,21 +1,47 @@
 import { patches } from '@arqhive/content';
-import { recentlyUpdated, toCaseData } from '@/entities/patch';
-import { kstDayNumber } from '@/shared/lib';
-import { HomeClient } from './home-client.tsx';
-
-/** 표지가 보이게 세워 둘 최근 갱신 작품 수(최대). 화면이 좁으면 FaceOutRow가 2~3개만 보여 준다 */
-const RECENT_COUNT = 4;
+import Link from 'next/link';
+import { Disclaimer } from './disclaimer.tsx';
+import { HelpLinks } from './help-links.tsx';
 
 /**
- * 홈 화면 = 진열장(FSD pages 층의 home 조각).
- *
- * 서버 컴포넌트에서 콘텐츠를 읽고, 진열장에 필요한 필드만 골라(toCaseData) 클라이언트 컴포넌트로 넘긴다.
- * 작품 순서는 분류 번호 순이다(기종 안에서 저장소를 만든 순서).
+ * 홈(/) = 사이트 소개. 무엇을 하는 곳인지 보여 주고, 한글 패치 진열장으로 안내한다.
+ * 소개문은 사용자가 고른 2-B안(10/5, 닌텐도 프랜차이즈를 겨냥한다는 점을 드러냄). 원칙·자주 묻는 질문 등은 정해지면 더한다.
  */
 export function HomePage() {
-  const items = patches.map(toCaseData).toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
+  const released = patches.filter((patch) => patch.status === 'released').length;
 
-  // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
-  const today = kstDayNumber(new Date());
-  return <HomeClient items={items} recent={recentlyUpdated(items, RECENT_COUNT, today)} />;
+  return (
+    <section className="space-y-6 py-10">
+      {/* 사이트 이름은 헤더에 이미 있으므로 여기서는 되풀이하지 않고 "보관소"라고 부른다 */}
+      <h1 className="font-bold font-title text-3xl">보관소</h1>
+      <div className="max-w-prose space-y-4 break-keep text-ink-sub leading-relaxed">
+        <p>
+          닌텐도의 게임기가 세대를 넘길 때마다, 그 시절의 게임들은 조용히 서랍 속으로 들어갑니다.
+        </p>
+        <p>
+          그 서랍에는 한 번도 한국어로 말해 본 적 없는 닌텐도 프랜차이즈가 잠들어 있습니다. 이름조차
+          낯선 숨은 시리즈도 있고, 누구나 아는 이름인데 한글판만 끝내 나오지 않은 작품도 있습니다.
+        </p>
+        <p>이 보관소는 그 작품들을 하나씩 꺼내 한글로 옮기고, 차곡차곡 모아 둡니다.</p>
+      </div>
+      {/* 보관 수: 콘텐츠 작품 수를 그대로 센다(작품을 더하면 저절로 바뀜). 작업 중은 아직 공개 전인 작품 */}
+      <p className="font-num text-ink-sub text-sm">
+        보관 중인 한글 패치 <strong className="font-bold text-ink text-lg">{patches.length}</strong>
+        편
+        <span className="ml-2">
+          (공개 {released} · 작업 중 {patches.length - released})
+        </span>
+      </p>
+      <Link
+        href="/korean-translation"
+        className="inline-block border border-ink bg-ink px-4 py-2 text-paper text-sm hover:opacity-90"
+      >
+        한글 패치 보러 가기
+      </Link>
+      <div className="pt-6">
+        <HelpLinks />
+      </div>
+      <Disclaimer />
+    </section>
+  );
 }

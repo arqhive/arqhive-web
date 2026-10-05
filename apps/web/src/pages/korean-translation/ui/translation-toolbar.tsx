@@ -20,14 +20,14 @@ const CHIP_ON = 'border-ink bg-ink text-paper';
 const CHIP_OFF = 'border-line text-ink-sub hover:border-ink hover:text-ink';
 
 /**
- * 기종 필터와 보기 전환. 홈에서만 쓰는 조작이라 별도 조각(features)으로 나누지 않고 화면 안에 둔다
+ * 기종 필터와 보기 전환. 한글 패치 페이지에서만 쓰는 조작이라 별도 조각(features)으로 나누지 않고 화면 안에 둔다
  * (FSD: 여러 곳에서 쓰이기 전까지는 쓰는 곳 가까이에 두는 편이 낫다).
  * - <fieldset>·<legend>: 버튼 묶음에 이름을 붙이는 HTML 기본 요소(role="group"보다 의미가 분명하다).
  * - aria-pressed: 눌린 상태를 보조 기술(화면 낭독기)에 알린다.
  * - 기종 필터는 여러 개를 함께 고를 수 있다. "전체"는 나머지를 모두 해제한다(entities의 toggleFilter).
  * - 넓은 화면(lg 이상)은 단추를 늘어놓고, 툴바가 두 줄로 넘어가는 좁은 화면은 펼침 목록(PlatformDropdown)으로 바꾼다.
  */
-export function HomeToolbar({
+export function TranslationToolbar({
   items,
   filter,
   onToggleFilter,

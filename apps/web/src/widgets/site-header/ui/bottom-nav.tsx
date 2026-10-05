@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV } from '../model/nav.ts';
+import { isCurrent, NAV } from '../model/nav.ts';
 
 /**
  * 휴대폰용 하단 메뉴(md 미만). 화면 아래에 고정되어 엄지로 바로 누를 수 있다.
@@ -33,7 +33,7 @@ export function BottomNav() {
           <Link
             key={item.label}
             href={item.href}
-            aria-current={pathname === item.href ? 'page' : undefined}
+            aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
             className="flex h-14 items-center justify-center border-transparent border-t-2 text-ink-sub text-xs aria-[current=page]:border-stamp aria-[current=page]:font-bold aria-[current=page]:text-ink"
           >
             {item.label}

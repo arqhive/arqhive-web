@@ -11,7 +11,7 @@ import { CaseViewer } from '@/widgets/case-viewer';
 import { PatchTable } from '@/widgets/patch-table';
 import { FaceOutRow, Shelf } from '@/widgets/shelf';
 import type { ViewMode } from '../model/view-mode.ts';
-import { HomeToolbar } from './home-toolbar.tsx';
+import { TranslationToolbar } from './translation-toolbar.tsx';
 
 /**
  * 진열장 화면의 상태를 갖는 클라이언트 부분.
@@ -20,7 +20,7 @@ import { HomeToolbar } from './home-toolbar.tsx';
  *   닫히면 다시 보이게 한다. 같은 작품이 표지 진열과 선반에 동시에 있을 수 있어,
  *   작품이 아니라 **누른 요소**를 기준으로 감춘다.
  */
-export function HomeClient({
+export function TranslationClient({
   items,
   recent,
 }: {
@@ -64,7 +64,7 @@ export function HomeClient({
         <h2 id={shelfId} className="sr-only">
           전체 진열
         </h2>
-        <HomeToolbar
+        <TranslationToolbar
           items={items}
           filter={filter}
           onToggleFilter={(key) => setFilter((prev) => toggleFilter(prev, key))}
