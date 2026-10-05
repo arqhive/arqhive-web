@@ -21,6 +21,6 @@ app → pages → widgets → features → entities → shared
 - 조각 안은 용도별 칸(segment)으로 나눕니다: `ui/`, `model/`, `api/`, `lib/`, `config/`
 - 아직 쓰지 않는 층 폴더는 만들지 않습니다. 필요해지는 단계에서 만듭니다.
 - 규칙 검사: `pnpm lint:fsd` (Steiger)
-- 애매한 판단(feature인가 entity인가 등)은 `docs/adr/`에 이유를 남깁니다.
+- 애매한 판단(feature인가 entity인가 등)은 설계 결정 기록(로컬 `docs/adr/`)에 이유를 남깁니다.
 
 Next.js의 라우팅 폴더는 맨 위 `app/`이고, 각 `page.tsx`는 이 `src/pages`의 화면을 불러오기만 합니다.
