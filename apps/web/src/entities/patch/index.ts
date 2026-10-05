@@ -8,7 +8,7 @@ export {
   type PlatformFilter,
   type PlatformGroupKey,
   recentlyUpdated,
-  SHELF_ROWS,
+  toggleFilter,
   usedGroups,
 } from './lib/platform-groups.ts';
 export { type PatchCaseData, toCaseData } from './model/case-data.ts';

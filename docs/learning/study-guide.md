@@ -324,6 +324,39 @@
   - 측정해 보니 `scrollbar-gutter: stable`만으로는 스크롤이 없을 때 자리를 비워 두지 않았습니다. 문서의 설명과 실제 동작이 다를 수 있으니 **재서 확인**합니다.
 - **문서**: https://developer.mozilla.org/docs/Web/CSS/:has, https://developer.mozilla.org/docs/Web/CSS/scrollbar-gutter
 
+### 세로쓰기의 함정들 ★
+- **볼 것**: `entities/patch/ui/case-spine.tsx`
+- **핵심**
+  - Tailwind v4의 `py`는 "글 흐름 기준 위아래"(`padding-block`)라 세로쓰기에서는 **좌우** 여백이 됩니다. 물리 방향이 필요하면 `pt`·`pb`를 씁니다.
+  - `text-orientation: upright`로 로마자·숫자·기호도 한 글자씩 세웁니다. 이때 띄어쓰기도 한 글자 높이가 되므로 `word-spacing`을 음수로 줄입니다.
+  - 세로쓰기에서는 줄 수 말줄임(`line-clamp`)이 듣지 않습니다. 폭을 `2lh`(줄 간격 두 배)로 묶어 두 줄까지 보이게 합니다. 줄을 정확히 나누고 싶으면 블록 요소 하나 = 한 열로 씁니다(`spineLines`).
+- **문서**: https://developer.mozilla.org/docs/Web/CSS/text-orientation
+
+### 레이아웃을 재서 나누기(ResizeObserver + 순수 계산) ★★
+- **볼 것**: `widgets/shelf/model/use-content-width.ts`, `widgets/shelf/lib/pack-rows.ts`
+- **핵심**
+  - CSS 줄바꿈(flex-wrap)은 "어디서 줄이 바뀌었는지"를 알려 주지 않습니다. 줄 끝 요소를 다르게 그려야 하면 폭을 재서 직접 나눕니다.
+  - 재는 일(훅, model 칸)과 나누는 계산(순수 함수, lib 칸)을 나눠 두면 계산만 따로 시험할 수 있습니다.
+  - 서버는 폭을 모르므로 처음 값은 `null`로 두고, 그동안 쓸 대체 배치를 준비합니다(hydration 오류 방지).
+  - 숨겨진 창(크기 0)에서 재면 엉뚱한 값이 나옵니다. 시험할 때 창 크기를 확인합니다.
+- **문서**: https://developer.mozilla.org/docs/Web/API/ResizeObserver
+
+### 여러 개 고르는 필터와 펼침 목록 ★★
+- **볼 것**: `entities/patch/lib/platform-groups.ts`(`toggleFilter`), `pages/home/ui/platform-dropdown.tsx`
+- **핵심**
+  - 필터 값을 "고른 것들의 목록"으로 두고 빈 목록을 "전체"로 정하면, 전체·여러 개·하나를 같은 규칙으로 다룹니다.
+  - 다음 상태가 이전 상태에 달려 있으면 `setState((prev) => …)`로 씁니다. 같은 순간 두 번 눌러도 앞 선택이 사라지지 않습니다.
+  - 펼침 목록은 `<details>`로 JS 없이 열고 닫히게 하고, 바깥 누르기·ESC로 닫는 것만 더합니다.
+- **문서**: https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state
+
+### 날짜에 따라 바뀌는 정적 페이지(ISR) ★★
+- **볼 것**: `app/(site)/page.tsx`의 `revalidate`, `shared/lib/date.ts`의 `kstDayNumber`
+- **핵심**
+  - 미리 만들어 둔 페이지는 만든 시점의 "오늘"에 묶입니다. `export const revalidate = 초`를 라우트 파일에 두면 그 주기마다 다시 그립니다.
+  - 이런 설정은 Next.js가 **라우트 파일에서만** 읽습니다(FSD pages 칸에 두면 무시됨).
+  - 날짜 차이는 한국 시간 기준 "날 번호"로 바꿔 빼면 시간대 혼동이 없습니다.
+- **문서**: https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -346,6 +379,7 @@
 | 사이트 1.2배 | 10절: 사이트 배율과 단위 고르기(rem·em·cqw·dvh), 모양은 도면 좌표로 SVG 그리기 |
 | 콘텐츠 최신화 | (흐름 문서 8절) 화면용 값도 frontmatter에(spineLines), 개발 중 콘텐츠 감시(`dev:web`), 날짜는 한국 시간 기준 |
 | 글꼴과 전역 동작 | 8절(글꼴): Google Fonts에 없는 글꼴을 npm 패키지 CSS로(동적 부분집합). 10절: 페이지 전체 동작은 전역 CSS 한 곳에서(:has() 스크롤 잠금, 스크롤바 자리) |
+| 홈 진열장 다듬기 | 10절: 세로쓰기의 함정들, 레이아웃을 재서 나누기(ResizeObserver + 순수 계산), 여러 개 고르는 필터와 펼침 목록, 날짜에 따라 바뀌는 정적 페이지(ISR) |
 
 ## 11. 다음 단계에서 만날 것 ★
 

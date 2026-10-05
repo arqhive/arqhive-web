@@ -33,7 +33,7 @@ export function CaseCover({ patch }: { readonly patch: PatchCaseData }) {
   }
 
   return (
-    <div className="@container size-full border border-black/20">
+    <div className="@container size-full overflow-hidden rounded-[2cqw] border border-black/20">
       <CoverPrint patch={patch} />
     </div>
   );

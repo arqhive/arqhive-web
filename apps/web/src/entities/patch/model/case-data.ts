@@ -11,6 +11,7 @@ export type PatchCaseData = Pick<
   | 'slug'
   | 'catalogNo'
   | 'titleKo'
+  | 'spineLines'
   | 'titleOriginal'
   | 'platform'
   | 'status'
@@ -26,6 +27,7 @@ export function toCaseData(patch: Patch): PatchCaseData {
     slug: patch.slug,
     catalogNo: patch.catalogNo,
     titleKo: patch.titleKo,
+    spineLines: patch.spineLines,
     titleOriginal: patch.titleOriginal,
     platform: patch.platform,
     status: patch.status,

@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useId, useRef, useState } from 'react';
-import type { PatchCaseData, PickHandler, PlatformFilter } from '@/entities/patch';
+import {
+  type PatchCaseData,
+  type PickHandler,
+  type PlatformFilter,
+  toggleFilter,
+} from '@/entities/patch';
 import { CaseViewer } from '@/widgets/case-viewer';
 import { PatchTable } from '@/widgets/patch-table';
 import { FaceOutRow, Shelf } from '@/widgets/shelf';
@@ -22,7 +27,7 @@ export function HomeClient({
   readonly items: readonly PatchCaseData[];
   readonly recent: readonly PatchCaseData[];
 }) {
-  const [filter, setFilter] = useState<PlatformFilter>('all');
+  const [filter, setFilter] = useState<PlatformFilter>([]);
   const [view, setView] = useState<ViewMode>('shelf');
   const [picked, setPicked] = useState<PatchCaseData | null>(null);
   const originRef = useRef<HTMLElement | null>(null);
@@ -45,12 +50,15 @@ export function HomeClient({
 
   return (
     <div className="space-y-10">
-      <section aria-labelledby={recentId}>
-        <h2 id={recentId} className="font-bold font-title text-xl">
-          최근 갱신
-        </h2>
-        <FaceOutRow items={recent} onPick={onPick} />
-      </section>
+      {/* 최근 2주 안에 갱신된 패치가 없으면 이 칸은 통째로 보이지 않는다 */}
+      {recent.length === 0 ? null : (
+        <section aria-labelledby={recentId}>
+          <h2 id={recentId} className="font-bold font-title text-xl">
+            최근 갱신 패치
+          </h2>
+          <FaceOutRow items={recent} onPick={onPick} />
+        </section>
+      )}
 
       <section aria-labelledby={shelfId} className="space-y-4">
         <h2 id={shelfId} className="sr-only">
@@ -59,7 +67,7 @@ export function HomeClient({
         <HomeToolbar
           items={items}
           filter={filter}
-          onFilter={setFilter}
+          onToggleFilter={(key) => setFilter((prev) => toggleFilter(prev, key))}
           view={view}
           onView={setView}
         />

@@ -290,11 +290,11 @@ flowchart TB
   root["app/layout.tsx (루트)<br/>글꼴·전역 CSS·화면 모드 초기화 스크립트"] --> grp["app/(site)/layout.tsx"]
   grp --> sl["src/app/layouts/site-layout.tsx (FSD app 층)<br/>SiteHeader + main + SiteFooter"]
   grp --> page["app/(site)/page.tsx → src/pages/home"]
-  page --> hp["home-page.tsx (서버)<br/>콘텐츠 읽기 → toCaseData → 분류 번호 순 정렬<br/>최근 갱신 3개 고르기"]
+  page --> hp["home-page.tsx (서버, 1시간마다 다시 그림)<br/>콘텐츠 읽기 → toCaseData → 분류 번호 순 정렬<br/>최근 2주 안에 갱신된 것 최대 4개 고르기"]
   hp --> hc["home-client.tsx ('use client')<br/>상태: 필터 · 보기(진열장/목록) · 꺼낸 작품"]
-  hc --> tb["home-toolbar.tsx<br/>기종 필터 · 보기 전환"]
-  hc --> fo["widgets/shelf FaceOutRow<br/>최근 갱신 표지"]
-  hc --> sh["widgets/shelf Shelf<br/>기종별 선반(등줄기)"]
+  hc --> tb["home-toolbar.tsx<br/>기종 필터(여러 개 선택, 좁으면 펼침 목록) · 보기 전환"]
+  hc --> fo["widgets/shelf FaceOutRow<br/>최근 갱신 표지(폭에 따라 2~4개)"]
+  hc --> sh["widgets/shelf Shelf<br/>도서관 책장(폭을 재서 칸 나누기)"]
   hc --> pt["widgets/patch-table<br/>목록(표·카드)"]
   hc --> cv["widgets/case-viewer"]
 ```
@@ -302,6 +302,9 @@ flowchart TB
 - **왜 헤더·푸터가 app 층인가**: 모든 공개 페이지에 공통이라 화면(pages)이 아니라 앱 전체 틀(app 층)의 일입니다. Next.js의 `app/(site)/layout.tsx`는 FSD의 `SiteLayout`을 불러오기만 합니다.
 - **필터·보기 전환을 features로 빼지 않은 이유**: 지금은 홈에서만 씁니다. FSD도 "여러 곳에서 쓰이기 전까지는 쓰는 곳 가까이"를 권합니다.
 - **누른 요소 감추기**: 같은 작품이 "최근 갱신"과 선반에 동시에 있을 수 있어서, 작품이 아니라 **실제로 누른 요소**(`element.style.visibility`)를 감추고 닫힐 때 되돌립니다.
+- **최근 갱신과 "오늘"**: 홈은 서버가 미리 만들어 두는 페이지라 "오늘"이 만든 시점에 고정됩니다. 라우트 파일(`app/(site)/page.tsx`)의 `revalidate = 3600`으로 1시간마다 다시 그려, 2주가 지난 작품이 저절로 빠지게 합니다. 2주 안에 갱신이 없으면 칸 자체를 숨깁니다.
+- **책장 칸 나누기**: `useContentWidthRem`이 책장 안쪽 폭을 재고(ResizeObserver), `lib/pack-rows.ts`(순수 계산)가 케이스를 칸에 채웁니다. 북엔드는 같은 칸의 두 기종 사이에만, 표찰은 칸마다 그 기종의 첫 케이스에 붙습니다. 폭을 재기 전 첫 화면은 줄바꿈 흐름으로 보여 줍니다(북엔드 없이).
+- **기종 필터**: 값은 고른 기종 목록이고 빈 목록이 "전체"입니다. 켜고 끄는 계산(`toggleFilter`)은 상태를 가진 `home-client`가 최신 값으로 합니다(`setFilter((prev) => …)`, 빠르게 연달아 눌러도 안 사라짐).
 
 ### 화면 모드(밝게·어둡게)
 
@@ -314,9 +317,10 @@ sequenceDiagram
   B->>S: HTML을 받자마자 실행(beforeInteractive)
   S->>B: localStorage에 저장값 있으면 <html data-theme> 설정
   Note over B: 첫 화면부터 올바른 색(번쩍임 없음)
-  R->>T: hydration (처음엔 theme=null → "화면")
-  T->>T: useEffect에서 현재 모드 읽기 → "밝게"/"어둡게"
+  R->>T: hydration (처음엔 theme=null → 꺼진 전구)
+  T->>T: useEffect에서 현재 모드 읽기 → 켜진 전구(밝은 화면)/꺼진 전구
   T->>B: 누르면 data-theme 변경 + localStorage 저장
+  B-->>T: 시스템 설정이 바뀌면(matchMedia change) 직접 고른 적이 없을 때만 아이콘 갱신
 ```
 
 - 저장값이 없으면 시스템 설정(`prefers-color-scheme`)을 따릅니다(globals.css의 미디어 쿼리).

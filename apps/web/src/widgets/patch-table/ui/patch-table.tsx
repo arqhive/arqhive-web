@@ -12,6 +12,7 @@ import { formatDate } from '@/shared/lib';
 /**
  * 목록 보기(시안 A 기록보관소의 촘촘한 표). 분류 번호 순으로 보여 준다.
  * 데스크톱(md 이상)은 표, 휴대폰은 한 줄 카드로 바뀐다(같은 데이터, 다른 배치).
+ * 휴대폰 카드의 오른쪽 칸(배포 배지·기종)은 줄마다 폭이 달라서, 둘 다 오른쪽 끝에 맞춘다(justify-self-end).
  */
 export function PatchTable({
   items,
@@ -42,7 +43,7 @@ export function PatchTable({
               <span className="block break-keep font-title text-base">{item.titleKo}</span>
               <span className="block text-ink-sub text-xs">{item.titleOriginal}</span>
             </span>
-            <span className="order-4 font-num text-ink-sub text-xs md:order-none md:text-ink md:text-sm">
+            <span className="order-4 justify-self-end font-num text-ink-sub text-xs md:order-none md:justify-self-start md:text-ink md:text-sm">
               {PLATFORM_LABELS[item.platform]}
             </span>
             <span className="hidden font-num text-sm md:inline">

@@ -3,6 +3,10 @@
  * 문자열을 잘라 쓰지 않고 Intl.DateTimeFormat으로 **한국 시간 기준** 날짜를 만든다.
  * (서버(UTC)와 브라우저(KST)가 다른 날짜를 그리면 hydration 오류가 나므로, 시간대를 명시해 둘을 같게 한다)
  */
+/** 하루(ms)와 한국 시간의 UTC 차이(ms). kstDayNumber에서 쓴다 */
+const DAY_MS = 86_400_000;
+const KST_OFFSET_MS = 32_400_000; // 9시간
+
 const parts = new Intl.DateTimeFormat('ko-KR', {
   timeZone: 'Asia/Seoul',
   year: 'numeric',
@@ -31,4 +35,13 @@ export function formatDate(iso: string): string {
 export function formatMonthDay(iso: string): string {
   const { month, day } = ymd(iso);
   return `${month}.${day}`;
+}
+
+/**
+ * 한국 시간 기준 "몇 번째 날"(1970-01-01부터 센 날 수). 두 날짜가 며칠 떨어졌는지 셀 때 쓴다.
+ * 콘텐츠 날짜("2026-10-05T00:00:00.000Z")도, 지금 시각(new Date())도 같은 기준으로 바꾼다.
+ */
+export function kstDayNumber(date: string | Date): number {
+  const ms = typeof date === 'string' ? Date.parse(date) : date.getTime();
+  return Math.floor((ms + KST_OFFSET_MS) / DAY_MS);
 }

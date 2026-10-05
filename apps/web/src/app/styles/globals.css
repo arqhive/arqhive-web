@@ -4,6 +4,7 @@
 @import "../../entities/patch/ui/case-materials.css";
 @import "../../entities/patch/ui/cart-materials.css";
 @import "../../entities/patch/ui/paper-materials.css";
+@import "../../widgets/shelf/ui/shelf-materials.css";
 /* 범용 효과(홀로그램 글자) */
 @import "../../shared/ui/holo-text.css";
 

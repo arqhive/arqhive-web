@@ -63,7 +63,10 @@ export interface CaseSpec {
   readonly aspect: string;
   /** 케이스 높이 ÷ Wii 케이스 높이(실물 기준). 작은 케이스는 속지를 줄여 쓰는 데 쓴다 */
   readonly scale: number;
-  /** 최근 갱신 칸의 표지 높이. Wii를 기준으로 실물 높이 비율만큼 줄인다 */
+  /**
+   * 최근 갱신 칸의 표지 높이. 칸 폭(cqw, 칸이 @container)에 비례한다.
+   * Wii 표지가 칸 폭을 거의 채우는 높이(138cqw)를 기준으로 실물 높이 비율을 곱한다. 가장 넓은 SFC 상자도 칸 폭을 넘지 않는다.
+   */
   readonly faceHeight: string;
   /**
    * 케이스 열기 화면의 케이스 높이. Wii 기준(휴대폰 44dvh·122vw, 데스크톱 40rem·86dvh·61vw)에 높이 비율을 곱하고,
@@ -84,7 +87,7 @@ export const CASE_SPECS = {
     holder: 'hex',
     aspect: 'aspect-[123/145]',
     scale: 0.763,
-    faceHeight: 'h-[9.75rem] sm:h-[11.875rem]',
+    faceHeight: 'h-[105.3cqw]',
     viewerHeight: 'h-[min(44dvh,100vw)] md:h-[min(30.5rem,66dvh,47vw)]',
   },
   wii: {
@@ -96,7 +99,7 @@ export const CASE_SPECS = {
     holder: 'ring',
     aspect: 'aspect-[135/190]',
     scale: 1,
-    faceHeight: 'h-[12.75rem] sm:h-[15.5625rem]',
+    faceHeight: 'h-[138cqw]',
     viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   wiiu: {
@@ -108,7 +111,7 @@ export const CASE_SPECS = {
     holder: 'ring',
     aspect: 'aspect-[135/190]',
     scale: 1,
-    faceHeight: 'h-[12.75rem] sm:h-[15.5625rem]',
+    faceHeight: 'h-[138cqw]',
     viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   '3ds': {
@@ -120,7 +123,7 @@ export const CASE_SPECS = {
     holder: 'cart',
     aspect: 'aspect-[527/464]',
     scale: 0.611,
-    faceHeight: 'h-[7.8125rem] sm:h-[9.5rem]',
+    faceHeight: 'h-[84.3cqw]',
     viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   nds: {
@@ -132,7 +135,7 @@ export const CASE_SPECS = {
     holder: 'cart',
     aspect: 'aspect-[527/464]',
     scale: 0.611,
-    faceHeight: 'h-[7.8125rem] sm:h-[9.5rem]',
+    faceHeight: 'h-[84.3cqw]',
     viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   dsiware: {
@@ -144,7 +147,7 @@ export const CASE_SPECS = {
     holder: 'cart',
     aspect: 'aspect-[527/464]',
     scale: 0.611,
-    faceHeight: 'h-[7.8125rem] sm:h-[9.5rem]',
+    faceHeight: 'h-[84.3cqw]',
     viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   n64: {
@@ -156,7 +159,7 @@ export const CASE_SPECS = {
     holder: null,
     aspect: 'aspect-[3/4]',
     scale: 1,
-    faceHeight: 'h-[12rem] sm:h-[14.6875rem]',
+    faceHeight: 'h-[133cqw]',
     viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   sfc: {
@@ -168,7 +171,7 @@ export const CASE_SPECS = {
     holder: null,
     aspect: 'aspect-[138/193]',
     scale: 1.016,
-    faceHeight: 'h-[12.9375rem] sm:h-[15.8125rem]',
+    faceHeight: 'h-[139.8cqw]',
     viewerHeight: 'h-[min(44dvh,120vw)] md:h-[min(40.625rem,86dvh,60vw)]',
   },
   gb: {
@@ -180,7 +183,7 @@ export const CASE_SPECS = {
     holder: null,
     aspect: 'aspect-square',
     scale: 0.679,
-    faceHeight: 'h-[8.6875rem] sm:h-[10.5625rem]',
+    faceHeight: 'h-[93.7cqw]',
     viewerHeight: 'h-[min(44dvh,86vw)] md:h-[min(27.1875rem,58dvh,41vw)]',
   },
   gba: {
@@ -192,7 +195,7 @@ export const CASE_SPECS = {
     holder: null,
     aspect: 'aspect-square',
     scale: 0.684,
-    faceHeight: 'h-[8.75rem] sm:h-[10.625rem]',
+    faceHeight: 'h-[94.4cqw]',
     viewerHeight: 'h-[min(44dvh,86vw)] md:h-[min(27.375rem,58dvh,41vw)]',
   },
 } as const satisfies Record<Platform, CaseSpec>;

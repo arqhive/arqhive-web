@@ -44,6 +44,8 @@ const patches = defineCollection({
     // 분류 번호: ARQ-<기종>-<기종 안에서 저장소를 만든 순서>. 목록 보기에 쓴다.
     catalogNo: s.string().regex(/^ARQ-[A-Z0-9]+-\d{3}$/),
     titleKo: s.string(),
+    // 선반 등줄기에 쓰는 제목 줄(두 줄까지). 줄바꿈 위치를 고정할 때만 적는다. 없으면 titleKo를 자동으로 줄바꿈한다.
+    spineLines: s.array(s.string()).min(1).max(2).optional(),
     titleOriginal: s.string(),
     titleEn: s.string().nullable(),
     platform: s.enum(PLATFORMS),

@@ -12,7 +12,8 @@ import { CoverPrint } from './cover-print.tsx';
 /** 상자 앞면: 무광 종이에 표지 인쇄물 */
 export function CartonFront({ patch }: { readonly patch: PatchCaseData }) {
   return (
-    <div className="relative size-full overflow-hidden">
+    // 종이상자 모서리는 살짝 둥글다(표지 폭 비례).
+    <div className="relative size-full overflow-hidden rounded-[2cqw]">
       <CoverPrint patch={patch} />
       <div className="paper-print pointer-events-none absolute inset-0" />
     </div>

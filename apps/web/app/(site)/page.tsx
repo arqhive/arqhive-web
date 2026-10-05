@@ -4,3 +4,7 @@
 // Next.js 라우팅 파일은 FSD의 pages 층 화면을 불러와 기본 내보내기로 넘기기만 한다.
 // 화면의 실제 내용은 src/pages/home에 있다.
 export { HomePage as default } from '@/pages/home';
+
+// 최근 갱신(2주 이내)은 "오늘"에 따라 바뀌므로, 미리 만들어 둔 페이지를 1시간마다 새로 그린다(ISR).
+// 이 값은 Next.js가 라우트 파일에서만 읽는다(src/pages 쪽에 두면 적용되지 않는다).
+export const revalidate = 3600;

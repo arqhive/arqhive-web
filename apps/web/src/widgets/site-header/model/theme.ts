@@ -13,6 +13,11 @@ export function currentTheme(): Theme {
   return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
+/** 사용자가 직접 모드를 고른 적이 있는지(<html data-theme>이 붙어 있는지). 없으면 시스템 설정을 따르는 중이다 */
+export function hasChosenTheme(): boolean {
+  return document.documentElement.hasAttribute('data-theme');
+}
+
 /** 모드를 적용하고 기억한다. 저장이 막힌 환경(사생활 보호 모드 등)에서도 적용은 된다. */
 export function applyTheme(theme: Theme): void {
   document.documentElement.setAttribute('data-theme', theme);

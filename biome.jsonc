@@ -123,6 +123,8 @@
         "apps/web/src/entities/patch/ui/case-materials.css",
         "apps/web/src/entities/patch/ui/cart-materials.css",
         "apps/web/src/entities/patch/ui/paper-materials.css",
+        // 책장 나무·금속 색
+        "apps/web/src/widgets/shelf/ui/shelf-materials.css",
         // 홀로그램 무지개 색
         "apps/web/src/shared/ui/holo-text.css"
       ],

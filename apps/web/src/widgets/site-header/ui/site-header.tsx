@@ -4,7 +4,7 @@ import { ThemeToggle } from './theme-toggle.tsx';
 
 /** 메뉴. 아직 만들지 않은 페이지는 링크 대신 "준비 중" 표시로 둔다(없는 주소로 가지 않게). */
 const NAV = [
-  { label: '진열장', href: '/' },
+  { label: '한글 패치', href: '/' },
   { label: '가이드', href: null },
   { label: '제보', href: null },
   { label: '소개', href: null },
