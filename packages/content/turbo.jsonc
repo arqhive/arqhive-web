@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  // 루트 turbo.jsonc 설정을 이어받고, 이 패키지의 build만 바꾼다.
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      // Velite가 이미지를 이 패키지 밖(apps/web/public/static)으로 복사한다. 캐시는 패키지 안 결과물만 되살리므로
+      // 캐시를 쓰면 이미지가 빠진 채 웹이 빌드된다. 콘텐츠 빌드는 1초 안쪽이라 매번 새로 빌드한다.
+      "cache": false
+    }
+  }
+}
