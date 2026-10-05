@@ -42,10 +42,23 @@ class Reject extends Error {
 /** 봇·횟수 검사. IP는 그대로 저장하지 않고 해시로만 센다 */
 async function guard(env: ApiEnv, form: FormData, ip: string | null): Promise<void> {
   const token = form.get('cf-turnstile-response');
-  if (
-    looksLikeBot(form) ||
-    !(await verifyTurnstile(env.TURNSTILE_SECRET_KEY, typeof token === 'string' ? token : null, ip))
-  ) {
+  // 거절 이유는 Workers 로그(대시보드·wrangler tail)에 남긴다. 사용자 글·IP·토큰 값은 남기지 않는다
+  if (looksLikeBot(form)) {
+    // biome-ignore lint/suspicious/noConsole: 거절 원인을 운영 로그로 남긴다
+    console.warn('report rejected: bot-trace', {
+      honeypotFilled: form.get('website') !== '' && form.get('website') !== null,
+      elapsedMs: Number(form.get('elapsedMs') ?? '0'),
+    });
+    throw new Reject('bot');
+  }
+  const check = await verifyTurnstile(
+    env.TURNSTILE_SECRET_KEY,
+    typeof token === 'string' ? token : null,
+    ip,
+  );
+  if (!check.ok) {
+    // biome-ignore lint/suspicious/noConsole: 거절 원인을 운영 로그로 남긴다
+    console.warn('report rejected: turnstile', check.reason);
     throw new Reject('bot');
   }
   const hour = Math.floor(Date.now() / MS_PER_SECOND / HOUR);
