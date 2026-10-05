@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CASE_SPECS } from '../lib/case-spec.ts';
+import { CASE_SPECS, hasSquareCorners } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
 import { CoverPrint } from './cover-print.tsx';
 
@@ -12,8 +12,10 @@ import { CoverPrint } from './cover-print.tsx';
 /** 상자 앞면: 무광 종이에 표지 인쇄물 */
 export function CartonFront({ patch }: { readonly patch: PatchCaseData }) {
   return (
-    // 종이상자 모서리는 살짝 둥글다(표지 폭 비례).
-    <div className="relative size-full overflow-hidden rounded-[2cqw]">
+    // 종이상자 모서리는 살짝 둥글다(표지 폭 비례). GC 상자는 각지다.
+    <div
+      className={`relative size-full overflow-hidden ${hasSquareCorners(CASE_SPECS[patch.platform]) ? '' : 'rounded-[2cqw]'}`}
+    >
       <CoverPrint patch={patch} />
       <div className="paper-print pointer-events-none absolute inset-0" />
     </div>
@@ -37,11 +39,11 @@ export function CaseCarton({
 }) {
   return (
     <div
-      className={`pointer-events-none absolute inset-0 z-10 perspective-[900px] transition-[translate,opacity] duration-[650ms] ease-in motion-reduce:transition-none ${unboxed ? 'translate-y-[75%] opacity-0' : 'translate-y-0 opacity-100'}`}
+      className={`pointer-events-none absolute inset-0 z-10 perspective-[900px] transition-[translate,opacity] duration-[calc(650ms*var(--case-tempo,1))] ease-in motion-reduce:transition-none ${unboxed ? 'translate-y-[75%] opacity-0' : 'translate-y-0 opacity-100'}`}
     >
       {/* 윗뚜껑: 상자 위쪽에 붙어 있다가 열리면 일어서며 뒤로 젖혀진다. 색은 상자 앞면과 같은 기종 색 */}
       <div
-        className={`paper-lid ${CASE_SPECS[patch.platform].caseClass} absolute inset-x-0 bottom-full h-[11%] origin-bottom transition-transform duration-[450ms] ease-out motion-reduce:transition-none ${lidOpen ? '-rotate-x-18' : 'rotate-x-90'}`}
+        className={`paper-lid ${CASE_SPECS[patch.platform].caseClass} absolute inset-x-0 bottom-full h-[11%] origin-bottom transition-transform duration-[calc(450ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${lidOpen ? '-rotate-x-18' : 'rotate-x-90'}`}
       />
       <CartonFront patch={patch} />
     </div>

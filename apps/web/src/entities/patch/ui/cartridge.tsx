@@ -1,5 +1,6 @@
 import { PLATFORM_LABELS } from '@arqhive/shared';
 import type { PatchCaseData } from '../model/case-data.ts';
+import { ReleaseLink } from './release-link.tsx';
 
 /**
  * SFC·GB·GBA 카트리지(게임팩). 실물 사진의 생김새(몸통 윤곽, 라벨 자리, 홈, 나사)만 따르고 로고·각인은 그리지 않는다.
@@ -175,9 +176,10 @@ export function Cartridge({
       : SfcCartridge;
   return (
     <div
-      className={`@container relative drop-shadow-[2px_4px_6px_rgb(0_0_0/0.35)] transition-[translate] delay-300 duration-700 ease-out motion-reduce:transition-none ${mediaClass} ${isOpen ? '-translate-y-[4%]' : 'translate-y-0'}`}
+      className={`@container relative drop-shadow-[2px_4px_6px_rgb(0_0_0/0.35)] transition-[translate] delay-[calc(300ms*var(--case-tempo,1))] duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${mediaClass} ${isOpen ? '-translate-y-[4%]' : 'translate-y-0'}`}
     >
       <Shape patch={patch} />
+      <ReleaseLink patch={patch} shape="absolute inset-0 rounded-[2cqw]" />
     </div>
   );
 }

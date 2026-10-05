@@ -357,6 +357,22 @@
   - 날짜 차이는 한국 시간 기준 "날 번호"로 바꿔 빼면 시간대 혼동이 없습니다.
 - **문서**: https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 
+### 매체를 누르면 최신 릴리즈로(투명 링크 판) ★★
+- **볼 것**: `entities/patch/ui/release-link.tsx`, `keepcase.tsx`(받침마다 링크 모양), `cartridge.tsx`
+- **핵심**
+  - GitHub는 `https://github.com/{owner}/{repo}/releases/latest`가 늘 최신 릴리즈로 넘겨 줍니다. 버전이 바뀌어도 링크를 고칠 필요가 없습니다.
+  - 그림(디스크·카드·카트리지) 위에 같은 모양의 투명한 `<a>`를 덮어 누를 곳을 만듭니다. 그림 쪽 코드는 건드리지 않습니다.
+  - 새 탭 링크에는 `rel="noopener noreferrer"`를 붙이고, 화면에 글자가 없으니 `sr-only`로 읽어 줄 이름을 넣습니다.
+  - 공개(released) 작품에만 링크를 만듭니다. 비공개 릴리즈로 가는 링크는 남에게 404가 됩니다.
+- **문서**: https://docs.github.com/repositories/releasing-projects-on-github/linking-to-releases
+
+### 넘칠 때만 정해 둔 곳에서 줄 바꾸기 ★
+- **볼 것**: `entities/patch/ui/title-lines.tsx`
+- **핵심**
+  - 덩어리마다 `inline-block`으로 감싸면, 한 줄에 다 들어갈 때는 한 줄 그대로이고 넘칠 때만 덩어리 사이에서 줄이 바뀝니다. 미디어 쿼리나 폭 측정이 필요 없습니다.
+  - 줄 나눔 위치는 등줄기용 `spineLines`를 다시 씁니다. 다만 등줄기 줄은 문장부호를 빼고 적은 경우가 있어, 글자는 원래 제목에서 잘라 씁니다(콜론 유지).
+- **문서**: https://developer.mozilla.org/docs/Web/CSS/display#inline-block
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -384,6 +400,7 @@
 | 최근 갱신 받침 선 | (재질 정리) 쓰지 않게 된 @utility(shelf-ledge)는 지워 재질 파일을 가볍게 유지 |
 | 파비콘 q | (app/icon.svg) 작은 아이콘은 글꼴 글자 대신 도형으로 그려 어느 컴퓨터에서나 같은 모양, 실제 크기(16px)로 줄여 보고 확인 |
 | 홈·메뉴 개편 | (흐름 문서 11절) 홈은 소개, 진열장은 /korean-translation. 메뉴 목록 한 곳 + 지금 주소 판단(isCurrent, usePathname은 그 부분만 클라이언트로), 페이지별 탭 제목(metadata), 없는 페이지는 링크 대신 '준비 중'(typedRoutes), useId로 제목-영역 잇기 |
+| 케이스 그림 다듬기 | 10절: 매체를 누르면 최신 릴리즈로(투명 링크 판·`releases/latest`), 넘칠 때만 정해 둔 곳에서 줄 바꾸기(inline-block). GC는 모서리를 각지게(`hasSquareCorners` 판정 함수 하나), 3DS·NDS 카드 받침은 오목한 면 정중앙(오목한 면의 여백으로 중심 계산) |
 | 푸터 저작권 표기 | 저작권 연도를 한국 시간 올해로 계산(연 해와 다르면 2026–2027), 고지는 홈 면책 조항으로 옮김 |
 
 ## 11. 다음 단계에서 만날 것 ★

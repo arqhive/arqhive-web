@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { HoloText } from '@/shared/ui';
 import { type CaseTone, DISC_PRINTS, type DiscPrint, TONE_CLASSES } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
+import { ReleaseHint, ReleaseLink } from './release-link.tsx';
 
 /**
  * 킵 케이스(135×191mm)를 CSS로 그린 부품들. Wii는 흰색, Wii U는 반투명 파란색, GC는 검은색.
@@ -44,7 +45,7 @@ function Disc({
   return (
     <div className="@container absolute inset-0">
       <div
-        className={`disc-surface absolute inset-0 rounded-full transition-[rotate] delay-500 duration-[1400ms] ease-out motion-reduce:transition-none ${isOpen ? 'rotate-[360deg]' : 'rotate-0'}`}
+        className={`disc-surface absolute inset-0 rounded-full transition-[rotate] delay-[calc(500ms*var(--case-tempo,1))] duration-[calc(1400ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${isOpen ? 'rotate-[360deg]' : 'rotate-0'}`}
       >
         <div
           className={`absolute inset-[2.5%] rounded-full ${isSplit ? 'disc-label-split' : 'disc-label'}`}
@@ -87,6 +88,7 @@ function RingHolder({
         </div>
         {/* 허브: 디스크 구멍을 지나 위로 나온 꽃잎 고정 돌기 */}
         <div className="plastic-hub absolute top-1/2 left-1/2 aspect-square w-[16%] -translate-1/2 rounded-full" />
+        <ReleaseLink patch={patch} shape="absolute inset-[4%] rounded-full" />
       </div>
     </div>
   );
@@ -101,6 +103,7 @@ function HexHolder({ patch, isOpen }: { readonly patch: PatchCaseData; readonly 
         <div className="absolute top-1/2 left-1/2 aspect-square w-[80%] -translate-1/2">
           <Disc print={discPrint(patch)} title={patch.titleKo} isOpen={isOpen} />
           <div className="plastic-hub absolute top-1/2 left-1/2 aspect-square w-[22%] -translate-1/2 rounded-full" />
+          <ReleaseLink patch={patch} shape="absolute inset-0 rounded-full" />
         </div>
       </div>
       {/* 메모리카드 홈과 꽂힌 카드: 오목한 면(plastic-recess)의 왼쪽 아래 모서리에서 0.75rem(기본 배율에서 12px)씩 떨어진 자리.
@@ -221,7 +224,9 @@ const HINGE_MARK_POSITIONS = [
  * - 틀 왼쪽 위·아래의 고정 탭이 카드 가장자리를 누르고, 오른쪽에는 카드를 빼는 손가락 홈이 있다.
  * - 경첩에는 T자 표시 두 개, 판 바깥쪽 가장자리에는 긴 닫힘 걸쇠가 있다.
  * 카드 라벨에 제목과 기종을 쓴다. 카드 래퍼를 컨테이너로 두어 라벨 글자 크기를 **카드 폭** 기준으로 정한다.
- * 열리면 카드가 홈에서 살짝 올라온다.
+ * 받침은 오목한 면(plastic-recess)의 정중앙에 둔다: 휴대폰은 위 6%·아래 3.5%라 세로 51.25%,
+ * 데스크톱은 왼쪽 7%·오른쪽 3.5%라 가로 51.75%. 카드는 홈 안에 위아래·좌우 같은 여백(12%·15%)으로 놓는다.
+ * 닫힌 동안 살짝 아래에 있다가 열리면 올라와 정중앙에 멈춘다.
  */
 function CartHolder({
   patch,
@@ -241,14 +246,15 @@ function CartHolder({
           <div className="hinge-mark absolute inset-y-0 left-[35%] w-[30%]" />
         </div>
       ))}
-      <div className="absolute top-[46%] left-1/2 aspect-[50/52] w-[38%] -translate-1/2 md:left-[56%]">
+      <div className="absolute top-[51.25%] left-1/2 aspect-[50/52] w-[38%] -translate-1/2 md:top-1/2 md:left-[51.75%]">
         {/* 틀: 바깥 테두리만 솟고 안쪽 바닥은 판과 같은 높이 */}
         <div className="plastic-plate absolute inset-0 rounded-[1cqw]" />
         <div className="card-slot absolute inset-[9%] rounded-[0.6cqw]" />
         <div
-          className={`@container absolute inset-x-[15%] top-[13%] bottom-[11%] transition-[translate] delay-500 duration-700 ease-out motion-reduce:transition-none ${isOpen ? '-translate-y-[6%]' : 'translate-y-0'}`}
+          className={`@container absolute inset-x-[15%] inset-y-[12%] transition-[translate] delay-[calc(500ms*var(--case-tempo,1))] duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${isOpen ? 'translate-y-0' : 'translate-y-[6%]'}`}
         >
           <GameCard patch={patch} />
+          <ReleaseLink patch={patch} shape="absolute inset-0 rounded-[3cqw]" />
         </div>
         {/* 고정 탭(왼쪽 위·아래)과 손가락 홈(오른쪽 가운데) */}
         <div className="plastic-clip absolute top-[18%] left-[5%] h-[14%] w-[16%] rounded-[0.4cqw]" />
@@ -268,14 +274,17 @@ function CartHolder({
  */
 export function KeepCaseFront({
   tone,
+  square = false,
   children,
 }: {
   readonly tone: CaseTone;
+  /** true면 모서리를 둥글리지 않는다(GC) */
+  readonly square?: boolean;
   readonly children?: ReactNode;
 }) {
   return (
     <div
-      className={`plastic-body relative size-full overflow-hidden rounded-r-[1.5cqw] ${TONE_CLASSES[tone]}`}
+      className={`plastic-body relative size-full overflow-hidden ${square ? '' : 'rounded-r-[1.5cqw]'} ${TONE_CLASSES[tone]}`}
     >
       {children}
       <div className="clear-sleeve pointer-events-none absolute inset-0" />
@@ -286,9 +295,11 @@ export function KeepCaseFront({
 /** 안쪽 왼판: 오목한 면 + 위·아래 고정 탭에 끼운 설명서(children = 속지) */
 export function KeepCaseInner({
   tone,
+  square = false,
   children,
 }: {
   readonly tone: CaseTone;
+  readonly square?: boolean;
   readonly children: ReactNode;
 }) {
   return (
@@ -297,8 +308,10 @@ export function KeepCaseInner({
     <div className={`@container size-full ${TONE_CLASSES[tone]}`}>
       {/* 경첩에 붙은 쪽 모서리는 각지고 바깥쪽만 둥글다.
           휴대폰(위로 열림)은 아래쪽이, 데스크톱(옆으로 열림)은 오른쪽이 경첩이다. */}
-      <div className="plastic-body relative size-full rounded-tl-[1.5cqw] rounded-tr-[1.5cqw] md:rounded-tr-none md:rounded-bl-[1.5cqw]">
-        <div className="plastic-recess absolute inset-[3.5%] rounded-[1cqw]" />
+      <div
+        className={`plastic-body relative size-full ${square ? '' : 'rounded-tl-[1.5cqw] rounded-tr-[1.5cqw] md:rounded-tr-none md:rounded-bl-[1.5cqw]'}`}
+      >
+        <div className={`plastic-recess absolute inset-[3.5%] ${square ? '' : 'rounded-[1cqw]'}`} />
         <div className="absolute top-[6%] right-[7%] bottom-[6%] left-[9%] shadow-[1px_2px_4px_rgb(0_0_0/0.15)]">
           {children}
         </div>
@@ -315,11 +328,13 @@ export function KeepCaseInner({
  */
 export function KeepCaseTray({
   tone,
+  square = false,
   holder,
   patch,
   isOpen,
 }: {
   readonly tone: CaseTone;
+  readonly square?: boolean;
   readonly holder: 'ring' | 'hex' | 'cart';
   readonly patch: PatchCaseData;
   readonly isOpen: boolean;
@@ -328,13 +343,24 @@ export function KeepCaseTray({
     // 왼판과 같은 이유로 판 크기의 컨테이너로 감싼다.
     <div className={`@container size-full ${TONE_CLASSES[tone]}`}>
       {/* 경첩에 붙은 쪽 모서리는 각지다. 휴대폰은 위쪽이, 데스크톱은 왼쪽이 경첩이다. */}
-      <div className="plastic-body relative size-full rounded-br-[1.5cqw] rounded-bl-[1.5cqw] md:rounded-tr-[1.5cqw] md:rounded-bl-none">
+      <div
+        className={`plastic-body relative size-full ${square ? '' : 'rounded-br-[1.5cqw] rounded-bl-[1.5cqw] md:rounded-tr-[1.5cqw] md:rounded-bl-none'}`}
+      >
         {/* 경첩: 데스크톱은 왼쪽(책처럼), 휴대폰은 위쪽(위로 열림) */}
         <div className="plastic-hinge absolute inset-x-0 top-0 h-[3.5%] md:inset-x-auto md:inset-y-0 md:left-0 md:h-full md:w-[5%]" />
-        <div className="plastic-recess absolute inset-[3.5%] top-[6%] rounded-[1cqw] md:top-[3.5%] md:left-[7%]" />
+        <div
+          className={`plastic-recess absolute inset-[3.5%] top-[6%] md:top-[3.5%] md:left-[7%] ${square ? '' : 'rounded-[1cqw]'}`}
+        />
         {holder === 'ring' ? <RingHolder patch={patch} isOpen={isOpen} /> : null}
         {holder === 'hex' ? <HexHolder patch={patch} isOpen={isOpen} /> : null}
         {holder === 'cart' ? <CartHolder patch={patch} isOpen={isOpen} /> : null}
+        {/* 판 아래쪽 안내: 매체를 누르면 최신 릴리즈 페이지로(케이스 색 묶음의 인쇄 잉크색).
+            오목한 면(plastic-recess, 판 가장자리에서 3.5%·데스크톱 왼쪽 7%) 안쪽에 들어오도록 여백을 둔다.
+            GC(육각 받침)는 왼쪽 아래에 메모리카드 홈이 있어 그 오른쪽(40%부터)에 둔다(두 줄이 될 수 있다). */}
+        <ReleaseHint
+          patch={patch}
+          className={`absolute right-[9%] bottom-[6%] text-(--p-ink) opacity-75 ${holder === 'hex' ? 'left-[40%]' : 'left-[9%] md:left-[12%]'}`}
+        />
       </div>
     </div>
   );

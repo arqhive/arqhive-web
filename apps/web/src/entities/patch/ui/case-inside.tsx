@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CASE_SPECS, hasOuterBox } from '../lib/case-spec.ts';
+import { CASE_SPECS, hasOuterBox, hasSquareCorners } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
 import { CaseCarton, ManualFront, ManualInner } from './carton.tsx';
 import { Cartridge } from './cartridge.tsx';
@@ -7,6 +7,7 @@ import { CaseCover } from './case-cover.tsx';
 import { CaseMedia } from './case-media.tsx';
 import { CoverPrint } from './cover-print.tsx';
 import { KeepCaseFront, KeepCaseInner, KeepCaseTray } from './keepcase.tsx';
+import { ReleaseHint } from './release-link.tsx';
 
 /**
  * 케이스 열기 연출에 쓰는 부품들. 기종의 케이스 형태(form)에 맞는 그림을 고른다.
@@ -38,7 +39,7 @@ export function CaseFront({ patch }: { readonly patch: PatchCaseData }) {
   if (form === 'boxed-keepcase' && tone !== null) {
     return (
       <div className="@container size-full">
-        <KeepCaseFront tone={tone}>
+        <KeepCaseFront tone={tone} square={true}>
           <CoverPrint patch={patch} onCase={true} titleOnly={true} />
         </KeepCaseFront>
       </div>
@@ -55,12 +56,16 @@ export function CaseInner({
   readonly patch: PatchCaseData;
   readonly children: ReactNode;
 }) {
-  const { form, tone } = CASE_SPECS[patch.platform];
-  if (form === 'carton') {
+  const spec = CASE_SPECS[patch.platform];
+  if (spec.form === 'carton') {
     return <ManualInner>{children}</ManualInner>;
   }
-  if (form !== 'generic' && tone !== null) {
-    return <KeepCaseInner tone={tone}>{children}</KeepCaseInner>;
+  if (spec.form !== 'generic' && spec.tone !== null) {
+    return (
+      <KeepCaseInner tone={spec.tone} square={hasSquareCorners(spec)}>
+        {children}
+      </KeepCaseInner>
+    );
   }
   return children;
 }
@@ -76,13 +81,24 @@ export function CaseTray({
   const { form, tone, holder, mediaClass } = CASE_SPECS[patch.platform];
   if (form === 'carton') {
     return (
-      <div className="flex size-full items-center justify-center">
+      <div className="@container flex size-full flex-col items-center justify-center gap-2">
         <Cartridge patch={patch} mediaClass={mediaClass} isOpen={isOpen} />
+        {/* 카트리지 바로 아래 안내(판 맨 아래에 두면 세로로 긴 SFC 상자에서 카트리지와 너무 멀어진다).
+            바탕이 모달 배경이라 배경과 반대인 종이색 글자(화면 모드에 따라 함께 바뀜) */}
+        <ReleaseHint patch={patch} className="w-[84%] text-paper opacity-80" />
       </div>
     );
   }
   if (form !== 'generic' && tone !== null && holder !== null) {
-    return <KeepCaseTray tone={tone} holder={holder} patch={patch} isOpen={isOpen} />;
+    return (
+      <KeepCaseTray
+        tone={tone}
+        square={hasSquareCorners(CASE_SPECS[patch.platform])}
+        holder={holder}
+        patch={patch}
+        isOpen={isOpen}
+      />
+    );
   }
   return (
     <div className="flex size-full items-center justify-center border border-black/20 bg-shelf">

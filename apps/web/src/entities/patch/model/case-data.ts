@@ -15,11 +15,14 @@ export type PatchCaseData = Pick<
   | 'titleOriginal'
   | 'platform'
   | 'status'
+  | 'repo'
   | 'latestVersion'
   | 'latestReleaseDate'
   | 'baseRegion'
   | 'patchMethodLabel'
-  | 'summary'
+  | 'translationScope'
+  | 'knownIssues'
+  | 'compatibility'
 >;
 
 export function toCaseData(patch: Patch): PatchCaseData {
@@ -31,10 +34,13 @@ export function toCaseData(patch: Patch): PatchCaseData {
     titleOriginal: patch.titleOriginal,
     platform: patch.platform,
     status: patch.status,
+    repo: patch.repo,
     latestVersion: patch.latestVersion,
     latestReleaseDate: patch.latestReleaseDate,
     baseRegion: patch.baseRegion,
     patchMethodLabel: patch.patchMethodLabel,
-    summary: patch.summary,
+    translationScope: patch.translationScope,
+    knownIssues: patch.knownIssues,
+    compatibility: patch.compatibility,
   };
 }

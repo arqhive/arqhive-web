@@ -211,3 +211,8 @@ export const DISC_PRINTS = {
 export function hasOuterBox(spec: CaseSpec): boolean {
   return spec.form === 'boxed-keepcase' || spec.form === 'carton';
 }
+
+/** 모서리를 둥글리지 않는 형태인지(GC 킵 케이스와 그 상자 옆면, 사용자 요청 10/6). 다른 기종은 살짝 둥글다 */
+export function hasSquareCorners(spec: CaseSpec): boolean {
+  return spec.form === 'boxed-keepcase';
+}

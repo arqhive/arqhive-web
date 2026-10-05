@@ -279,6 +279,7 @@ stateDiagram-v2
 - **취소**: 열기 도중 닫으면 앞 순서가 남은 단계를 계속 밟으면 안 됩니다. 순서마다 번호(`runRef`)를 받고, 번호가 바뀌면 멈춥니다.
 - **화면은 단계만 읽음**: 상자 `CaseOuterBox`는 `lidOpen = phase !== 'closed'`, `unboxed = phase가 unboxed·open`을 받아 CSS transition으로 움직입니다. 표지가 넘어가는 조건은 `phase === 'open'`입니다.
 - **카트리지 상자(SFC·GB·GBA, form `carton`)**: 같은 단계를 밟습니다. 상자가 빠지면 설명서(`ManualFront`)와 그 아래 카트리지(`Cartridge`)가 드러나고, 설명서가 펼쳐지면 안쪽 면(`ManualInner`)에 패치 정보가 보입니다. 상자가 있는지는 `hasOuterBox(spec)` 하나로 판단합니다.
+- **매체 → 최신 릴리즈**: 공개된 작품은 디스크·게임 카드·카트리지를 누르면 GitHub 최신 릴리즈 페이지(`releases/latest`)가 새 탭으로 열립니다(`ReleaseLink`). 판 아래에는 안내 문구(`ReleaseHint`)가 있고, 카트리지 상자는 카트리지 바로 아래에 붙여 둡니다.
 - **앞면**: 넘어가는 앞면은 `CaseFront`입니다. GC는 표지가 상자에 인쇄되어 있으므로 게임 이름만 쓴 검은 케이스 앞면이고, 진열장의 표지(`CaseCover`)는 상자 앞면입니다. 선반 등줄기도 상자 옆면이라 흰 종이에 윗부분만 검은 기종 띠(`paper-band`)이고, 윗뚜껑은 상자 앞면과 같은 기종 색(`caseClass`)에 판지 테두리(`paper-lid`)만 더합니다.
 
 ## 11. 홈(`/`)과 한글 패치 진열장(`/korean-translation`)

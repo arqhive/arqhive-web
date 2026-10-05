@@ -1,5 +1,5 @@
 import { PLATFORM_LABELS } from '@arqhive/shared';
-import { CASE_SPECS, type CaseSpec, TONE_CLASSES } from '../lib/case-spec.ts';
+import { CASE_SPECS, type CaseSpec, hasSquareCorners, TONE_CLASSES } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
 
 /**
@@ -60,9 +60,9 @@ export function CaseSpine({ patch }: { readonly patch: PatchCaseData }) {
   const band = bandSurface(spec);
 
   return (
-    // 실물 케이스·상자처럼 모서리를 아주 살짝 둥글린다. 띠(위 기종·아래 버전)가 모서리 밖으로 나오지 않게 overflow-hidden.
+    // 실물 케이스·상자처럼 모서리를 아주 살짝 둥글린다(GC는 각지게). 띠(위 기종·아래 버전)가 모서리 밖으로 나오지 않게 overflow-hidden.
     <div
-      className={`flex flex-col items-center overflow-hidden rounded-[5px] ${SPINE_SIZE} ${surface}`}
+      className={`flex flex-col items-center overflow-hidden ${hasSquareCorners(spec) ? '' : 'rounded-[5px]'} ${SPINE_SIZE} ${surface}`}
     >
       <span className={`w-full text-center font-num text-[0.625rem] ${band}`}>
         {PLATFORM_LABELS[patch.platform]}
