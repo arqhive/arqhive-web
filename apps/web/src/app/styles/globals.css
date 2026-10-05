@@ -73,7 +73,10 @@
     "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-body:
     "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --font-num: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  /* 숫자 글꼴에는 한글이 없어서, 같은 칸의 한글은 Pretendard로 이어 받는다(한글 글꼴이 없는 기기에서 □로 깨지지 않게) */
+  --font-num:
+    var(--font-ibm-plex-mono), "Pretendard Variable", Pretendard, "Apple SD Gothic Neo",
+    "Malgun Gothic", ui-monospace, monospace;
 }
 
 /* 5) 화면 모드와 상관없는 토큰: 기종별 케이스 색(등줄기·표지). 실제 제품 로고·고유 디자인은 따라 하지 않는다. */
