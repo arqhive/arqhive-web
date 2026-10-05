@@ -182,6 +182,9 @@ flowchart LR
 - 본문(MDX)은 Velite가 미리 **함수 코드 문자열**로 컴파일해 둡니다. web은 그 문자열을 React 컴포넌트로 바꿔 그립니다(다음 작업).
 - `.velite/`는 빌드 결과물이라 git에 올리지 않습니다. `content`의 `typecheck`·`build` 스크립트가 먼저 `velite build`를 실행합니다.
 - `patchMethod`는 가이드 slug를 가리킵니다. 작품 페이지의 "적용하기"가 해당 가이드로 연결되는 근거입니다.
+- 화면용으로만 쓰는 값도 frontmatter에 둡니다. 예: `spineLines`(선반 등줄기의 고정 줄바꿈, 두 줄까지, 없으면 자동 줄바꿈). 작품마다 다른 값이라 코드가 아니라 콘텐츠에 둡니다.
+- 개발할 때는 `pnpm dev:web`(루트)으로 web과 콘텐츠 감시(`velite dev`)를 함께 띄웁니다. MDX를 고치면 `.velite/`가 바로 다시 만들어지고 페이지가 새로 그려집니다.
+- 날짜(`latestReleaseDate`)는 **한국 시간 기준 날짜**로 적습니다. GitHub 릴리즈 시각(UTC)을 그대로 자르면 하루가 어긋날 수 있습니다.
 
 ## 9. 디자인 토큰이 화면에 닿는 길
 

@@ -20,9 +20,9 @@ baseRequirements:
     note: "33,554,432 바이트. 예: Star Fox Command (Japan).nds. 북미·유럽판·이전 패치본 불가"
 patchMethod: "bps-ips"
 patchMethodLabel: "BPS 패치"
-latestVersion: "v1.2"
-latestReleaseDate: "2026-09-26"
-translationScope: "대사 약 2,870문장 전체(스토리, 전투 무전, 작전 화면, 오프닝·엔딩, 적 이름), 그림 글씨 528장(메뉴, 타이틀, 스테이지 제목, 갤러리, 옵션, Wi-Fi 안내, 작전 화면, 이름표), 메뉴에 보이는 게임 이름"
+latestVersion: "v1.3f"
+latestReleaseDate: "2026-10-05"
+translationScope: "대사 약 2,870문장 전체(스토리, 전투 무전, 작전 화면, 오프닝·엔딩, 적 이름), 그림 글씨 528장(메뉴, 타이틀, 스테이지 제목, 갤러리, 옵션, Wi-Fi 안내, 작전 화면, 캐릭터 이름표), 메뉴에 보이는 게임 이름, 닉네임 입력 화면을 영문 자판으로 시작하게 하는 코드 수정"
 compatibility:
   - environment: "melonDS"
     status: "works"
@@ -31,19 +31,21 @@ compatibility:
     status: "works"
     note: null
 knownIssues:
+  - "갤러리 기체 소개의 「플라스마」에서 「마」가 「따」처럼 보입니다. 원본 칸보다 넓은 갈무리 굵게 글자를 가로로 줄여 넣어 생긴 현상입니다."
+  - "Wi-Fi 대전과 다운로드 플레이는 실제 플레이로 검수하지 못했습니다(메뉴·안내 화면 글씨만 확인)."
   - "칸 높이 7~9픽셀의 작은 이름 목록에서 받침 많은 글자가 뭉개져 보일 수 있습니다."
   - "여러 조각을 조합한 이미지(라운드 정보 등)는 화면에 따라 어색할 수 있습니다."
   - "닉네임은 영문·기호만 입력할 수 있습니다."
   - "쓰이지 않는 것으로 보이는 옛 대사 파일(corneria.bmg)은 번역하지 않았습니다."
 extraDownloads: []
 screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
-credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 갈무리(Lee Minseo, OFL 1.1). 상표·저작권은 Nintendo."
-summary: "닌텐도 DS 일본판 「스타폭스 커맨드」의 대사 약 2,870문장과 그림 글씨 528장을 한글화한 패치입니다. 롬을 확장하지 않고 원본과 같은 32MB를 유지합니다."
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 갈무리(Lee Minseo, OFL 1.1), 본고딕 Noto Sans KR(Adobe, OFL 1.1). 상표·저작권은 Nintendo."
+summary: "닌텐도 DS 일본판 「스타폭스 커맨드」의 대사 약 2,870문장과 그림 글씨 528장을 한글화한 최종판(v1.3f) 패치입니다. 대사는 갈무리, 그림 글씨는 대부분 본고딕으로 그렸고 롬을 확장하지 않아 원본과 같은 32MB를 유지합니다."
 featured: false
 ---
 
-닌텐도 DS 일본판 「스타폭스 커맨드」의 대사 약 2,870문장과 그림 글씨 528장을 한글화한 패치입니다. 롬을 확장하지 않고 원본과 같은 32MB를 유지합니다.
+닌텐도 DS 일본판 「스타폭스 커맨드」의 대사 약 2,870문장과 그림 글씨 528장을 한글화한 최종판(v1.3f) 패치입니다. 대사는 갈무리, 그림 글씨는 대부분 본고딕으로 그렸고 롬을 확장하지 않아 원본과 같은 32MB를 유지합니다.
 
 ## 적용하기
 
-릴리즈에서 StarFoxCommand_KO_v1.2.bps를 받아 Rom Patcher JS나 Floating IPS로 원본 일본판 롬에 적용합니다. 결과 롬의 확인값을 표와 비교합니다.
+릴리즈에서 StarFoxCommand_KO_v1.3f.bps를 받아 Rom Patcher JS나 Floating IPS로 원본 일본판 롬에 적용합니다. 결과 롬의 확인값을 표와 비교합니다. 이전 한글 패치를 적용한 롬에는 덧씌울 수 없습니다.

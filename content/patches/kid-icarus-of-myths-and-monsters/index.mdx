@@ -1,11 +1,12 @@
 ---
 slug: "kid-icarus-of-myths-and-monsters"
 titleKo: "키드 이카루스: 신화와 괴물"
+spineLines: ["키드 이카루스", "신화와 괴물"]  # 선반 등줄기 줄바꿈
 titleOriginal: "Kid Icarus: Of Myths and Monsters"  # 확인 필요: README에 없어 Claude가 채움
 titleEn: "Kid Icarus: Of Myths and Monsters"
 catalogNo: "ARQ-GB-001"  # 기종 안에서 저장소를 만든 순서
 platform: "gb"
-status: "in_progress"
+status: "released"
 repo:
   owner: "arqhive"
   name: "kid-icarus-of-myths-and-monsters-korean-translation"
@@ -20,30 +21,25 @@ baseRequirements:
     note: "수정하지 않은 Kid Icarus - Of Myths and Monsters (USA, Europe).gb, 131,072 바이트, SHA-256 92c1fbf422abb8f09ca7fdbb563d1284108cc042e60e1222422986d9a59f9d97"
 patchMethod: "bps-ips"
 patchMethodLabel: "IPS 패치"
-latestVersion: "v0.1"
-latestReleaseDate: "2026-09-28"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-10-05"
 translationScope: "대사 테이블 39개 전부(상점, 훈련, 무기, 저주 해제, 온천, 성장, 힌트, 최종 보스·엔딩), 타이틀 로고·부제·오프닝, 새 게임·이어하기, 상태창, 결과 화면, 저장 질문, 일시 정지, 게임 오버, 엔딩 문구. ROM 128KiB→256KiB 확장(MBC2 배터리 저장 유지)"
 compatibility:
   - environment: "mGBA"
     status: "works"
-    note: "오프닝·타이틀, 힌트 방 대사, 상태창, 남은 기회 화면만 확인"
-  - environment: "실기"
-    status: "untested"
-    note: "전 구간 클리어 검증과 실기 검증은 하지 않음"
+    note: "처음부터 엔딩까지 플레이해 확인"
 knownIssues:
-  - "드문 조건의 장면 전환은 플레이 검수가 더 필요합니다."
-  - "대사 세 번째 줄의 받침은 대사 상자 바로 아래 줄에 표시되어 가려지거나 겹칠 수 있습니다."
-  - "기존 버전의 세이브 스테이트는 대사 주소·글꼴과 맞지 않을 수 있습니다."
-  - "Nintendo 상표 표기와 내부 카트리지 제목은 유지했습니다."
+  - "기존 버전의 세이브 스테이트는 바뀐 대사 주소·글꼴과 맞지 않을 수 있습니다."
+  - "Nintendo 상표·저작권 표기와 내부 카트리지 제목은 유지했습니다."
 extraDownloads: []
 screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
 credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. Galmuri7·Galmuri9·Galmuri11(quiple/Lee Minseo, OFL 1.1)."
-summary: "게임보이 「Kid Icarus: Of Myths and Monsters」 북미·유럽 공용판의 대사 39개와 타이틀·메뉴를 영문 원문 기준으로 한글화한 IPS 패치입니다. Galmuri 글꼴을 ROM에 내장해 별도 폰트가 필요 없습니다."
+summary: "게임보이 「Kid Icarus: Of Myths and Monsters」 북미·유럽 공용판의 대사 39개와 타이틀·메뉴를 영문 원문 기준으로 한글화한 최종판(v1.0f) IPS 패치입니다. 받침을 글자 아래 칸에 따로 그린 Galmuri 글꼴을 ROM에 내장해 별도 폰트가 필요 없습니다."
 featured: false
 ---
 
-게임보이 「Kid Icarus: Of Myths and Monsters」 북미·유럽 공용판의 대사 39개와 타이틀·메뉴를 영문 원문 기준으로 한글화한 IPS 패치입니다. Galmuri 글꼴을 ROM에 내장해 별도 폰트가 필요 없습니다.
+게임보이 「Kid Icarus: Of Myths and Monsters」 북미·유럽 공용판의 대사 39개와 타이틀·메뉴를 영문 원문 기준으로 한글화한 최종판(v1.0f) IPS 패치입니다. 받침을 글자 아래 칸에 따로 그린 Galmuri 글꼴을 ROM에 내장해 별도 폰트가 필요 없습니다.
 
 ## 적용하기
 
-KidIcarus_KO_v0.1.zip을 풀고 일반 IPS 패처로 원본 영문 ROM에 KidIcarus_KO_v0.1.ips를 적용하거나, python apply_patch.py "원본.gb"를 실행합니다. 만들어진 Kid Icarus - Korean Full (Galmuri).gb를 새로 실행하며 이전 세이브 스테이트는 불러오지 않습니다.
+KidIcarus_KO_v1.0f.zip을 풀고 일반 IPS 패처로 원본 영문 ROM에 KidIcarus_KO_v1.0f.ips를 적용하거나, python apply_patch.py "원본.gb"를 실행합니다. 만들어진 Kid Icarus - Korean Full (Galmuri).gb를 새로 실행하며 이전 한글판의 세이브 스테이트는 불러오지 않습니다. 이전 한글 ROM 위에 덧씌우지 말고 수정하지 않은 원본 영문 ROM에 적용합니다.

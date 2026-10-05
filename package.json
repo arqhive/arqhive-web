@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@arqhive/web --filter=@arqhive/content --ui=stream",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",

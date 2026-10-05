@@ -1,6 +1,7 @@
 ---
 slug: "zelda-four-swords-anniversary"
 titleKo: "젤다의 전설 4개의 검 25주년 에디션"
+spineLines: ["젤다의 전설 4개의 검", "25주년 에디션"]  # 선반 등줄기 줄바꿈
 titleOriginal: "The Legend of Zelda: Four Swords Anniversary Edition"  # 확인 필요: README에 없어 Claude가 채움
 titleEn: "The Legend of Zelda: Four Swords Anniversary Edition"
 catalogNo: "ARQ-DSI-001"  # 기종 안에서 저장소를 만든 순서
@@ -20,9 +21,9 @@ baseRequirements:
     note: "14,496,768 바이트. 원본 파일명 예: 00000000 또는 00000000.app. 다른 지역판·이전 한글 패치본 불가"
 patchMethod: "dsiware"
 patchMethodLabel: "BPS 패치 → TWiLight Menu++ · melonDS"
-latestVersion: "v1.1"
-latestReleaseDate: "2026-09-20"
-translationScope: "대사·안내문·시스템 메시지(220개 항목 중 스태프 롤을 뺀 215개), 폰트 한글 글리프, 게임 제목 로고, 주요 메뉴, 스테이지 이름판 그래픽, 멀티플레이 메뉴"
+latestVersion: "v1.2f"
+latestReleaseDate: "2026-10-04"
+translationScope: "대사·안내문·시스템 메시지(220개 항목 중 스태프 롤을 뺀 215개), 폰트 한글 글리프, 게임 제목 로고, 메뉴 버튼과 안내 문구 26곳, 지도 이름판·하단 바·스테이지 선택 제목판, 시작 화면 PRESS A, 이름 입력 확인 버튼"
 compatibility:
   - environment: "3DS + TWiLight Menu++"
     status: "works"
@@ -34,19 +35,21 @@ compatibility:
     status: "broken"
     note: "헤더 서명이 달라 실행 안 됨"
 knownIssues:
-  - "PRESS A, YOU 그래픽은 영문 그대로입니다."
+  - "YOU 그래픽은 「너」나 「당신」으로 옮기면 어색해서 일부러 영문으로 두었습니다."
   - "스태프 롤과 게임 내 도움말 페이지는 원문 그대로입니다."
-  - "시작의 사당 외 스테이지 이름판은 게임 화면 없이 추정해 만들어 일부 어색할 수 있습니다."
+  - "문 고르는 화면의 CHOOSE A DOOR 띠는 글자 조각의 배치표를 찾지 못해 영문 그대로입니다."
   - "한글 글꼴을 작은 칸에 맞춰 일부 글자가 좁게 보일 수 있습니다."
+  - "「다 함께 놀기」(멀티플레이)는 실제 통신 플레이로 검수하지 못했습니다(메뉴 그래픽만 화면으로 확인)."
+  - "스테이지 이름판 왼쪽 구석의 낱개 픽셀은 원본부터 판과 분리된 장식이라 그대로 두었고, 한글 이름판에서는 조금 이질적으로 보일 수 있습니다."
 extraDownloads: []
 screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
-credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 상표·저작권은 Nintendo(면책에 GREZZO도 언급)."
-summary: "DSiWare 북미판 「젤다의 전설 4개의 검 25주년 에디션」에 일본어판 원문 기준 번역을 넣은 한글 패치입니다. 대사·시스템 메시지와 제목 로고·메뉴 그래픽을 한글화했습니다."
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 그래픽 글꼴 Neo둥근모·갈무리, 대사 한글 글리프는 굴림으로 렌더링. 상표·저작권은 Nintendo(면책에 GREZZO도 언급)."
+summary: "DSiWare 북미판 「젤다의 전설 4개의 검 25주년 에디션」에 일본어판 원문 기준 번역을 넣은 최종판(v1.2f) 한글 패치입니다. 대사·시스템 메시지와 제목 로고·메뉴 그래픽을 한글화했고, 엔딩까지 플레이하며 실기로 검수했습니다."
 featured: false
 ---
 
-DSiWare 북미판 「젤다의 전설 4개의 검 25주년 에디션」에 일본어판 원문 기준 번역을 넣은 한글 패치입니다. 대사·시스템 메시지와 제목 로고·메뉴 그래픽을 한글화했습니다.
+DSiWare 북미판 「젤다의 전설 4개의 검 25주년 에디션」에 일본어판 원문 기준 번역을 넣은 최종판(v1.2f) 한글 패치입니다. 대사·시스템 메시지와 제목 로고·메뉴 그래픽을 한글화했고, 엔딩까지 플레이하며 실기로 검수했습니다.
 
 ## 적용하기
 
-Rom Patcher JS나 Floating IPS로 북미판 원본에 .bps를 적용하고, 확장자가 .app이면 결과를 .nds로 바꿉니다. 3DS·DSi에서는 TWiLight Menu++의 게임 언어를 English로 두고 실행하고, melonDS에서는 DSi 모드에 Unlaunch를 설치해 실행합니다. 순정 DSi 메뉴에서는 실행되지 않습니다.
+Zelda_4Swords_AE_Korean_Patch_v1.2f.zip을 받아 Rom Patcher JS나 Floating IPS로 북미판 원본에 Zelda_4Swords_AE_KQ9E_Korean_v1.2f.bps를 적용하고, 확장자가 .app이면 결과를 .nds로 바꿉니다. 3DS·DSi에서는 TWiLight Menu++의 게임 언어를 English로 두고 실행하고, melonDS에서는 DSi 모드에 Unlaunch를 설치해 실행합니다. 이전 한글 패치 파일에는 덧씌울 수 없고, 순정 DSi 메뉴에서는 실행되지 않습니다.

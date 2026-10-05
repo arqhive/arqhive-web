@@ -1,0 +1,54 @@
+---
+slug: "wii-fit-u"
+titleKo: "Wii Fit U"
+titleOriginal: "Wii Fit U"
+titleEn: "Wii Fit U"
+catalogNo: "ARQ-WIIU-004"  # 기종 안에서 저장소를 만든 순서
+platform: "wiiu"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "wii-fit-u-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "0005000010102200"
+    dumpFormat: "복호화된 본편 게임 파일(code·content·meta)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "본편과 업데이트가 둘 다 필요. dumpling 덤프 또는 CDecrypt로 복호화한 WUP. 암호화 상태(.app)·이미 패치한 파일·다른 판본 불가"
+  - region: "JP"
+    gameId: "0005000E10102200"
+    dumpFormat: "복호화된 업데이트 파일(code·content·meta)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "패처가 원본 13개 파일의 해시를 확인(값은 README에 없음)"
+patchMethod: "wiiu-sdcafiine"
+patchMethodLabel: "패처 → SDCafiine"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-10-04"
+translationScope: "대사 7,821개(안내·메뉴·트레이너 대사·기록·측정 결과 등, 전체 8,665개 중 기호·문자표 제외), 게임 글꼴 6종에 한글 1,051자, 글씨 그림 32장(튜토리얼 그림, 기록·메뉴 패널, 3D 메뉴 로고, 완료 도장, 달력 도장 12장)"
+compatibility:
+  - environment: "Wii U + Aroma SDCafiine"
+    status: "works"
+    note: null
+  - environment: "Cemu"
+    status: "broken"
+    note: "게임이 Cemu에서 실행되지 않음"
+knownIssues:
+  - "이름을 넣는 화면의 문자표는 일본어·영문 그대로라 한글 이름은 넣을 수 없습니다."
+  - "사진·일러스트에 원래부터 그려져 있는 작은 글자 일부는 그대로입니다."
+extraDownloads: []
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·문서 MIT License. 한글 글자 Noto Sans KR(OFL 1.1). 패처 동봉 Python(PSF). 상표·저작권은 Nintendo."
+summary: "Wii U 일본판 「Wii Fit U」의 대사 7,821개와 글씨 그림 32장을 한글화한 패치입니다. 일본어판 원문 기준으로 번역했고, 가진 본편·업데이트 파일로 한글판을 만들어 Wii U 실기(SDCafiine)에서 씁니다."
+featured: false
+---
+
+Wii U 일본판 「Wii Fit U」의 대사 7,821개와 글씨 그림 32장을 한글화한 패치입니다. 일본어판 원문 기준으로 번역했고, 가진 본편·업데이트 파일로 한글판을 만들어 Wii U 실기(SDCafiine)에서 씁니다.
+
+## 적용하기
+
+WiiFitU_KO_v1.0f.zip을 풀고, 복호화한 본편과 업데이트 폴더가 나란히 들어 있는 폴더를 패치하기.bat에 끌어다 놓습니다. WiiFitU_KO_v1.0f\출력\sdcafiine 안의 내용을 SD 카드 wiiu\sdcafiine\에 복사하고 SDCafiine 플러그인을 켠 채 실행합니다. 이 게임은 Cemu에서 실행되지 않아 실기가 필요하고, 게임을 하려면 Wii 밸런스 보드가 필요합니다.
