@@ -3,4 +3,9 @@
 //
 // Next.js 라우팅 파일은 FSD의 pages 층 화면을 불러와 기본 내보내기로 넘기기만 한다.
 // 화면의 실제 내용은 src/pages/home에 있다(사이트 소개).
+import type { Metadata } from 'next';
+
 export { HomePage as default } from '@/pages/home';
+
+/** 홈은 제목·설명을 루트 레이아웃 기본값 그대로 쓰고, 대표 주소만 정한다 */
+export const metadata: Metadata = { alternates: { canonical: '/' } };

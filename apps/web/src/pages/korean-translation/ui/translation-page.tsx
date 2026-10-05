@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { fetchChangelog, fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
 import { MarkdownBody } from '@/shared/markdown';
+import { PatchIntro } from './patch-intro.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
 /** 표지가 보이게 세워 둘 최근 갱신 작품 수(최대). 화면이 좁으면 FaceOutRow가 2~3개만 보여 준다 */
@@ -13,7 +14,8 @@ const RECENT_COUNT = 4;
  *
  * 서버 컴포넌트에서 콘텐츠를 읽고, 진열장에 필요한 필드만 골라(toCaseData) 클라이언트 컴포넌트로 넘긴다.
  * 작품 순서는 분류 번호 순이다(기종 안에서 저장소를 만든 순서).
- * initialSlug(작품 주소로 들어왔을 때)가 있으면 그 작품 케이스를 처음부터 열어 보여 준다.
+ * initialSlug(패치 주소로 들어왔을 때)가 있으면 그 패치 케이스를 처음부터 열어 보여 주고,
+ * 진열장 위에 그 패치의 소개 띠(h1·소개)를 서버에서 그린다(검색엔진이 읽는 본문). 진열장 주소에서는 제목을 화면 낭독기용으로만 둔다.
  * 공개 작품은 GitHub 릴리즈 다운로드 수와 CHANGELOG.md를 함께 읽는다(작품마다 동시에, 결과는 1시간 캐시). 작업 중인 작품은 읽지 않는다.
  * CHANGELOG는 여기(서버)에서 화면 요소로 그려 작품별로 넘긴다(마크다운 라이브러리가 브라우저로 가지 않게).
  */
@@ -40,12 +42,16 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
 
   // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
   const today = kstDayNumber(new Date());
+  const intro = patches.find((patch) => patch.slug === initialSlug);
   return (
-    <TranslationClient
-      items={items}
-      recent={recentlyUpdated(items, RECENT_COUNT, today)}
-      initialSlug={initialSlug}
-      changelogs={changelogViews}
-    />
+    <div className="space-y-10">
+      {intro === undefined ? <h1 className="sr-only">한글 패치</h1> : <PatchIntro patch={intro} />}
+      <TranslationClient
+        items={items}
+        recent={recentlyUpdated(items, RECENT_COUNT, today)}
+        initialSlug={initialSlug}
+        changelogs={changelogViews}
+      />
+    </div>
   );
 }

@@ -12,14 +12,26 @@ import { SITE } from '@/shared/config';
 
 /**
  * 모든 페이지의 <head> 기본값. Next.js가 이 내보내기 이름(metadata)을 찾아 읽는다.
- * title.template의 %s에는 하위 페이지가 정한 제목이 들어간다(예: "스타폭스 어설트 · arqhive").
+ * - title.template의 %s에는 하위 페이지가 정한 제목이 들어간다(예: "스타폭스 어설트 한글 패치 · arqhive").
+ * - metadataBase: 페이지가 적은 상대 주소(canonical "/guide", OG 이미지 등)를 이 주소 기준의 절대 주소로 바꾼다.
+ * - openGraph: 카카오톡·디스코드 등에 주소를 붙였을 때 뜨는 미리보기 카드. 하위 페이지가 제목·설명을 덮어쓴다.
+ * 하위 페이지의 metadata는 위 단계의 값과 "얕게" 합쳐진다. openGraph를 적은 페이지는 openGraph 전체를 새로 적어야
+ * 사이트 이름·언어가 빠지지 않는다(shared/config의 SITE를 함께 쓴다).
  */
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
   title: {
     default: `${SITE.name} · ${SITE.description}`,
     template: `%s · ${SITE.name}`,
   },
-  description: SITE.description,
+  description: SITE.summary,
+  openGraph: {
+    type: 'website',
+    siteName: SITE.name,
+    locale: 'ko_KR',
+    title: `${SITE.name} · ${SITE.description}`,
+    description: SITE.summary,
+  },
 };
 
 /**
