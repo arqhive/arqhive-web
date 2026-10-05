@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PLATFORM_FULL_NAMES, PLATFORM_LABELS, PLATFORMS, platformSchema } from './platform.ts';
+import { PLATFORM_FULL_NAMES, PLATFORM_LABELS, PLATFORMS } from './platform.ts';
+import { platformSchema } from './platform-schema.ts';
 
 describe('platformSchema', () => {
   it('정해진 기종 값만 받는다', () => {

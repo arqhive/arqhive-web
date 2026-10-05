@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildReportIssue,
-  neutralizeMentions,
-  parseReportBody,
-  reportInputSchema,
-} from './report.ts';
+import { buildReportIssue, neutralizeMentions, parseReportBody } from './report.ts';
+import { reportInputSchema } from './report-schema.ts';
 
 describe('neutralizeMentions', () => {
   it('@아이디와 #번호가 링크가 되지 않게 한다', () => {

@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 /**
  * 제보(사이트 양식 → GitHub 이슈) 규칙. web(양식·목록)과 api(받아서 이슈 만들기)가 함께 쓴다.
  * 이슈 본문 형식을 한곳에서 정해, api가 만들고 web이 다시 읽어도(parse) 어긋나지 않게 한다.
@@ -17,15 +15,6 @@ const REPORT_LIMITS = {
 
 /** 사이트 양식으로 들어온 이슈에 붙는 라벨. 제보 목록은 이 라벨로 찾는다 */
 const REPORT_LABEL = '제보';
-
-/** 패치 slug 최대 길이(콘텐츠 slug보다 넉넉하게) */
-const SLUG_MAX = 100;
-
-/** 양식 입력(글 부분). 이미지·봇 검사 값은 api가 따로 본다 */
-const reportInputSchema = z.object({
-  slug: z.string().min(1).max(SLUG_MAX),
-  text: z.string().trim().min(REPORT_LIMITS.textMin).max(REPORT_LIMITS.textMax),
-});
 
 const START = '<!-- arqhive-report:start -->';
 const END = '<!-- arqhive-report:end -->';
@@ -87,8 +76,6 @@ function parseReportBody(body: string): {
   return { text, images };
 }
 
-type ReportInput = z.infer<typeof reportInputSchema>;
-
 /**
  * 제보 API가 등록에 성공하면 돌려주는 방금 만든 제보. 양식이 이걸로 목록 맨 위에 바로 붙인다
  * (목록은 GitHub 검색 + 5분 캐시라, 새로 고침을 기다리면 늦게 보인다).
@@ -104,12 +91,5 @@ interface SubmittedReport {
   readonly images: readonly string[];
 }
 
-export type { ReportInput, SubmittedReport };
-export {
-  buildReportIssue,
-  neutralizeMentions,
-  parseReportBody,
-  REPORT_LABEL,
-  REPORT_LIMITS,
-  reportInputSchema,
-};
+export type { SubmittedReport };
+export { buildReportIssue, neutralizeMentions, parseReportBody, REPORT_LABEL, REPORT_LIMITS };
