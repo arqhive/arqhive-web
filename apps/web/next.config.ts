@@ -59,7 +59,14 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   // 모든 주소의 응답에 보안 헤더를 붙인다
   headers() {
-    return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);
+    return Promise.resolve([
+      { source: '/:path*', headers: securityHeaders },
+      // 복사해 둔 글꼴(scripts/copy-fonts.mjs)은 폴더 이름에 버전이 있어 내용이 바뀌지 않으므로 1년 캐시한다
+      {
+        source: '/fonts/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+    ]);
   },
 };
 

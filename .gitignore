@@ -38,3 +38,5 @@ Thumbs.db
 # Velite 출력(데이터와 웹 앱으로 복사되는 이미지)
 .velite/
 apps/web/public/static/
+# Pretendard 글꼴 복사본(apps/web/scripts/copy-fonts.mjs가 dev·build 때 만든다)
+apps/web/public/fonts/

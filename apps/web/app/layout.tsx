@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
+import { preload } from 'react-dom';
 // 전역 CSS는 루트 레이아웃에서 한 번만 불러온다. 파일은 FSD의 app 층(src/app)에 있다.
-// 제목·본문 글꼴 Pretendard(SIL OFL, npm 패키지). 글자 범위별로 나뉜 파일(동적 부분집합)이라 화면에 쓰인 범위만 내려간다.
-// 글꼴 파일은 빌드할 때 사이트에 함께 올라간다(다른 서버에 요청하지 않음). 글꼴 이름은 "Pretendard Variable".
-import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '@/app/styles/globals.css';
-import { fontVariables } from '@/app/styles/fonts';
+// 제목·본문 글꼴 Pretendard(SIL OFL, npm 패키지)는 CSS import가 아니라 화면을 막지 않는 스크립트로 붙인다(fonts.ts).
+// 글자 범위별로 나뉜 파일(동적 부분집합)이라 화면에 쓰인 범위만 내려간다. 글꼴 이름은 "Pretendard Variable".
+import { fontVariables, PRETENDARD_CSS, PRETENDARD_LOAD_SCRIPT } from '@/app/styles/fonts';
 import { THEME_INIT_SCRIPT } from '@/app/theme/init-script';
 import { SITE } from '@/shared/config';
 
@@ -43,12 +43,18 @@ export const metadata: Metadata = {
  * - suppressHydrationWarning: 초기화 스크립트가 <html>에 data-theme을 붙여 서버 HTML과 달라지는 것을 허용한다.
  */
 export default function RootLayout({ children }: { readonly children: ReactNode }) {
+  // 글꼴 CSS를 HTML과 함께 바로 받기 시작하게 한다(<head>에 preload). 적용은 아래 스크립트가 한다
+  preload(PRETENDARD_CSS, { as: 'style' });
   return (
     <html lang="ko" className={fontVariables} suppressHydrationWarning={true}>
       <body className="min-h-dvh bg-paper text-ink">
         {/* biome-ignore lint/correctness/useUniqueElementIds: Next.js가 인라인 스크립트에 고정 id를 요구한다(문서 전체에 하나뿐) */}
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
+        </Script>
+        {/* biome-ignore lint/correctness/useUniqueElementIds: Next.js가 인라인 스크립트에 고정 id를 요구한다(문서 전체에 하나뿐) */}
+        <Script id="font-load" strategy="beforeInteractive">
+          {PRETENDARD_LOAD_SCRIPT}
         </Script>
         {children}
       </body>

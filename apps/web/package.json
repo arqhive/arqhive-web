@@ -5,8 +5,8 @@
   "description": "arqhive 웹 — Next.js(App Router) + FSD",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/copy-fonts.mjs && next dev",
+    "build": "node scripts/copy-fonts.mjs && next build",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "lint:fsd": "steiger ./src"

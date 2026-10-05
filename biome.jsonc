@@ -137,6 +137,21 @@
       }
     },
     {
+      // 빌드 보조 스크립트(예: apps/web/scripts/copy-fonts.mjs): 브라우저가 아니라 Node.js에서 도는 파일이라
+      // node: 내장 모듈을 쓰고, 무엇을 했는지 터미널에 한 줄 남긴다.
+      "includes": ["apps/*/scripts/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
       // Next.js 라우팅 규약 파일: 기본 내보내기와 metadata 같은 컴포넌트 외 내보내기가 규약상 필요하다.
       "includes": ["apps/web/app/**"],
       "linter": {
