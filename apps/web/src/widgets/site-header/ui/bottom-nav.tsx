@@ -19,27 +19,16 @@ export function BottomNav() {
       aria-label="주 메뉴"
       className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-line border-t bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
-      {NAV.map((item) =>
-        item.href === null ? (
-          <span
-            key={item.label}
-            title="준비 중"
-            aria-disabled="true"
-            className="flex h-14 items-center justify-center text-ink-sub text-xs opacity-60"
-          >
-            {item.label}
-          </span>
-        ) : (
-          <Link
-            key={item.label}
-            href={item.href}
-            aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
-            className="flex h-14 items-center justify-center border-transparent border-t-2 text-ink-sub text-xs aria-[current=page]:border-stamp aria-[current=page]:font-bold aria-[current=page]:text-ink"
-          >
-            {item.label}
-          </Link>
-        ),
-      )}
+      {NAV.map((item) => (
+        <Link
+          key={item.label}
+          href={item.href}
+          aria-current={isCurrent(pathname, item.href) ? 'page' : undefined}
+          className="flex h-14 items-center justify-center border-transparent border-t-2 text-ink-sub text-xs aria-[current=page]:border-stamp aria-[current=page]:font-bold aria-[current=page]:text-ink"
+        >
+          {item.label}
+        </Link>
+      ))}
     </nav>
   );
 }

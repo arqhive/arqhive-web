@@ -1,0 +1,60 @@
+'use client';
+
+import { useCallback, useRef, useState } from 'react';
+import { reencodeImage } from '../lib/reencode-image.ts';
+
+/** API 응답 모양(실패 코드는 API와 맞춘다) */
+interface ApiResponse {
+  readonly ok: boolean;
+  readonly url?: string;
+  readonly code?: 'invalid' | 'rate' | 'bot' | 'server';
+}
+
+/** 보내기 결과. 문구는 화면이 정한다 */
+export type SubmitState =
+  | { readonly status: 'idle' }
+  | { readonly status: 'sending' }
+  | { readonly status: 'done'; readonly url: string }
+  | {
+      readonly status: 'error';
+      readonly code: 'invalid' | 'rate' | 'bot' | 'server' | 'network';
+    };
+
+/**
+ * 제보 보내기. 양식 값(게임·내용·허니팟·Turnstile 토큰)에 페이지를 연 뒤 지난 시간(elapsedMs, 너무 빠르면 봇)과
+ * 다시 저장한 스크린샷(webp, 위치 정보 제거)을 붙여 API로 보낸다(multipart/form-data).
+ */
+export function useReportSubmit(apiUrl: string | undefined) {
+  const [state, setState] = useState<SubmitState>({ status: 'idle' });
+  const startedAt = useRef(Date.now());
+
+  const submit = useCallback(
+    async (form: HTMLFormElement, images: readonly File[]) => {
+      if (apiUrl === undefined) {
+        return;
+      }
+      setState({ status: 'sending' });
+      try {
+        const data = new FormData(form);
+        data.set('elapsedMs', String(Date.now() - startedAt.current));
+        data.delete('images');
+        for (const [index, file] of images.entries()) {
+          // biome-ignore lint/performance/noAwaitInLoops: 이미지는 많아야 3장이고, 순서대로 붙여야 번호가 맞다
+          data.append('images', await reencodeImage(file), `screenshot-${index + 1}.webp`);
+        }
+        const response = await fetch(`${apiUrl}/reports`, { method: 'POST', body: data });
+        const result = (await response.json()) as ApiResponse;
+        setState(
+          result.ok && result.url
+            ? { status: 'done', url: result.url }
+            : { status: 'error', code: result.code ?? 'server' },
+        );
+      } catch {
+        setState({ status: 'error', code: 'network' });
+      }
+    },
+    [apiUrl],
+  );
+
+  return { state, submit, reset: () => setState({ status: 'idle' }) };
+}
