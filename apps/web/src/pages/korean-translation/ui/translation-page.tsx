@@ -1,6 +1,8 @@
 import { patches } from '@arqhive/content';
-import { fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
+import type { ReactNode } from 'react';
+import { fetchChangelog, fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
+import { ChangelogBody } from './changelog-body.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
 /** 표지가 보이게 세워 둘 최근 갱신 작품 수(최대). 화면이 좁으면 FaceOutRow가 2~3개만 보여 준다 */
@@ -12,16 +14,27 @@ const RECENT_COUNT = 4;
  * 서버 컴포넌트에서 콘텐츠를 읽고, 진열장에 필요한 필드만 골라(toCaseData) 클라이언트 컴포넌트로 넘긴다.
  * 작품 순서는 분류 번호 순이다(기종 안에서 저장소를 만든 순서).
  * initialSlug(작품 주소로 들어왔을 때)가 있으면 그 작품 케이스를 처음부터 열어 보여 준다.
- * 공개 작품은 GitHub 릴리즈 다운로드 수를 함께 읽어 붙인다(작품마다 동시에, 결과는 1시간 캐시). 작업 중인 작품은 읽지 않는다.
+ * 공개 작품은 GitHub 릴리즈 다운로드 수와 CHANGELOG.md를 함께 읽는다(작품마다 동시에, 결과는 1시간 캐시). 작업 중인 작품은 읽지 않는다.
+ * CHANGELOG는 여기(서버)에서 화면 요소로 그려 작품별로 넘긴다(마크다운 라이브러리가 브라우저로 가지 않게).
  */
 export async function TranslationPage({ initialSlug }: { readonly initialSlug?: string }) {
   const sorted = patches
     .map((patch) => toCaseData(patch))
     .toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
-  const counts = await Promise.all(
-    sorted.map((item) => (item.status === 'released' ? fetchDownloadCount(item.repo) : null)),
-  );
+  const released = (item: (typeof sorted)[number]) => item.status === 'released';
+  const [counts, changelogs] = await Promise.all([
+    Promise.all(sorted.map((item) => (released(item) ? fetchDownloadCount(item.repo) : null))),
+    Promise.all(sorted.map((item) => (released(item) ? fetchChangelog(item.repo) : null))),
+  ]);
   const items = sorted.map((item, index) => ({ ...item, downloadCount: counts[index] ?? null }));
+  // 작품 slug → 그려 둔 업데이트 내역. CHANGELOG를 못 읽은 작품은 빠진다(단추가 숨겨짐)
+  const changelogViews: Record<string, ReactNode> = {};
+  sorted.forEach((item, index) => {
+    const markdown = changelogs[index];
+    if (markdown) {
+      changelogViews[item.slug] = <ChangelogBody markdown={markdown} repo={item.repo} />;
+    }
+  });
 
   // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
   const today = kstDayNumber(new Date());
@@ -30,6 +43,7 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
       items={items}
       recent={recentlyUpdated(items, RECENT_COUNT, today)}
       initialSlug={initialSlug}
+      changelogs={changelogViews}
     />
   );
 }

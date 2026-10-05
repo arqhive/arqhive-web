@@ -142,7 +142,14 @@ function LinerFacts({
  *   작은 케이스는 제목을 한 단계 줄이고 맨 아래 안내 문구도 뺀다.
  * 전체 내용은 상세 페이지에서 본다.
  */
-export function CaseLiner({ patch }: { readonly patch: PatchCaseData }) {
+export function CaseLiner({
+  patch,
+  onShowChangelog,
+}: {
+  readonly patch: PatchCaseData;
+  /** 있으면 원제 아래에 "업데이트 내역 보기" 단추를 두고, 누르면 부른다(업데이트 내역을 읽어 온 공개 작품만) */
+  readonly onShowChangelog?: (() => void) | undefined;
+}) {
   const isReleased = patch.status === 'released';
   const compact = CASE_SPECS[patch.platform].scale < COMPACT_SCALE;
   const desk = DESKTOP[compact ? 'compact' : 'normal'];
@@ -168,6 +175,15 @@ export function CaseLiner({ patch }: { readonly patch: PatchCaseData }) {
         <span className="mt-1 line-clamp-2 shrink-0 text-ink-sub text-xs md:text-[1em]">
           {patch.titleOriginal}
         </span>
+        {onShowChangelog === undefined ? null : (
+          <button
+            type="button"
+            onClick={onShowChangelog}
+            className="mt-2 self-start text-ink text-xs underline underline-offset-2 hover:text-stamp focus-visible:outline-2 focus-visible:outline-stamp md:text-[0.875em]"
+          >
+            업데이트 내역 보기
+          </button>
+        )}
         <LinerFacts patch={patch} listClass={desk.list} />
         {/* 맨 아래 안내는 작업 중(공개 전)인 작품에만 둔다 */}
         {isReleased ? null : (

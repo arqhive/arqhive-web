@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties, RefObject } from 'react';
+import { type CSSProperties, type ReactNode, type RefObject, useState } from 'react';
 import {
   CASE_SPECS,
   CaseFront,
@@ -13,6 +13,7 @@ import {
 import { CLOSE_TEMPO } from '../lib/motion.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
 import { CaseLiner } from './case-liner.tsx';
+import { ChangelogDialog } from './changelog-dialog.tsx';
 import { CloseButton } from './close-button.tsx';
 
 /**
@@ -31,10 +32,13 @@ import { CloseButton } from './close-button.tsx';
  */
 export function CaseViewer({
   patch,
+  changelog,
   originRef,
   onClose,
 }: {
   readonly patch: PatchCaseData | null;
+  /** 이 작품의 업데이트 내역(서버에서 그려 둔 CHANGELOG). 없으면 속지의 "업데이트 내역 보기" 단추를 숨긴다 */
+  readonly changelog?: ReactNode;
   readonly originRef: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
 }) {
@@ -42,6 +46,8 @@ export function CaseViewer({
   const view = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
   const { phase } = view;
   const isOpen = phase === 'open';
+  // 업데이트 내역 모달이 열린 작품. 모달은 케이스 위에 떠서, 케이스를 닫기 전에 늘 먼저 닫힌다
+  const [changelogSlug, setChangelogSlug] = useState<string | null>(null);
   const tempo = { '--case-tempo': view.isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
 
   return (
@@ -82,7 +88,12 @@ export function CaseViewer({
                 </div>
                 <div className="absolute inset-0 rotate-x-180 backface-hidden md:rotate-x-0 md:rotate-y-180">
                   <CaseInner patch={patch}>
-                    <CaseLiner patch={patch} />
+                    <CaseLiner
+                      patch={patch}
+                      onShowChangelog={
+                        changelog === undefined ? undefined : () => setChangelogSlug(patch.slug)
+                      }
+                    />
                   </CaseInner>
                 </div>
               </div>
@@ -98,6 +109,16 @@ export function CaseViewer({
               <CloseButton isVisible={view.isSettled} onClick={view.close} />
             </div>
           </div>
+          {/* 업데이트 내역 모달: 3D로 회전하는 무대 바깥에 둔다(최상위 층에 뜨는 dialog라 위치는 화면 기준) */}
+          {changelog === undefined ? null : (
+            <ChangelogDialog
+              open={changelogSlug === patch.slug}
+              title={patch.titleKo}
+              onClose={() => setChangelogSlug(null)}
+            >
+              {changelog}
+            </ChangelogDialog>
+          )}
         </>
       )}
     </dialog>

@@ -1,6 +1,7 @@
 // entities/patch: "작품"이라는 업무 개념(명사). 데이터 모양과 그 표시(표지·등줄기·매체)를 맡는다.
 // 열기·고르기 같은 사용자 행동은 여기 두지 않는다(widgets·pages의 몫).
 
+export { fetchChangelog } from './api/changelog.ts';
 export { fetchDownloadCount } from './api/download-count.ts';
 export {
   CASE_SPECS,
