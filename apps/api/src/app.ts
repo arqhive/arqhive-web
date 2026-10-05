@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { healthRoute } from './modules/health/index.ts';
+import { reportsRoute } from './modules/reports/index.ts';
+import type { ApiEnv } from './platform/env.ts';
 
 /**
  * HTTP 라우트를 모으는 곳. 기능은 `modules/<기능>/`에 두고 여기서는 연결만 한다.
@@ -11,7 +13,10 @@ import { healthRoute } from './modules/health/index.ts';
  *   web이 그 타입으로 자동완성되는 API 클라이언트(Hono RPC)를 만들 수 있다.
  */
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
-export const app = new Hono<{ Bindings: Env }>().basePath('/api').route('/health', healthRoute);
+export const app = new Hono<{ Bindings: ApiEnv }>()
+  .basePath('/api')
+  .route('/health', healthRoute)
+  .route('/reports', reportsRoute);
 
 /** web이 가져다 쓸 API 타입. 런타임 코드는 넘어가지 않고 타입만 공유된다. */
 export type AppType = typeof app;

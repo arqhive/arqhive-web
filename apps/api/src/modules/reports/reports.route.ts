@@ -1,0 +1,142 @@
+import { buildReportIssue, REPORT_LABEL, reportInputSchema } from '@arqhive/shared';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import type { ApiEnv } from '../../platform/env.ts';
+import { createIssue } from '../../platform/github.ts';
+import { markOnce, sha256, takeToken } from '../../platform/rate-limit.ts';
+import { verifyTurnstile } from '../../platform/turnstile.ts';
+import { RELEASED_REPOS } from './released-repos.ts';
+import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './report-checks.ts';
+
+/**
+ * 제보 받기(POST /api/reports, multipart/form-data). 위에서부터 차례로 거르고, 하나라도 걸리면 그 자리에서 거절한다:
+ * 봇 흔적(허니팟·시간) → Turnstile → 횟수 제한(IP별 시간당 3건, 사이트 하루 50건) → 입력 검사 → 같은 내용 재전송
+ * → 스크린샷을 R2에 올림 → 그 패치 저장소에 "제보" 라벨 이슈 생성.
+ * 실패 코드(invalid·rate·bot·server)는 양식이 알맞은 문구를 고르는 데 쓴다.
+ */
+
+const HOUR = 3600;
+const DAY = 86_400;
+const PER_IP_PER_HOUR = 3;
+const SITE_PER_DAY = 50;
+const MS_PER_SECOND = 1000;
+/** ISO 날짜에서 "년-월"(YYYY-MM) 글자 수 */
+const YEAR_MONTH_LENGTH = 7;
+
+type RejectCode = 'invalid' | 'rate' | 'bot' | 'server';
+const STATUS = { invalid: 400, bot: 403, rate: 429, server: 500 } as const satisfies Record<
+  RejectCode,
+  number
+>;
+
+/** 거절 사유를 담아 던지는 오류. 받는 쪽에서 코드로 응답을 고른다 */
+class Reject extends Error {
+  readonly code: RejectCode;
+  constructor(code: RejectCode) {
+    super(code);
+    this.code = code;
+  }
+}
+
+/** 봇·횟수 검사. IP는 그대로 저장하지 않고 해시로만 센다 */
+async function guard(env: ApiEnv, form: FormData, ip: string | null): Promise<void> {
+  const token = form.get('cf-turnstile-response');
+  if (
+    looksLikeBot(form) ||
+    !(await verifyTurnstile(env.TURNSTILE_SECRET_KEY, typeof token === 'string' ? token : null, ip))
+  ) {
+    throw new Reject('bot');
+  }
+  const hour = Math.floor(Date.now() / MS_PER_SECOND / HOUR);
+  const ipKey = `ip:${await sha256(ip ?? 'unknown')}:${hour}`;
+  const dayKey = `day:${Math.floor(hour / (DAY / HOUR))}`;
+  if (
+    !(
+      (await takeToken(env.RATE_LIMIT, ipKey, PER_IP_PER_HOUR, HOUR)) &&
+      (await takeToken(env.RATE_LIMIT, dayKey, SITE_PER_DAY, DAY))
+    )
+  ) {
+    throw new Reject('rate');
+  }
+}
+
+/** 입력 검사: 공개된 패치인지, 글 길이, 이미지. 같은 패치·같은 글은 하루에 한 번만 */
+async function validate(env: ApiEnv, form: FormData) {
+  const parsed = reportInputSchema.safeParse({ slug: form.get('slug'), text: form.get('text') });
+  const repo = parsed.success ? RELEASED_REPOS.get(parsed.data.slug) : undefined;
+  const images = await readImages(form);
+  if (!parsed.success || repo === undefined || images === null) {
+    throw new Reject('invalid');
+  }
+  if (
+    !(await markOnce(
+      env.RATE_LIMIT,
+      `dup:${await sha256(`${parsed.data.slug}\n${parsed.data.text}`)}`,
+      DAY,
+    ))
+  ) {
+    throw new Reject('rate');
+  }
+  return { repo, text: parsed.data.text, images };
+}
+
+/** 스크린샷을 R2에 올리고 공개 주소들을 돌려준다. 키: 년-월/임의값.확장자 */
+async function upload(env: ApiEnv, images: readonly CheckedImage[]): Promise<string[]> {
+  const month = new Date().toISOString().slice(0, YEAR_MONTH_LENGTH);
+  const keys = images.map((image) => `${month}/${crypto.randomUUID()}.${image.kind}`);
+  await Promise.all(
+    images.map((image, index) =>
+      env.REPORT_IMAGES.put(keys[index] ?? '', image.bytes, {
+        httpMetadata: { contentType: CONTENT_TYPES[image.kind] },
+      }),
+    ),
+  );
+  return keys.map((key) => `${env.REPORT_IMAGE_BASE_URL}/${key}`);
+}
+
+// biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
+export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
+  // 허락한 사이트에서만 양식을 보낼 수 있다(브라우저가 지키는 규칙. 서버 검사는 위 단계들이 따로 한다)
+  .use(
+    '*',
+    cors({
+      origin: (origin, c) => (c.env.ALLOWED_ORIGINS.split(',').includes(origin) ? origin : null),
+      allowMethods: ['POST'],
+    }),
+  )
+  .post('/', async (c) => {
+    try {
+      const form = await c.req.formData();
+      await guard(c.env, form, c.req.header('cf-connecting-ip') ?? null);
+      const { repo, text, images } = await validate(c.env, form);
+      const imageUrls = await upload(c.env, images);
+      const issue = buildReportIssue({ text, imageUrls });
+      // 개발 중에는 공개 저장소에 시험 이슈가 생기지 않게 만들지 않는다(wrangler.jsonc의 REPORT_DRY_RUN)
+      if (c.env.REPORT_DRY_RUN === '1' || c.env.GITHUB_ISSUES_TOKEN === undefined) {
+        return c.json({
+          ok: true,
+          url: `https://github.com/${repo.owner}/${repo.name}/issues`,
+          // 시험용: 만들었을 이슈 제목·본문(이미지 링크 포함)을 그대로 보여 준다
+          dryRun: issue,
+        });
+      }
+      const url = await createIssue(c.env.GITHUB_ISSUES_TOKEN, repo, {
+        ...issue,
+        label: REPORT_LABEL,
+      });
+      return c.json({ ok: true, url });
+    } catch (error) {
+      const code: RejectCode = error instanceof Reject ? error.code : 'server';
+      return c.json({ ok: false, code }, STATUS[code]);
+    }
+  })
+  // R2에 올린 스크린샷 보여 주기(개발용 주소. 배포에서는 버킷의 공개 주소를 쓴다)
+  .get('/images/:month/:file', async (c) => {
+    const object = await c.env.REPORT_IMAGES.get(`${c.req.param('month')}/${c.req.param('file')}`);
+    if (object === null) {
+      return c.notFound();
+    }
+    return new Response(object.body, {
+      headers: { 'content-type': object.httpMetadata?.contentType ?? 'application/octet-stream' },
+    });
+  });

@@ -23,6 +23,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@arqhive/content':
+        specifier: workspace:*
+        version: link:../../packages/content
+      '@arqhive/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       hono:
         specifier: 4.13.12
         version: 4.13.12

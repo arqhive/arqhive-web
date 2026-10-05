@@ -10,7 +10,22 @@
   // Cloudflare 대시보드에서 요청 로그(Workers Logs)를 볼 수 있게 한다.
   "observability": {
     "enabled": true
-  }
+  },
+  // 공개 설정값(비밀 아님). 비밀값(TURNSTILE_SECRET_KEY, GITHUB_ISSUES_TOKEN)은 여기 두지 않는다:
+  // 개발은 .dev.vars 파일(git 제외), 배포는 `wrangler secret put 이름`으로 Cloudflare에 넣는다.
+  "vars": {
+    // 제보 양식을 보낼 수 있는 사이트(CORS). 쉼표로 여러 개. 배포 도메인이 정해지면 더한다.
+    "ALLOWED_ORIGINS": "http://localhost:3000",
+    // 제보 스크린샷을 올린 R2 버킷의 공개 주소(끝의 / 없이). 버킷의 공개 접근을 켜면 나오는 주소로 바꾼다.
+    "REPORT_IMAGE_BASE_URL": "http://localhost:8787/api/reports/images",
+    // "1"이면 GitHub 이슈를 만들지 않고 가짜 주소를 돌려준다(개발 중 공개 저장소에 시험 이슈가 생기지 않게).
+    "REPORT_DRY_RUN": "1"
+  },
+  // 제보 스크린샷 저장소. 개발(wrangler dev)에서는 PC 안의 가짜 버킷을 쓴다.
+  "r2_buckets": [{ "binding": "REPORT_IMAGES", "bucket_name": "arqhive-reports" }],
+  // 요청 횟수 세기(IP별 시간당, 사이트 전체 하루). 개발에서는 PC 안의 가짜 저장소를 쓴다.
+  // 배포 전에 `wrangler kv namespace create RATE_LIMIT`로 만든 id로 바꿔야 한다.
+  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "replace-with-real-kv-id-before-deploy" }]
   // Queues·Cron·Workers AI·Vectorize 바인딩은 각 기능을 만드는 단계에서 추가한다.
   // 바인딩을 추가하면 `pnpm --filter @arqhive/api typegen`으로 Env 타입을 다시 만든다.
 }
