@@ -1,8 +1,6 @@
 import { patches } from '@arqhive/content';
-import type { ReactNode } from 'react';
 import { fetchChangelog, fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
-import { MarkdownBody } from '@/shared/markdown';
 import { PatchIntro } from './patch-intro.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
@@ -17,7 +15,8 @@ const RECENT_COUNT = 4;
  * initialSlug(패치 주소로 들어왔을 때)가 있으면 그 패치 케이스를 처음부터 열어 보여 주고,
  * 진열장 위에 그 패치의 소개 띠(h1·소개)를 서버에서 그린다(검색엔진이 읽는 본문). 진열장 주소에서는 제목을 화면 낭독기용으로만 둔다.
  * 공개 작품은 GitHub 릴리즈 다운로드 수와 CHANGELOG.md를 함께 읽는다(작품마다 동시에, 결과는 1시간 캐시). 작업 중인 작품은 읽지 않는다.
- * CHANGELOG는 여기(서버)에서 화면 요소로 그려 작품별로 넘긴다(마크다운 라이브러리가 브라우저로 가지 않게).
+ * CHANGELOG는 "있는지"만 넘기고(단추 표시용), 내용은 단추를 누를 때 서버 함수(api/load-changelog)가 그려 보낸다.
+ * 내용까지 미리 실으면 페이지 HTML의 대부분이 CHANGELOG 데이터가 되기 때문이다.
  */
 export async function TranslationPage({ initialSlug }: { readonly initialSlug?: string }) {
   const sorted = patches
@@ -29,16 +28,10 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
     Promise.all(sorted.map((item) => (released(item) ? fetchChangelog(item.repo) : null))),
   ]);
   const items = sorted.map((item, index) => ({ ...item, downloadCount: counts[index] ?? null }));
-  // 작품 slug → 그려 둔 업데이트 내역. CHANGELOG를 못 읽은 작품은 빠진다(단추가 숨겨짐)
-  const changelogViews: Record<string, ReactNode> = {};
-  sorted.forEach((item, index) => {
-    const markdown = changelogs[index];
-    if (markdown) {
-      // CHANGELOG 속 상대 링크(docs/releases/…)는 저장소 기본 가지의 파일 보기 주소로 바꾼다
-      const linkBase = `https://github.com/${item.repo.owner}/${item.repo.name}/blob/HEAD/`;
-      changelogViews[item.slug] = <MarkdownBody markdown={markdown} linkBase={linkBase} />;
-    }
-  });
+  // CHANGELOG가 있는 패치 slug. 못 읽은 패치는 빠진다(단추가 숨겨짐)
+  const changelogSlugs = sorted
+    .filter((_item, index) => Boolean(changelogs[index]))
+    .map((item) => item.slug);
 
   // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
   const today = kstDayNumber(new Date());
@@ -50,7 +43,7 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
         items={items}
         recent={recentlyUpdated(items, RECENT_COUNT, today)}
         initialSlug={initialSlug}
-        changelogs={changelogViews}
+        changelogSlugs={changelogSlugs}
       />
     </div>
   );

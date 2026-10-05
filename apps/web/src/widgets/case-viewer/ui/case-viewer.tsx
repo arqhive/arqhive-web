@@ -12,6 +12,7 @@ import {
 } from '@/entities/patch';
 import { CLOSE_TEMPO } from '../lib/motion.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
+import { useChangelogContent } from '../model/use-changelog-content.ts';
 import { CaseLiner } from './case-liner.tsx';
 import { ChangelogDialog } from './changelog-dialog.tsx';
 import { CloseButton } from './close-button.tsx';
@@ -32,13 +33,16 @@ import { CloseButton } from './close-button.tsx';
  */
 export function CaseViewer({
   patch,
-  changelog,
+  loadChangelog,
   originRef,
   onClose,
 }: {
   readonly patch: PatchCaseData | null;
-  /** 이 작품의 업데이트 내역(서버에서 그려 둔 CHANGELOG). 없으면 속지의 "업데이트 내역 보기" 단추를 숨긴다 */
-  readonly changelog?: ReactNode;
+  /**
+   * 이 패치의 업데이트 내역(CHANGELOG)을 서버에서 그려 받아 오는 함수. 단추를 누를 때 부른다.
+   * 없으면(CHANGELOG가 없는 패치) 속지의 "업데이트 내역 보기" 단추를 숨긴다.
+   */
+  readonly loadChangelog?: ((slug: string) => Promise<ReactNode>) | undefined;
   readonly originRef: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
 }) {
@@ -48,6 +52,7 @@ export function CaseViewer({
   const isOpen = phase === 'open';
   // 업데이트 내역 모달이 열린 작품. 모달은 케이스 위에 떠서, 케이스를 닫기 전에 늘 먼저 닫힌다
   const [changelogSlug, setChangelogSlug] = useState<string | null>(null);
+  const changelog = useChangelogContent(changelogSlug, loadChangelog);
   const tempo = { '--case-tempo': view.isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
 
   return (
@@ -93,7 +98,7 @@ export function CaseViewer({
                     <CaseLiner
                       patch={patch}
                       onShowChangelog={
-                        changelog === undefined ? undefined : () => setChangelogSlug(patch.slug)
+                        loadChangelog === undefined ? undefined : () => setChangelogSlug(patch.slug)
                       }
                     />
                   </CaseInner>
@@ -112,7 +117,7 @@ export function CaseViewer({
             </div>
           </div>
           {/* 업데이트 내역 모달: 3D로 회전하는 무대 바깥에 둔다(최상위 층에 뜨는 dialog라 위치는 화면 기준) */}
-          {changelog === undefined ? null : (
+          {loadChangelog === undefined ? null : (
             <ChangelogDialog
               open={changelogSlug === patch.slug}
               title={patch.titleKo}

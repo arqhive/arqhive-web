@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useCallback, useId, useRef, useState } from 'react';
+import { useCallback, useId, useRef, useState } from 'react';
 import {
   type PatchCaseData,
   type PickHandler,
@@ -12,6 +12,7 @@ import { SITE } from '@/shared/config';
 import { CaseViewer } from '@/widgets/case-viewer';
 import { PatchTable } from '@/widgets/patch-table';
 import { FaceOutRow, Shelf } from '@/widgets/shelf';
+import { loadChangelog } from '../api/load-changelog.tsx';
 import { useOpenFromAddress } from '../model/use-open-from-address.ts';
 import type { ViewMode } from '../model/view-mode.ts';
 import { TranslationToolbar } from './translation-toolbar.tsx';
@@ -41,13 +42,13 @@ export function TranslationClient({
   items,
   recent,
   initialSlug,
-  changelogs,
+  changelogSlugs,
 }: {
   readonly items: readonly PatchCaseData[];
   readonly recent: readonly PatchCaseData[];
   readonly initialSlug?: string | undefined;
-  /** 작품 slug → 서버에서 그려 둔 업데이트 내역(CHANGELOG). 없는 작품은 단추를 숨긴다 */
-  readonly changelogs: Readonly<Record<string, ReactNode>>;
+  /** 업데이트 내역(CHANGELOG)이 있는 패치 slug. 없는 패치는 단추를 숨긴다. 내용은 누를 때 서버에서 받는다 */
+  readonly changelogSlugs: readonly string[];
 }) {
   const [filter, setFilter] = useState<PlatformFilter>([]);
   const [view, setView] = useState<ViewMode>('shelf');
@@ -106,7 +107,9 @@ export function TranslationClient({
 
       <CaseViewer
         patch={picked}
-        changelog={picked === null ? undefined : changelogs[picked.slug]}
+        loadChangelog={
+          picked !== null && changelogSlugs.includes(picked.slug) ? loadChangelog : undefined
+        }
         originRef={originRef}
         onClose={onClose}
       />
