@@ -5,6 +5,7 @@ import {
   type PatchCaseData,
   type PickHandler,
   type PlatformFilter,
+  patchPath,
   toggleFilter,
 } from '@/entities/patch';
 import { SITE } from '@/shared/config';
@@ -15,16 +16,16 @@ import { useOpenFromAddress } from '../model/use-open-from-address.ts';
 import type { ViewMode } from '../model/view-mode.ts';
 import { TranslationToolbar } from './translation-toolbar.tsx';
 
-/** 진열장 주소. 케이스를 열면 작품 주소로, 닫으면 이 주소로 주소창만 바꾼다 */
+/** 진열장 주소. 케이스를 열면 패치 주소로, 닫으면 이 주소로 주소창만 바꾼다 */
 const SHELF_PATH = '/korean-translation';
 
 /**
- * 주소와 함께 탭 제목도 바꾼다(주소창만 바꾸면 제목은 그대로라서). 형식은 루트 레이아웃의 title.template과 같다.
+ * 주소와 함께 탭 제목도 바꾼다(주소창만 바꾸면 제목은 그대로라서). 형식은 패치 페이지·진열장의 metadata 제목과 같다.
  * title이 null이면 진열장 제목.
  */
 function showAddress(path: string, title: string | null) {
   globalThis.history.replaceState(null, '', path);
-  document.title = `${title ?? '한글 패치'} · ${SITE.name}`;
+  document.title = `${title === null ? '한글 패치' : `${title} 한글 패치`} · ${SITE.name}`;
 }
 
 /**
@@ -60,7 +61,7 @@ export function TranslationClient({
     originRef.current = element;
     element.style.visibility = 'hidden';
     setPicked(item);
-    showAddress(`${SHELF_PATH}/${item.slug}`, item.titleKo);
+    showAddress(patchPath(item.slug), item.titleKo);
   }, []);
 
   const onClose = useCallback(() => {

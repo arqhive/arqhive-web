@@ -6,6 +6,8 @@ import {
   type PatchCaseData,
   type PickHandler,
   type PlatformFilter,
+  patchPath,
+  pickOnPlainClick,
 } from '@/entities/patch';
 import { formatDate } from '@/shared/lib';
 
@@ -31,9 +33,9 @@ export function PatchTable({
     <ul className="border-ink border-t-2">
       {rows.map((item) => (
         <li key={item.slug} className="border-line border-b">
-          <button
-            type="button"
-            onClick={(event) => onPick(item, event.currentTarget)}
+          <a
+            href={patchPath(item.slug)}
+            onClick={(event) => pickOnPlainClick(event, item, onPick)}
             className="grid w-full grid-cols-[1fr_auto] gap-x-4 gap-y-1 px-1 py-3 text-left hover:bg-card focus-visible:outline-2 focus-visible:outline-stamp md:grid-cols-[7.5rem_1fr_4.5rem_4.5rem_5rem_6rem] md:items-center"
           >
             <span className="order-3 font-num text-ink-sub text-xs md:order-none">
@@ -59,7 +61,7 @@ export function PatchTable({
             <span className="hidden font-num text-ink-sub text-sm md:inline">
               {formatDate(item.latestReleaseDate)}
             </span>
-          </button>
+          </a>
         </li>
       ))}
     </ul>

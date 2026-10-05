@@ -9,6 +9,8 @@ import {
   type PickHandler,
   PLATFORM_GROUPS,
   type PlatformFilter,
+  patchPath,
+  pickOnPlainClick,
 } from '@/entities/patch';
 import { packRows, type ShelfRow } from '../lib/pack-rows.ts';
 import { useContentWidthRem } from '../model/use-content-width.ts';
@@ -16,7 +18,7 @@ import { useContentWidthRem } from '../model/use-content-width.ts';
 /** 칸 하나 높이(pt-8 + 등줄기 h-60 + pb-7). shelf-materials.css의 --row-h와 같다 */
 const ROW_HEIGHT = 'h-[18.75rem]';
 
-/** 케이스 한 자리: 등줄기 단추 + (그 칸에서 묶음의 첫 케이스면) 선반 판 앞면의 분류 표찰 */
+/** 케이스 한 자리: 등줄기 링크(패치 주소) + (그 칸에서 묶음의 첫 케이스면) 선반 판 앞면의 분류 표찰 */
 function ShelfSpine({
   item,
   label,
@@ -30,16 +32,16 @@ function ShelfSpine({
 }) {
   return (
     <div className="relative shrink-0 pt-8 pb-7">
-      <button
-        type="button"
-        aria-label={`${item.titleKo} 케이스 꺼내기`}
-        // 작품 주소(/korean-translation/<slug>)로 들어왔을 때 이 등줄기를 찾아 꺼낸다
+      <a
+        href={patchPath(item.slug)}
+        aria-label={`${item.titleKo} 한글 패치`}
+        // 패치 주소(/korean-translation/<slug>)로 들어왔을 때 이 등줄기를 찾아 꺼낸다
         data-slug={item.slug}
-        onClick={(event) => onPick(item, event.currentTarget)}
+        onClick={(event) => pickOnPlainClick(event, item, onPick)}
         className={`block transition-[translate,opacity] duration-200 hover:-translate-y-1.5 focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2 ${dimmed ? 'opacity-20' : 'opacity-100'}`}
       >
         <CaseSpine patch={item} />
-      </button>
+      </a>
       {/* 기종 이름은 가로로 쓴다(세로쓰기면 로마자가 누워 읽기 어렵다) */}
       {label === null ? null : (
         <p className="shelf-label absolute bottom-1 left-0 z-10 whitespace-nowrap rounded-[2px] px-2 py-0.5 font-num text-xs leading-tight">

@@ -8,7 +8,7 @@ import type { PatchCaseData, PickHandler } from '@/entities/patch';
 async function findSpine(slug: string): Promise<HTMLElement | null> {
   await document.fonts.ready;
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  return document.querySelector<HTMLElement>(`button[data-slug="${CSS.escape(slug)}"]`);
+  return document.querySelector<HTMLElement>(`a[data-slug="${CSS.escape(slug)}"]`);
 }
 
 /**

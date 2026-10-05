@@ -22,7 +22,7 @@ export {
 } from './lib/platform-groups.ts';
 export { type ReleaseStage, releaseStage } from './lib/release-stage.ts';
 export { type PatchCaseData, toCaseData } from './model/case-data.ts';
-export type { PickHandler } from './model/pick.ts';
+export { type PickHandler, patchPath, pickOnPlainClick } from './model/pick.ts';
 export { CaseCover } from './ui/case-cover.tsx';
 export { CaseFront, CaseInner, CaseOuterBox, CaseTray } from './ui/case-inside.tsx';
 export { CaseMedia } from './ui/case-media.tsx';

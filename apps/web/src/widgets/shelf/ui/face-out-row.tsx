@@ -1,6 +1,13 @@
 'use client';
 
-import { CASE_SPECS, CaseCover, type PatchCaseData, type PickHandler } from '@/entities/patch';
+import {
+  CASE_SPECS,
+  CaseCover,
+  type PatchCaseData,
+  type PickHandler,
+  patchPath,
+  pickOnPlainClick,
+} from '@/entities/patch';
 import { formatMonthDay } from '@/shared/lib';
 
 /**
@@ -28,14 +35,14 @@ export function FaceOutRow({
       <ul className="grid grid-cols-[repeat(2,minmax(0,11rem))] items-end gap-5 px-1 pt-3 sm:grid-cols-[repeat(3,minmax(0,11rem))] lg:grid-cols-[repeat(4,minmax(0,11rem))]">
         {items.map((item, index) => (
           <li key={item.slug} className={`@container ${VISIBLE_FROM[index] ?? 'hidden'}`}>
-            <button
-              type="button"
-              aria-label={`${item.titleKo} 케이스 꺼내기`}
-              onClick={(event) => onPick(item, event.currentTarget)}
+            <a
+              href={patchPath(item.slug)}
+              aria-label={`${item.titleKo} 한글 패치`}
+              onClick={(event) => pickOnPlainClick(event, item, onPick)}
               className={`block ${CASE_SPECS[item.platform].aspect} ${CASE_SPECS[item.platform].faceHeight} transition-[translate] duration-200 hover:-translate-y-1.5 focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2`}
             >
               <CaseCover patch={item} />
-            </button>
+            </a>
             <p className="mt-2 font-num text-ink-sub text-xs">
               {formatMonthDay(item.latestReleaseDate)} 갱신
             </p>
