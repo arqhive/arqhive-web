@@ -33,6 +33,8 @@ function ShelfSpine({
       <button
         type="button"
         aria-label={`${item.titleKo} 케이스 꺼내기`}
+        // 작품 주소(/korean-translation/<slug>)로 들어왔을 때 이 등줄기를 찾아 꺼낸다
+        data-slug={item.slug}
         onClick={(event) => onPick(item, event.currentTarget)}
         className={`block transition-[translate,opacity] duration-200 hover:-translate-y-1.5 focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2 ${dimmed ? 'opacity-20' : 'opacity-100'}`}
       >

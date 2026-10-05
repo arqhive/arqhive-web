@@ -11,9 +11,10 @@ const RECENT_COUNT = 4;
  *
  * 서버 컴포넌트에서 콘텐츠를 읽고, 진열장에 필요한 필드만 골라(toCaseData) 클라이언트 컴포넌트로 넘긴다.
  * 작품 순서는 분류 번호 순이다(기종 안에서 저장소를 만든 순서).
+ * initialSlug(작품 주소로 들어왔을 때)가 있으면 그 작품 케이스를 처음부터 열어 보여 준다.
  * 공개 작품은 GitHub 릴리즈 다운로드 수를 함께 읽어 붙인다(작품마다 동시에, 결과는 1시간 캐시). 작업 중인 작품은 읽지 않는다.
  */
-export async function TranslationPage() {
+export async function TranslationPage({ initialSlug }: { readonly initialSlug?: string }) {
   const sorted = patches
     .map((patch) => toCaseData(patch))
     .toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
@@ -24,5 +25,11 @@ export async function TranslationPage() {
 
   // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
   const today = kstDayNumber(new Date());
-  return <TranslationClient items={items} recent={recentlyUpdated(items, RECENT_COUNT, today)} />;
+  return (
+    <TranslationClient
+      items={items}
+      recent={recentlyUpdated(items, RECENT_COUNT, today)}
+      initialSlug={initialSlug}
+    />
+  );
 }
