@@ -121,7 +121,8 @@ export function CaseOuterBox({
     return null;
   }
   return (
-    <div className="@container absolute inset-0 z-10">
+    // 상자는 보기만 하는 층이라 클릭을 통과시킨다(빠진 뒤에도 케이스 위를 덮고 있어, 막으면 매체의 릴리즈 링크가 눌리지 않는다)
+    <div className="@container pointer-events-none absolute inset-0 z-10">
       <CaseCarton patch={patch} lidOpen={lidOpen} unboxed={unboxed} />
     </div>
   );

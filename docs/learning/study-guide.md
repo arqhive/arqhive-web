@@ -364,7 +364,8 @@
   - 그림(디스크·카드·카트리지) 위에 같은 모양의 투명한 `<a>`를 덮어 누를 곳을 만듭니다. 그림 쪽 코드는 건드리지 않습니다.
   - 새 탭 링크에는 `rel="noopener noreferrer"`를 붙이고, 화면에 글자가 없으니 `sr-only`로 읽어 줄 이름을 넣습니다.
   - 공개(released) 작품에만 링크를 만듭니다. 비공개 릴리즈로 가는 링크는 남에게 404가 됩니다.
-- **문서**: https://docs.github.com/repositories/releasing-projects-on-github/linking-to-releases
+  - 투명해진 층(opacity 0)이나 밀려난 층도 **클릭은 그대로 받습니다**. 장식 층은 바깥 래퍼부터 `pointer-events-none`을 주고, 누를 자리에서 `document.elementFromPoint(x, y)`가 링크를 돌려주는지 재서 확인합니다(종이상자 래퍼가 링크를 덮고 있던 실수에서 배움).
+- **문서**: https://docs.github.com/repositories/releasing-projects-on-github/linking-to-releases, https://developer.mozilla.org/docs/Web/API/Document/elementFromPoint
 
 ### 넘칠 때만 정해 둔 곳에서 줄 바꾸기 ★
 - **볼 것**: `entities/patch/ui/title-lines.tsx`
@@ -401,11 +402,9 @@
 ### 스크립트로 파일을 고칠 때 줄끝 지키기 ★
 - **볼 것**: 저장소의 `.mdx`·`.md` 파일(줄끝 LF)
 - **핵심**
-  - Windows에서 Python `open(p, 'w')`(텍스트 모드)로 쓰면 줄끝 `
-`이 `
-`(CRLF)으로 바뀝니다. git이 "CRLF will be replaced by LF" 경고를 냅니다.
+  - Windows에서 Python `open(p, 'w')`(텍스트 모드)로 쓰면 줄끝 `\n`이 `\r\n`(CRLF)으로 바뀝니다. git이 "CRLF will be replaced by LF" 경고를 냅니다.
   - 읽고 쓸 때 모두 `newline=''`을 주면 원래 줄끝을 그대로 지킵니다.
-  - 코드 파일은 Biome 포맷이 LF로 되돌려 줘서 가려지지만, Biome가 다루지 않는 콘텐츠 파일은 그대로 남습니다. 고친 뒤 `grep -cU $'' 파일`로 확인합니다.
+  - 코드 파일은 Biome 포맷이 LF로 되돌려 줘서 가려지지만, Biome가 다루지 않는 콘텐츠 파일은 그대로 남습니다. 고친 뒤 `grep -cU $'\r' 파일`로 확인합니다.
 - **문서**: https://docs.python.org/3/library/functions.html#open
 
 ## 갱신 기록
@@ -439,6 +438,7 @@
 | 케이스 열기 화면·속지 정보 | 10절: CSS 변수 하나로 연출 속도 바꾸기(닫기 1.5배), transition이 모두 끝난 때 알기(getAnimations, 단계 하나로 상태 합치기), 규칙이 있는 표시는 판정 함수로. 동그란 X 닫기 단추는 케이스 안에 두어 함께 움직임, em·cqw 클래스를 다른 요소로 옮기면 기준이 바뀜 |
 | 콘텐츠 정리(속지용) | 어나더 코드 R 원제를 유럽판 제목으로(패치 대상 판 기준), 방식은 패치 종류만(Wii U는 파일 패처, 실행 방법 문구 제거), 구동 확인은 README 「실행 환경」의 확인함 기준으로 표기 통일(에뮬레이터·3DS·Wii U vWii·Wii U Aroma + SDCafiine), 알려진 문제 일부 정리. 스크립트로 파일을 고칠 때 줄끝 지키기 |
 | 데스크톱 헤더 sticky | (흐름 문서 11절) `position: sticky`는 조상에 overflow 숨김이 없어야 동작, 붙어 있는 동안 비치지 않게 바탕색, z-index는 떠오르는 요소보다 위·dialog(최상위 층)보다는 아래 |
+| 상자 기종 릴리즈 링크 클릭 수정 | 10절(투명 링크 판): 보이지 않는 층도 클릭을 받는다, 장식 층은 바깥 래퍼부터 pointer-events-none, elementFromPoint로 눌리는지 재기. 학습 문서에 섞여 들어간 CR(줄끝) 정리 |
 | 푸터 저작권 표기 | 저작권 연도를 한국 시간 올해로 계산(연 해와 다르면 2026–2027), 고지는 홈 면책 조항으로 옮김 |
 
 ## 11. 다음 단계에서 만날 것 ★
