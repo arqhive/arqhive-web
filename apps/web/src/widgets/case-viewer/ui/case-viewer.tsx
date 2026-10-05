@@ -55,11 +55,13 @@ export function CaseViewer({
     <dialog
       ref={view.dialogRef}
       aria-label={patch ? `${patch.titleKo} 케이스` : undefined}
+      // 열 때 dialog 자체가 포커스를 받는다(use-case-dialog). 테두리는 그리지 않는다(outline-none)
+      tabIndex={-1}
       onCancel={view.onCancel}
       onClose={view.onNativeClose}
       onClick={view.onBackdropClick}
       style={tempo}
-      className={`m-0 size-full max-h-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-[calc(500ms*var(--case-tempo,1))] ${view.isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
+      className={`m-0 size-full max-h-none outline-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-[calc(500ms*var(--case-tempo,1))] ${view.isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
     >
       {patch === null ? null : (
         <>

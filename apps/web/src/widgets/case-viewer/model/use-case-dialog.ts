@@ -152,6 +152,9 @@ export function useCaseDialog(
       return;
     }
     dialog.showModal();
+    // showModal은 안쪽의 첫 링크(매체)에 포커스를 준다. 주소로 바로 들어오면(마우스 입력 전) 브라우저가 키보드 사용으로 보고
+    // 그 링크에 포커스 테두리를 그려서, dialog 자체에 포커스를 옮긴다. 키보드로는 Tab 한 번이면 첫 링크로 간다.
+    dialog.focus({ preventScroll: true });
     isClosingRef.current = false;
     setStage('opening');
     runRef.current += 1;
