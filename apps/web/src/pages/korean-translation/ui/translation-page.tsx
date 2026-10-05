@@ -2,7 +2,7 @@ import { patches } from '@arqhive/content';
 import type { ReactNode } from 'react';
 import { fetchChangelog, fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
-import { ChangelogBody } from './changelog-body.tsx';
+import { MarkdownBody } from '@/shared/markdown';
 import { TranslationClient } from './translation-client.tsx';
 
 /** 표지가 보이게 세워 둘 최근 갱신 작품 수(최대). 화면이 좁으면 FaceOutRow가 2~3개만 보여 준다 */
@@ -32,7 +32,9 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
   sorted.forEach((item, index) => {
     const markdown = changelogs[index];
     if (markdown) {
-      changelogViews[item.slug] = <ChangelogBody markdown={markdown} repo={item.repo} />;
+      // CHANGELOG 속 상대 링크(docs/releases/…)는 저장소 기본 가지의 파일 보기 주소로 바꾼다
+      const linkBase = `https://github.com/${item.repo.owner}/${item.repo.name}/blob/HEAD/`;
+      changelogViews[item.slug] = <MarkdownBody markdown={markdown} linkBase={linkBase} />;
     }
   });
 
