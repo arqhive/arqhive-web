@@ -7,4 +7,6 @@ export type ApiEnv = Env & {
   readonly TURNSTILE_SECRET_KEY: string;
   /** 이슈를 만들 GitHub 토큰(Issues 읽기·쓰기). REPORT_DRY_RUN이 "1"이면 없어도 된다 */
   readonly GITHUB_ISSUES_TOKEN?: string;
+  /** 운영자 알림을 보낼 디스코드 웹훅 주소. 없으면 알림을 보내지 않는다 */
+  readonly DISCORD_WEBHOOK_URL?: string;
 };

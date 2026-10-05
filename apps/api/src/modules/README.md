@@ -9,10 +9,10 @@
 | `releases` | 릴리즈·다운로드 수 동기화 | 2·5단계 |
 | `reports` | 제보 접수·판별·이슈 생성·이슈 동기화·검토 승인 | 4단계 |
 | `search` | 검색·임베딩 | 5·6단계 |
-| `notifications` | 카카오톡 전송·재전송·토큰 갱신 | 4단계 |
+| `notifications` | 운영자 알림(디스코드 웹훅)·못 보낸 알림 재전송 | 4단계 |
 | `webhooks` | `repository_dispatch` 수신 | 8단계 |
 
 규칙
 
 - 모듈 바깥에서는 그 모듈의 `index.ts`로만 가져다 씁니다.
-- 여러 모듈이 함께 쓰는 외부 연결(GitHub, Workers AI, 카카오 클라이언트, 요청 제한, Turnstile, 오류 처리)은 `../platform/`에 둡니다.
+- 여러 모듈이 함께 쓰는 외부 연결(GitHub, Workers AI, 디스코드 웹훅, 요청 제한, Turnstile, 오류 처리)은 `../platform/`에 둡니다.

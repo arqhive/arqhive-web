@@ -6,13 +6,15 @@ import { createIssue } from '../../platform/github.ts';
 import { markOnce, sha256, takeToken } from '../../platform/rate-limit.ts';
 import { reserveStorage, STORAGE_LIMIT_BYTES } from '../../platform/storage-budget.ts';
 import { verifyTurnstile } from '../../platform/turnstile.ts';
+import { notify, reportNotice } from '../notifications/index.ts';
 import { RELEASED_REPOS } from './released-repos.ts';
 import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './report-checks.ts';
 
 /**
  * 제보 받기(POST /api/reports, multipart/form-data). 위에서부터 차례로 거르고, 하나라도 걸리면 그 자리에서 거절한다:
  * 봇 흔적(허니팟·시간) → Turnstile → 횟수 제한(IP별 시간당 3건, 사이트 하루 50건) → 입력 검사 → 같은 내용 재전송
- * → 스크린샷을 R2에 올림(누적 9GB를 넘을 것 같으면 스크린샷은 빼고 글만) → 그 패치 저장소에 "제보" 라벨 이슈 생성.
+ * → 스크린샷을 R2에 올림(누적 9GB를 넘을 것 같으면 스크린샷은 빼고 글만) → 그 패치 저장소에 "제보" 라벨 이슈 생성
+ * → 운영자에게 디스코드 알림(notifications 모듈).
  * 실패 코드(invalid·rate·bot·server)는 양식이 알맞은 문구를 고르는 데 쓴다.
  */
 
@@ -139,9 +141,17 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       const imagesSkipped = skipped ? { imagesSkipped: true } : {};
       // 개발 중에는 공개 저장소에 시험 이슈가 생기지 않게 만들지 않는다(wrangler.jsonc의 REPORT_DRY_RUN)
       if (c.env.REPORT_DRY_RUN === '1' || c.env.GITHUB_ISSUES_TOKEN === undefined) {
+        const reposUrl = `https://github.com/${repo.owner}/${repo.name}/issues`;
+        // 시험 중에도 알림은 보낸다(받는 사람이 운영자 자신뿐이라 안전하다). 문구 앞에 [시험]이 붙는다
+        c.executionCtx.waitUntil(
+          notify(
+            c.env,
+            reportNotice({ game: repo.title, title: issue.title, text }, reposUrl, true),
+          ),
+        );
         return c.json({
           ok: true,
-          url: `https://github.com/${repo.owner}/${repo.name}/issues`,
+          url: reposUrl,
           ...imagesSkipped,
           // 시험용: 만들었을 이슈 제목·본문(이미지 링크 포함)을 그대로 보여 준다
           dryRun: issue,
@@ -151,6 +161,10 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
         ...issue,
         label: REPORT_LABEL,
       });
+      // 운영자에게 디스코드 알림. 응답을 기다리게 하지 않고(waitUntil), 실패해도 제보는 성공이다
+      c.executionCtx.waitUntil(
+        notify(c.env, reportNotice({ game: repo.title, title: issue.title, text }, url, false)),
+      );
       return c.json({ ok: true, url, ...imagesSkipped });
     } catch (error) {
       const code: RejectCode = error instanceof Reject ? error.code : 'server';
