@@ -12,7 +12,8 @@ const reportImageOrigin = 'https://pub-032e2a3dea5c4e4c89f0c7196a9606ca.r2.dev';
 const turnstile = 'https://challenges.cloudflare.com';
 /** 방문 통계 Umami Cloud: 스크립트 주소와 이벤트를 보내는 주소(src/app/analytics/config.ts와 맞춘다) */
 const umamiScript = 'https://cloud.umami.is';
-const umamiCollect = 'https://cloud.umami.is https://api-gateway.umami.dev';
+// 수집 주소는 배포 사이트의 브라우저 콘솔(CSP 위반 메시지)에서 확인한 실제 주소다. Umami가 바꾸면 여기도 바꾼다
+const umamiCollect = 'https://gateway.umami.is';
 
 /**
  * 콘텐츠 보안 정책(CSP): 이 사이트가 어디서 무엇을 불러올 수 있는지 브라우저에 알려 주는 허용 목록.
