@@ -42,7 +42,8 @@ export function FaceOutRow({
           </li>
         ))}
       </ul>
-      <div aria-hidden="true" className="shelf-ledge mt-1 h-5 rounded-sm" />
+      {/* 받침 선: 목록 보기 위쪽 선과 같은 잉크색 굵은 선(사이트 기본 톤) */}
+      <div aria-hidden="true" className="mt-2 border-ink border-t-2" />
     </div>
   );
 }
