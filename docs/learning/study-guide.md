@@ -189,6 +189,7 @@
 - **확인 방법**: 저장소를 새 폴더에 `git clone`해서 CI와 같은 순서로 명령을 돌려 봅니다.
 
 ### 글꼴 라이선스 ★
+- Google Fonts에 없는 글꼴(제목·본문 Pretendard)은 npm 패키지의 CSS를 import 합니다. 이 CSS의 `unicode-range`가 글자 범위별 파일을 나눠 두어, 화면에 쓰인 범위의 파일만 내려갑니다(통파일 약 2MB 대신 몇십 KB씩).
 - 사이트에 쓰는 글꼴은 **SIL Open Font License(OFL)**입니다. 상업적 이용과 웹 포함이 허용되지만, 글꼴 파일 자체를 따로 판매할 수는 없습니다. 패치에 쓴 글꼴을 사이트에 쓰려면 라이선스를 먼저 확인합니다.
 
 ## 9. 케이스 열기 시제품에서 새로 등장한 것
@@ -314,6 +315,15 @@
   - 화면 크기에 묶인 상자(dvh·vw) 안의 글자를 rem으로 쓰면 배율을 올릴 때 넘친다. 이런 곳은 글자 기준을 상자 폭(cqw)에 두고 나머지를 em으로 쓰면 인쇄물처럼 같은 비율로 커지고 작아진다.
 - **문서**: https://developer.mozilla.org/docs/Web/CSS/length
 
+### 페이지 전체에 거는 동작은 전역 CSS 한 곳에서 ★★
+- **볼 것**: `src/app/styles/globals.css`의 `@layer base`
+- **핵심**
+  - **손가락 커서**: Tailwind v4는 단추 커서를 화살표로 둡니다. 클릭할 수 있는 요소(`button`, `summary`, 체크박스 등)에 한 번에 `cursor: pointer`를 겁니다.
+  - **모달이 열리면 뒤 페이지 스크롤 막기**: `html:has(dialog[open]) { overflow-y: hidden }`. `:has()`는 "이런 자식을 가진 요소"를 고르는 선택자라, 열고 닫는 코드 없이 CSS만으로 됩니다.
+  - **스크롤바 때문에 화면이 덜컥거리지 않게**: `overflow-y: scroll`로 스크롤바 자리를 늘 두고, `scrollbar-gutter: stable`로 스크롤을 막을 때도 자리를 지킵니다. `scrollbar-color`로 홈을 투명하게 하면 스크롤할 게 없을 때 그 자리가 바탕색으로만 보입니다.
+  - 측정해 보니 `scrollbar-gutter: stable`만으로는 스크롤이 없을 때 자리를 비워 두지 않았습니다. 문서의 설명과 실제 동작이 다를 수 있으니 **재서 확인**합니다.
+- **문서**: https://developer.mozilla.org/docs/Web/CSS/:has, https://developer.mozilla.org/docs/Web/CSS/scrollbar-gutter
+
 ## 갱신 기록
 
 | 커밋 | 추가한 내용 |
@@ -335,6 +345,7 @@
 | SFC·GB·GBA 카트리지 상자·게임팩 모양 | 10절: 같은 열기 단계에 다른 부품(설명서·카트리지)을 끼우기, clip-path로 윤곽 자르기(그림자는 drop-shadow), 형태 판단을 함수 하나(`hasOuterBox`)로 모으기, CSS 파일 나누기(재질별) |
 | 사이트 1.2배 | 10절: 사이트 배율과 단위 고르기(rem·em·cqw·dvh), 모양은 도면 좌표로 SVG 그리기 |
 | 콘텐츠 최신화 | (흐름 문서 8절) 화면용 값도 frontmatter에(spineLines), 개발 중 콘텐츠 감시(`dev:web`), 날짜는 한국 시간 기준 |
+| 글꼴과 전역 동작 | 8절(글꼴): Google Fonts에 없는 글꼴을 npm 패키지 CSS로(동적 부분집합). 10절: 페이지 전체 동작은 전역 CSS 한 곳에서(:has() 스크롤 잠금, 스크롤바 자리) |
 
 ## 11. 다음 단계에서 만날 것 ★
 

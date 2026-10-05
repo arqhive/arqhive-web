@@ -68,8 +68,10 @@
   --color-stamp: var(--stamp);
   --color-on-stamp: var(--on-stamp);
 
-  --font-title: var(--font-nanum-myeongjo), "Noto Serif KR", serif;
-  --font-body: var(--font-gothic-a1), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-title:
+    "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body:
+    "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-num: var(--font-ibm-plex-mono), ui-monospace, monospace;
 }
 
@@ -102,9 +104,36 @@
     /* 사이트 전체 배율: rem 단위(Tailwind 간격·글자·크기)가 모두 이 값을 따른다. 기본 16px의 1.2배.
        크기를 px로 고정하지 말고 rem으로 써야 함께 커진다. 미디어 쿼리 기준점은 이 값과 상관없이 16px 기준이다. */
     font-size: 120%;
+    /* 스크롤바 자리를 늘 둔다. 내용이 짧아 스크롤이 없을 때도 스크롤 막대 자리를 남겨 두어,
+       필터로 목록이 줄거나 늘 때 화면이 옆으로 덜컥거리지 않게 한다.
+       scrollbar-gutter: stable만으로는 스크롤이 없을 때 자리를 비워 두지 않는 브라우저가 있어 overflow-y: scroll을 함께 쓴다.
+       모달이 열려 스크롤을 막을 때(아래 :has 규칙)는 stable이 그 자리를 지켜 준다(밀리면 케이스가 돌아갈 "누른 표지 자리"도 어긋난다). */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    /* 스크롤바 색: 막대(thumb)는 보조 글자색, 홈(track)은 투명. 색을 지정하면 화살표 단추 없는 막대로 그려지고,
+       스크롤할 게 없을 때는 막대가 없으니 그 자리가 바탕색으로만 보인다(자리는 남아 있어 화면이 밀리지 않는다). */
+    scrollbar-color: var(--ink-sub) transparent;
     background-color: var(--paper);
     color: var(--ink);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* 모달(<dialog> showModal, 예: 케이스 열기)이 열려 있는 동안 뒤 페이지가 스크롤되지 않게 한다.
+     :has()로 "열린 dialog가 들어 있는 html"을 골라서, 열고 닫는 코드 없이 CSS만으로 처리한다. */
+  html:has(dialog[open]) {
+    overflow-y: hidden;
+  }
+
+  /* 클릭할 수 있는 요소는 손가락 커서. Tailwind v4 기본값은 button 커서를 화살표(default)로 두므로 여기서 한 번에 바꾼다.
+     비활성(disabled) 단추는 제외한다. */
+  button:not(:disabled),
+  [role="button"],
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
   }
 }

@@ -476,7 +476,7 @@ GitHub 저장소 `arqhive-web`, Vercel 프로젝트 `arqhive`, Workers `arqhive-
 ### 디자인 토큰 (2026-10-03 확정, ADR 0009)
 
 - **2안 기록보관소**: 회백 종이 `#EEEEE9` · 남색 잉크 `#1E2A3A` · 도장 빨강 `#B23A2E`, 어두운 화면 한 벌 별도
-- 글꼴: 제목 나눔명조 · 본문 고딕 A1 · 번호 IBM Plex Mono(모두 OFL, next/font로 사이트에 포함)
+- 글꼴: 제목·본문 Pretendard · 번호 IBM Plex Mono(모두 OFL, 사이트에 포함. Pretendard는 npm 패키지 CSS, 번호는 next/font, 10/5 교체)
 - 모서리 없음, 괘선 중심. 기종별 케이스 색은 고정 토큰
 - 코드: `apps/web/src/app/styles/globals.css`(@theme), `fonts.ts`
 

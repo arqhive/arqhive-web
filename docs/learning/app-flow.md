@@ -196,7 +196,7 @@ flowchart TB
     attr[":root[data-theme=dark]<br/>사용자가 고르면 값 교체"]
     theme["@theme inline<br/>--color-paper: var(--paper) …"]
   end
-  fonts["src/app/styles/fonts.ts<br/>next/font: 나눔명조·고딕 A1·IBM Plex Mono"] -- "--font-* 변수" --> theme
+  fonts["src/app/styles/fonts.ts<br/>next/font: IBM Plex Mono<br/>(제목·본문 Pretendard는 app/layout.tsx에서 패키지 CSS)"] -- "--font-* 변수" --> theme
   vars --> theme
   media --> vars
   attr --> vars
