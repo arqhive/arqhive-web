@@ -201,8 +201,13 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       return c.json({ ok: false, code }, STATUS[code]);
     }
   })
-  // R2에 올린 스크린샷 보여 주기(개발용 주소. 배포에서는 버킷의 공개 주소를 쓴다)
+  // R2에 올린 스크린샷 보여 주기(개발용 주소. 배포에서는 버킷의 공개 주소(r2.dev)를 쓴다)
+  // 이미지 주소 설정(REPORT_IMAGE_BASE_URL)이 이 API 자신을 가리킬 때만 연다. 개발(.dev.vars)은 이 주소를 쓰고,
+  // 배포는 r2.dev를 쓰므로 404 — 배포 서버로 버킷을 읽는 우회로(요청 수·비용)가 생기지 않는다.
   .get('/images/:month/:file', async (c) => {
+    if (!c.env.REPORT_IMAGE_BASE_URL.startsWith(`${new URL(c.req.url).origin}/`)) {
+      return c.notFound();
+    }
     const object = await c.env.REPORT_IMAGES.get(`${c.req.param('month')}/${c.req.param('file')}`);
     if (object === null) {
       return c.notFound();
