@@ -39,29 +39,21 @@ export function CaseViewer({
   readonly onClose: () => void;
 }) {
   const boxed = patch !== null && hasOuterBox(CASE_SPECS[patch.platform]);
-  const {
-    dialogRef,
-    caseRef,
-    isShown,
-    isClosing,
-    isSettled,
-    phase,
-    close,
-    onCancel,
-    onBackdropClick,
-  } = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
+  const view = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
+  const { phase } = view;
   const isOpen = phase === 'open';
-  const tempo = { '--case-tempo': isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
+  const tempo = { '--case-tempo': view.isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: 키보드 닫기는 dialog 기본 ESC(onCancel)가 맡는다. 클릭은 배경 닫기 전용이다
     <dialog
-      ref={dialogRef}
+      ref={view.dialogRef}
       aria-label={patch ? `${patch.titleKo} 케이스` : undefined}
-      onCancel={onCancel}
-      onClick={onBackdropClick}
+      onCancel={view.onCancel}
+      onClose={view.onNativeClose}
+      onClick={view.onBackdropClick}
       style={tempo}
-      className={`m-0 size-full max-h-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-[calc(500ms*var(--case-tempo,1))] ${isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
+      className={`m-0 size-full max-h-none max-w-none overflow-hidden bg-transparent p-0 backdrop:transition-colors backdrop:duration-[calc(500ms*var(--case-tempo,1))] ${view.isShown ? 'backdrop:bg-ink/70' : 'backdrop:bg-transparent'}`}
     >
       {patch === null ? null : (
         <>
@@ -69,7 +61,7 @@ export function CaseViewer({
               클릭은 통과시키고(pointer-events-none) 케이스만 받게 해서, 빈 곳 클릭은 dialog로 가 배경 닫기가 된다. */}
           <div className="pointer-events-none flex size-full items-center justify-center perspective-[2400px]">
             <div
-              ref={caseRef}
+              ref={view.caseRef}
               className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} origin-top-left transition-transform duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${
                 isOpen ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
               }`}
@@ -103,7 +95,7 @@ export function CaseViewer({
               />
 
               {/* 닫기 단추: 케이스 안에 두어 케이스가 날아오고 펼쳐질 때 함께 따라다닌다 */}
-              <CloseButton isVisible={isSettled} onClick={close} />
+              <CloseButton isVisible={view.isSettled} onClick={view.close} />
             </div>
           </div>
         </>
