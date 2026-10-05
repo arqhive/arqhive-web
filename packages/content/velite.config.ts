@@ -85,6 +85,35 @@ const guides = defineCollection({
     summary: s.string(),
     platforms: s.array(s.enum(PLATFORMS)),
     body: s.mdx(),
+    // 본문 마크다운 원문. 가이드 페이지가 react-markdown으로 서버에서 그린다(본문에 JSX 컴포넌트를 쓰지 않는 동안).
+    raw: s.raw(),
+  }),
+});
+
+/**
+ * 가이드 페이지(/guide)의 자주 묻는 질문. 질문 하나 = 파일 하나(content/faq/*.md).
+ * group으로 묶고 order 순으로 보여 준다. 답은 마크다운 원문(raw)으로 두고 서버에서 그린다.
+ */
+const faqs = defineCollection({
+  name: 'Faq',
+  pattern: 'faq/*.md',
+  schema: s.object({
+    question: s.string(),
+    // apply: 적용하기 / environment: 실행 환경 / trouble: 문제가 생겼을 때
+    group: s.enum(['apply', 'environment', 'trouble']),
+    order: s.number(),
+    answer: s.raw(),
+  }),
+});
+
+/** 가이드 페이지 맨 위의 "패치 버전 가이드"(파일 하나). 글은 마크다운 원문 그대로 */
+const versionGuide = defineCollection({
+  name: 'VersionGuide',
+  pattern: 'guide-page/version.md',
+  single: true,
+  schema: s.object({
+    title: s.string(),
+    body: s.raw(),
   }),
 });
 
@@ -98,5 +127,5 @@ export default defineConfig({
     base: '/static/',
     clean: true,
   },
-  collections: { patches, guides },
+  collections: { patches, guides, faqs, versionGuide },
 });

@@ -5,7 +5,7 @@
 export const NAV = [
   { label: '홈', href: '/' },
   { label: '한글 패치', href: '/korean-translation' },
-  { label: '가이드', href: null },
+  { label: '가이드', href: '/guide' },
   { label: '제보', href: null },
 ] as const;
 

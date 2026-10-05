@@ -1,4 +1,5 @@
 import { PLATFORM_LABELS } from '@arqhive/shared';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { CASE_SPECS, type PatchCaseData, releaseStage, TitleLines } from '@/entities/patch';
 
@@ -32,14 +33,16 @@ function StageText({ patch }: { readonly patch: PatchCaseData }) {
 }
 
 /**
- * 버전 번호가 무슨 뜻인지 설명하는 가이드로 가는 자리. 가이드 페이지가 아직 없어 흐린 "준비 중"으로 둔다.
- * 가이드(Q&A)를 만들면 그 안의 버전 안내 위치로 가는 <Link>로 바꾼다(typedRoutes가 주소를 검사한다).
+ * 버전 번호가 무슨 뜻인지 설명하는 가이드(/guide의 버전 가이드 절)로 가는 링크.
  */
 function VersionGuideLink() {
   return (
-    <span title="준비 중" aria-disabled="true" className="text-ink-sub underline opacity-60">
+    <Link
+      href="/guide#version"
+      className="text-ink-sub underline underline-offset-2 hover:text-stamp"
+    >
       버전 가이드
-    </span>
+    </Link>
   );
 }
 

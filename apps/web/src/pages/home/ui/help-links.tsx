@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 /**
@@ -42,7 +43,17 @@ function Pending({ children }: { readonly children: ReactNode }) {
 export function HelpLinks() {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
-      <HelpCard question="안내가 필요하신가요?" action={<Pending>가이드 보기</Pending>}>
+      <HelpCard
+        question="안내가 필요하신가요?"
+        action={
+          <Link
+            href="/guide"
+            className="inline-block border border-ink bg-ink px-3 py-1.5 text-paper text-sm hover:opacity-90"
+          >
+            가이드 보기
+          </Link>
+        }
+      >
         패치를 적용하는 방법과 자주 묻는 질문을 모아 두었습니다.
       </HelpCard>
       <HelpCard question="패치에 문제가 있었나요?" action={<Pending>제보하기</Pending>}>
