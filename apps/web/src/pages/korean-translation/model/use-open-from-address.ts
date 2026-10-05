@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import type { PatchCaseData, PickHandler } from '@/entities/patch';
+import { track } from '@/shared/analytics';
 
 /**
  * 선반이 다 자리 잡은 뒤 그 작품의 등줄기를 찾는다. 선반은 처음에 줄바꿈 흐름으로 그렸다가
@@ -30,6 +31,8 @@ export function useOpenFromAddress(
       .then((spine) => {
         if (!cancelled && spine !== null) {
           onPick(item, spine);
+          // 방문 통계: 주소로 바로 들어와 연 케이스(클릭으로 연 것은 클릭 측정이 따로 센다)
+          track('case-open', { patch: item.slug, from: 'address' });
         }
       })
       .catch(() => undefined);

@@ -182,6 +182,8 @@ export function CaseLiner({
           <button
             type="button"
             onClick={onShowChangelog}
+            data-track="changelog-open"
+            data-track-patch={patch.slug}
             className="mt-2 self-start text-ink text-xs underline underline-offset-2 hover:text-stamp focus-visible:outline-2 focus-visible:outline-stamp md:text-[0.875em]"
           >
             업데이트 내역 보기

@@ -38,6 +38,8 @@ export function FaceOutRow({
             <a
               href={patchPath(item.slug)}
               aria-label={`${item.titleKo} 한글 패치`}
+              data-track="case-open"
+              data-track-patch={item.slug}
               onClick={(event) => pickOnPlainClick(event, item, onPick)}
               className={`block ${CASE_SPECS[item.platform].aspect} ${CASE_SPECS[item.platform].faceHeight} transition-[translate] duration-200 hover:-translate-y-1.5 focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2`}
             >

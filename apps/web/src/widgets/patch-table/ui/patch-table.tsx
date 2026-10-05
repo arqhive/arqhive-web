@@ -35,6 +35,8 @@ export function PatchTable({
         <li key={item.slug} className="border-line border-b">
           <a
             href={patchPath(item.slug)}
+            data-track="case-open"
+            data-track-patch={item.slug}
             onClick={(event) => pickOnPlainClick(event, item, onPick)}
             className="grid w-full grid-cols-[1fr_auto] gap-x-4 gap-y-1 px-1 py-3 text-left hover:bg-card focus-visible:outline-2 focus-visible:outline-stamp md:grid-cols-[7.5rem_1fr_4.5rem_4.5rem_5rem_6rem] md:items-center"
           >

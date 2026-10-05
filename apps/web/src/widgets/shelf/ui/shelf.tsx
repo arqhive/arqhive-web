@@ -37,6 +37,9 @@ function ShelfSpine({
         aria-label={`${item.titleKo} 한글 패치`}
         // 패치 주소(/korean-translation/<slug>)로 들어왔을 때 이 등줄기를 찾아 꺼낸다
         data-slug={item.slug}
+        // 방문 통계: 어느 패치 케이스를 열었는지(app/analytics의 클릭 측정이 읽는다)
+        data-track="case-open"
+        data-track-patch={item.slug}
         onClick={(event) => pickOnPlainClick(event, item, onPick)}
         className={`block transition-[translate,opacity] duration-200 hover:-translate-y-1.5 focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2 ${dimmed ? 'opacity-20' : 'opacity-100'}`}
       >

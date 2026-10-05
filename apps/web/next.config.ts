@@ -10,6 +10,9 @@ const apiOrigin = env.NEXT_PUBLIC_API_URL ? new URL(env.NEXT_PUBLIC_API_URL).ori
 const reportImageOrigin = 'https://pub-032e2a3dea5c4e4c89f0c7196a9606ca.r2.dev';
 /** Cloudflare Turnstile(봇 확인 위젯): 스크립트를 받고, 확인 화면을 iframe으로 띄운다 */
 const turnstile = 'https://challenges.cloudflare.com';
+/** 방문 통계 Umami Cloud: 스크립트 주소와 이벤트를 보내는 주소(src/app/analytics/config.ts와 맞춘다) */
+const umamiScript = 'https://cloud.umami.is';
+const umamiCollect = 'https://cloud.umami.is https://api-gateway.umami.dev';
 
 /**
  * 콘텐츠 보안 정책(CSP): 이 사이트가 어디서 무엇을 불러올 수 있는지 브라우저에 알려 주는 허용 목록.
@@ -24,11 +27,11 @@ const turnstile = 'https://challenges.cloudflare.com';
  */
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${turnstile}${isDev ? " 'unsafe-eval'" : ''}`,
+  `script-src 'self' 'unsafe-inline' ${turnstile} ${umamiScript}${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${reportImageOrigin} ${apiOrigin}`,
   "font-src 'self'",
-  `connect-src 'self' ${apiOrigin}${isDev ? ' ws:' : ''}`,
+  `connect-src 'self' ${apiOrigin} ${umamiCollect}${isDev ? ' ws:' : ''}`,
   `frame-src ${turnstile}`,
   "frame-ancestors 'none'",
   "object-src 'none'",

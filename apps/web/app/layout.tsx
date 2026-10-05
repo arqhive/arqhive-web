@@ -6,6 +6,7 @@ import { preload } from 'react-dom';
 import '@/app/styles/globals.css';
 // 제목·본문 글꼴 Pretendard(SIL OFL, npm 패키지)는 CSS import가 아니라 화면을 막지 않는 스크립트로 붙인다(fonts.ts).
 // 글자 범위별로 나뉜 파일(동적 부분집합)이라 화면에 쓰인 범위만 내려간다. 글꼴 이름은 "Pretendard Variable".
+import { Analytics } from '@/app/analytics';
 import { fontVariables, PRETENDARD_CSS, PRETENDARD_LOAD_SCRIPT } from '@/app/styles/fonts';
 import { THEME_INIT_SCRIPT } from '@/app/theme/init-script';
 import { SITE } from '@/shared/config';
@@ -32,6 +33,14 @@ export const metadata: Metadata = {
     title: `${SITE.name} · ${SITE.description}`,
     description: SITE.summary,
   },
+  // 검색엔진 사이트 소유 확인(<meta>). vercel.app 도메인은 DNS 레코드를 넣을 수 없어 HTML 태그 방식을 쓴다. 비밀값이 아니다
+  verification: {
+    // biome-ignore lint/security/noSecrets: 공개되는 소유 확인 코드다(페이지 HTML에 그대로 나간다)
+    google: 'CNEBKBL8tSBnWjtIiLwfB9yuwxrHg_XvDdNkRubkUBI',
+    // 네이버 서치어드바이저(Next.js에 정해진 칸이 없어 other로 넣는다)
+    // biome-ignore lint/security/noSecrets: 공개되는 소유 확인 코드다
+    other: { 'naver-site-verification': '17f3c5efdf4b07bc8f58e2ab2cb8b620fab6ce5b' },
+  },
 };
 
 /**
@@ -57,6 +66,8 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           {PRETENDARD_LOAD_SCRIPT}
         </Script>
         {children}
+        {/* 방문 통계(Umami). 화면에는 아무것도 그리지 않는다 */}
+        <Analytics />
       </body>
     </html>
   );

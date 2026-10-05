@@ -2,6 +2,7 @@
 
 import type { SubmittedReport } from '@arqhive/shared';
 import { useCallback, useRef, useState } from 'react';
+import { track } from '@/shared/analytics';
 import { reencodeImage } from '../lib/reencode-image.ts';
 
 /** API 응답 모양(실패 코드는 API와 맞춘다) */
@@ -13,6 +14,15 @@ interface ApiResponse {
   /** 방금 만든 제보(목록 맨 위에 바로 붙인다) */
   readonly report?: SubmittedReport;
   readonly code?: 'invalid' | 'rate' | 'bot' | 'server';
+}
+
+/** 방문 통계: 제보 결과(어느 패치, 성공/실패 이유, 스크린샷 수). 제보 내용은 보내지 않는다 */
+function trackResult(data: FormData, result: ApiResponse, imageCount: number) {
+  track(result.ok ? 'report-sent' : 'report-failed', {
+    patch: String(data.get('slug') ?? ''),
+    images: imageCount,
+    ...(result.ok ? {} : { code: result.code ?? 'server' }),
+  });
 }
 
 /** 보내기 결과. 문구는 화면이 정한다 */
@@ -54,6 +64,7 @@ export function useReportSubmit(apiUrl: string | undefined) {
         }
         const response = await fetch(`${apiUrl}/reports`, { method: 'POST', body: data });
         const result = (await response.json()) as ApiResponse;
+        trackResult(data, result, images.length);
         setState(
           result.ok && result.url
             ? {
@@ -65,6 +76,7 @@ export function useReportSubmit(apiUrl: string | undefined) {
             : { status: 'error', code: result.code ?? 'server' },
         );
       } catch {
+        track('report-failed', { code: 'network' });
         setState({ status: 'error', code: 'network' });
       }
     },

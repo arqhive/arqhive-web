@@ -35,6 +35,9 @@ export function ReleaseLink({
       target="_blank"
       rel="noopener noreferrer"
       title="최신 릴리즈 페이지 열기"
+      // 방문 통계: 다운로드(릴리즈 페이지)로 넘어간 패치
+      data-track="download"
+      data-track-patch={patch.slug}
       className={`z-10 transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-stamp ${shape}`}
     >
       <span className="sr-only">{patch.titleKo} 최신 릴리즈 페이지 열기(새 탭)</span>
