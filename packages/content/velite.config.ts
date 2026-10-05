@@ -106,13 +106,17 @@ const faqs = defineCollection({
   }),
 });
 
-/** 가이드 페이지 맨 위의 "패치 버전 가이드"(파일 하나). 글은 마크다운 원문 그대로 */
-const versionGuide = defineCollection({
-  name: 'VersionGuide',
-  pattern: 'guide-page/version.md',
-  single: true,
+/**
+ * 가이드 페이지(/guide)의 위쪽 절들(자주 묻는 질문 위). 절 하나 = 파일 하나(content/guide-page/*.md), order 순서.
+ * anchor가 있으면 그 절의 고정 주소(#anchor)가 된다(예: 속지의 "버전 가이드" 링크 → #version).
+ */
+const guideSections = defineCollection({
+  name: 'GuideSection',
+  pattern: 'guide-page/*.md',
   schema: s.object({
     title: s.string(),
+    order: s.number(),
+    anchor: s.string().optional(),
     body: s.raw(),
   }),
 });
@@ -127,5 +131,5 @@ export default defineConfig({
     base: '/static/',
     clean: true,
   },
-  collections: { patches, guides, faqs, versionGuide },
+  collections: { patches, guides, faqs, guideSections },
 });
