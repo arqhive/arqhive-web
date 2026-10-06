@@ -72,7 +72,7 @@ export const reportEmbeddings = pgTable('report_embeddings', {
 /**
  * 에이전트 실행 기록. 처리안·단계·비용을 남기고, 운영자의 승인(적용·무시)을 여기에 적는다.
  * - status: running(도는 중 — 끝나지 않고 남았으면 시간 초과로 끊긴 것) → pending(승인 대기) → applied·ignored,
- *   failed(오류·보류), skipped(하루 한도·스위치 꺼짐으로 안 돌림)
+ *   failed(오류·보류), skipped(하루 한도·스위치 꺼짐으로 안 돌림). applied·ignored는 승인 화면(서명 링크)에서만 바뀐다
  */
 export const agentRuns = pgTable('agent_runs', {
   id: serial('id').primaryKey(),
@@ -88,6 +88,8 @@ export const agentRuns = pgTable('agent_runs', {
   steps: jsonb('steps'),
   corrections: jsonb('corrections'),
   error: text('error'),
+  /** 운영자 결정 내용: 실제로 올린 답변·붙인 라벨·초안을 고쳤는지(승인율·수정률을 보려고) */
+  decision: jsonb('decision'),
   inputTokens: integer('input_tokens').notNull().default(0),
   outputTokens: integer('output_tokens').notNull().default(0),
   ms: integer('ms'),

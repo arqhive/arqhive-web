@@ -15,6 +15,13 @@
       "when": 1791276982600,
       "tag": "0001_yellow_praxagora",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791278384568,
+      "tag": "0002_familiar_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
