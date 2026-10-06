@@ -2,7 +2,7 @@
 // 열기·고르기 같은 사용자 행동은 여기 두지 않는다(widgets·pages의 몫).
 
 export { fetchChangelog } from './api/changelog.ts';
-export { fetchDownloadCount } from './api/download-count.ts';
+export { fetchReleaseInfo, type ReleaseInfo } from './api/download-count.ts';
 export {
   CASE_SPECS,
   type CaseSpec,

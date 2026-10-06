@@ -1,5 +1,5 @@
 import { patches } from '@arqhive/content';
-import { fetchChangelog, fetchDownloadCount, recentlyUpdated, toCaseData } from '@/entities/patch';
+import { fetchChangelog, fetchReleaseInfo, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
 import { PatchIntro } from './patch-intro.tsx';
 import { TranslationClient } from './translation-client.tsx';
@@ -23,11 +23,19 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
     .map((patch) => toCaseData(patch))
     .toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
   const released = (item: (typeof sorted)[number]) => item.status === 'released';
-  const [counts, changelogs] = await Promise.all([
-    Promise.all(sorted.map((item) => (released(item) ? fetchDownloadCount(item.repo) : null))),
+  const [releaseInfos, changelogs] = await Promise.all([
+    Promise.all(
+      sorted.map((item) =>
+        released(item) ? fetchReleaseInfo(item.repo, item.downloadCode) : null,
+      ),
+    ),
     Promise.all(sorted.map((item) => (released(item) ? fetchChangelog(item.repo) : null))),
   ]);
-  const items = sorted.map((item, index) => ({ ...item, downloadCount: counts[index] ?? null }));
+  const items = sorted.map((item, index) => ({
+    ...item,
+    downloadCount: releaseInfos[index]?.downloadCount ?? null,
+    downloads: releaseInfos[index]?.downloads ?? null,
+  }));
   // CHANGELOG가 있는 패치 slug. 못 읽은 패치는 빠진다(단추가 숨겨짐)
   const changelogSlugs = sorted
     .filter((_item, index) => Boolean(changelogs[index]))

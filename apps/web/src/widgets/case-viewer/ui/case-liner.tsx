@@ -145,6 +145,48 @@ function LinerFacts({
  *   작은 케이스는 제목을 한 단계 줄이고 맨 아래 안내 문구도 뺀다.
  * 전체 내용은 상세 페이지에서 본다.
  */
+/** 링크 글자 모양(속지 안 작은 밑줄 글자) */
+const LINK_CLASS =
+  'text-ink underline underline-offset-2 hover:text-stamp focus-visible:outline-2 focus-visible:outline-stamp';
+
+/**
+ * 원제 아래 링크 한 줄(공개 패치만): 업데이트 내역(있으면 모달) · 릴리즈 노트(GitHub 최신 릴리즈 페이지, 새 탭).
+ * 매체를 누르면 파일을 바로 받으므로, 다른 파일(업그레이드용·체크섬)이나 릴리즈 설명은 릴리즈 노트에서 본다.
+ */
+function LinerLinks({
+  patch,
+  onShowChangelog,
+}: {
+  readonly patch: PatchCaseData;
+  readonly onShowChangelog?: (() => void) | undefined;
+}) {
+  return (
+    <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs md:text-[0.875em]">
+      {onShowChangelog === undefined ? null : (
+        <button
+          type="button"
+          onClick={onShowChangelog}
+          data-track="changelog-open"
+          data-track-patch={patch.slug}
+          className={LINK_CLASS}
+        >
+          업데이트 내역 보기
+        </button>
+      )}
+      <a
+        href={`https://github.com/${patch.repo.owner}/${patch.repo.name}/releases/latest`}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-track="release-notes"
+        data-track-patch={patch.slug}
+        className={LINK_CLASS}
+      >
+        릴리즈 노트 ↗
+      </a>
+    </span>
+  );
+}
+
 export function CaseLiner({
   patch,
   onShowChangelog,
@@ -178,17 +220,7 @@ export function CaseLiner({
         <span className="mt-1 line-clamp-2 shrink-0 text-ink-sub text-xs md:text-[1em]">
           {patch.titleOriginal}
         </span>
-        {onShowChangelog === undefined ? null : (
-          <button
-            type="button"
-            onClick={onShowChangelog}
-            data-track="changelog-open"
-            data-track-patch={patch.slug}
-            className="mt-2 self-start text-ink text-xs underline underline-offset-2 hover:text-stamp focus-visible:outline-2 focus-visible:outline-stamp md:text-[0.875em]"
-          >
-            업데이트 내역 보기
-          </button>
-        )}
+        {isReleased ? <LinerLinks patch={patch} onShowChangelog={onShowChangelog} /> : null}
         <LinerFacts patch={patch} listClass={desk.list} />
         {/* 맨 아래 안내는 작업 중(공개 전)인 작품에만 둔다 */}
         {isReleased ? null : (

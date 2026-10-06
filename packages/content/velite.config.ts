@@ -43,6 +43,12 @@ const patches = defineCollection({
     slug: s.slug('patches'),
     // 분류 번호: ARQ-<기종>-<기종 안에서 저장소를 만든 순서>. 목록 보기에 쓴다.
     catalogNo: s.string().regex(/^ARQ-[A-Z0-9]+-\d{3}$/),
+    // 릴리즈 첨부 파일 이름 앞부분([코드]_KPatch_[버전]). 기기·GameTDB의 4글자 제품 코드, 없으면 영문 이름.
+    // 사이트가 이 코드로 최신 릴리즈에서 직접 다운로드할 파일을 찾는다(@arqhive/shared의 pickDownloads)
+    downloadCode: s
+      .string()
+      .regex(/^[A-Z0-9]+$/)
+      .optional(),
     titleKo: s.string(),
     // 선반 등줄기에 쓰는 제목 줄(두 줄까지). 줄바꿈 위치를 고정할 때만 적는다. 없으면 titleKo를 자동으로 줄바꿈한다.
     spineLines: s.array(s.string()).min(1).max(2).optional(),
