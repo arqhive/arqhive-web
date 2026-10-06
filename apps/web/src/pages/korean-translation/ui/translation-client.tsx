@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useId, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useId, useRef, useState } from 'react';
 import {
   type PatchCaseData,
   type PickHandler,
@@ -38,13 +38,18 @@ function showAddress(path: string, title: string | null) {
  *   작품이 아니라 **누른 요소**를 기준으로 감춘다.
  * - 작품 주소(/korean-translation/<slug>)로 들어오면(initialSlug) 선반의 그 등줄기를 눌렀을 때와 똑같이 꺼낸다.
  * - 열려 있는 동안 주소창은 작품 주소, 닫으면 진열장 주소(replaceState: 방문 기록은 늘리지 않음).
+ * - 패치 주소로 들어왔을 때 위에 보이는 소개 띠(intro, 서버가 그린 것)는 케이스를 닫으면 함께 치운다.
+ *   주소만 바꾸고 페이지는 다시 그리지 않아서, 그대로 두면 진열장 주소인데 그 패치 소개가 남는다.
  */
 export function TranslationClient({
+  intro,
   items,
   recent,
   initialSlug,
   changelogSlugs,
 }: {
+  /** 패치 주소로 들어왔을 때의 소개 띠(제목 h1 포함). 없으면 화면에 안 보이는 h1만 둔다 */
+  readonly intro?: ReactNode;
   readonly items: readonly PatchCaseData[];
   readonly recent: readonly PatchCaseData[];
   readonly initialSlug?: string | undefined;
@@ -54,6 +59,7 @@ export function TranslationClient({
   const [filter, setFilter] = useState<PlatformFilter>([]);
   const [view, setView] = useState<ViewMode>('shelf');
   const [picked, setPicked] = useState<PatchCaseData | null>(null);
+  const [introShown, setIntroShown] = useState(true);
   const originRef = useRef<HTMLElement | null>(null);
   // 섹션 제목과 섹션을 잇는 id. useId는 서버·브라우저에서 같은 고유값을 만든다.
   const recentId = useId();
@@ -71,6 +77,7 @@ export function TranslationClient({
       originRef.current.style.visibility = '';
     }
     setPicked(null);
+    setIntroShown(false);
     showAddress(SHELF_PATH, null);
   }, []);
 
@@ -80,6 +87,7 @@ export function TranslationClient({
     // 업데이트 내역 불러오기(CaseViewer의 useQuery)가 쓰는 TanStack Query 제공자
     <QueryProvider>
       <div className="space-y-10">
+        {intro !== undefined && introShown ? intro : <h1 className="sr-only">한글 패치</h1>}
         {/* 최근 2주 안에 갱신된 패치가 없으면 이 칸은 통째로 보이지 않는다 */}
         {recent.length === 0 ? null : (
           <section aria-labelledby={recentId}>

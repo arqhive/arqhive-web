@@ -45,14 +45,12 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
   const today = kstDayNumber(new Date());
   const intro = patches.find((patch) => patch.slug === initialSlug);
   return (
-    <div className="space-y-10">
-      {intro === undefined ? <h1 className="sr-only">한글 패치</h1> : <PatchIntro patch={intro} />}
-      <TranslationClient
-        items={items}
-        recent={recentlyUpdated(items, RECENT_COUNT, today)}
-        initialSlug={initialSlug}
-        changelogSlugs={changelogSlugs}
-      />
-    </div>
+    <TranslationClient
+      intro={intro === undefined ? undefined : <PatchIntro patch={intro} />}
+      items={items}
+      recent={recentlyUpdated(items, RECENT_COUNT, today)}
+      initialSlug={initialSlug}
+      changelogSlugs={changelogSlugs}
+    />
   );
 }
