@@ -129,6 +129,12 @@ async function uptime() {
     // biome-ignore lint/style/useNamingConvention: UptimeRobot API의 매개변수 이름
     body: new URLSearchParams({ api_key: key, format: 'json' }),
   });
+  // 키가 틀리면 UptimeRobot은 오류 응답에 받은 키 값을 그대로 돌려준다. 응답 본문은 절대 출력하지 않고 오류 종류만 쓴다
+  if (data.stat !== 'ok') {
+    throw new Error(
+      `UptimeRobot 거절(${data.error?.type ?? '알 수 없음'}) — 키 종류 확인(Read-only API key)`,
+    );
+  }
   const up = data.monitors.filter((monitor) => monitor.status === UPTIME_UP).length;
   const down = data.monitors
     .filter((monitor) => monitor.status >= UPTIME_DOWN_FROM)
@@ -150,10 +156,9 @@ async function cronChecks() {
   const parts = data.checks.map(
     (check) => `${check.name} ${check.status}${check.last_ping ? `(${ago(check.last_ping)})` : ''}`,
   );
-  return [
-    data.checks.every((check) => check.status === 'up' || check.status === 'grace'),
-    parts.join(' · '),
-  ];
+  // new = 첫 신호를 기다리는 중(배포 직후), grace = 늦었지만 아직 유예 시간 안. down·paused만 문제로 본다
+  const fine = new Set(['up', 'grace', 'new']);
+  return [data.checks.every((check) => fine.has(check.status)), parts.join(' · ')];
 }
 
 async function database() {
