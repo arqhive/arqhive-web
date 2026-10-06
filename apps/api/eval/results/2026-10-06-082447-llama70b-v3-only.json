@@ -1,0 +1,150 @@
+{
+  "summary": {
+    "model": "llama70b",
+    "promptVersion": "v3",
+    "set": "core",
+    "date": "2026-10-06T08:24:47.371Z",
+    "cases": 2,
+    "allPassed": 2,
+    "byCheck": {
+      "category": "100% (2/2)",
+      "duplicate": "100% (2/2)",
+      "outdated": "100% (1/1)",
+      "decided": "100% (2/2)",
+      "politeStyle": "100% (2/2)",
+      "usedGetPatch": "100% (2/2)",
+      "knownIssue": "100% (1/1)"
+    },
+    "avgSteps": 4,
+    "avgMs": 8394,
+    "avgNeurons": 238,
+    "totalNeurons": 475
+  },
+  "results": [
+    {
+      "id": "dup-sfz-title-freeze",
+      "checks": {
+        "category": true,
+        "duplicate": true,
+        "outdated": true,
+        "decided": true,
+        "politeStyle": true,
+        "usedGetPatch": true
+      },
+      "passed": 6,
+      "total": 6,
+      "ms": 8145,
+      "neurons": 206,
+      "run": {
+        "proposal": {
+          "category": "실행 문제",
+          "duplicateOf": "https://github.com/arqhive/star-fox-zero-korean-translation/issues/42",
+          "knownIssue": null,
+          "outdatedVersion": false,
+          "reply": "제보 감사해요. 말씀하신 문제는 알려진 문제가 아니지만, 다른 분이 비슷한 증상을 겪으셨어요. 해결 방법을 찾고 있으니 조금만 기다려 주세요.",
+          "confidence": 0.9,
+          "reasoning": "제보 내용과 중복 제보의 내용이 비슷하여 실행 문제로 판단"
+        },
+        "corrections": [],
+        "gaveUp": false,
+        "steps": [
+          {
+            "tool": "getPatch",
+            "args": {
+              "slug": "star-fox-zero"
+            },
+            "summary": "{\"slug\":\"star-fox-zero\",\"title\":\"스타폭스 제로\",\"platform\":\"wiiu\",\"status\":\"released\",\"latestVersion\":\"v1.2f\",\"baseRegion\":\"JP\",\"patchMethod\":\"파일 패처\",\"translationScop…"
+          },
+          {
+            "tool": "searchSimilarReports",
+            "args": {
+              "query": "[star-fox-zero] SDCafiine楁为初片后环境"
+            },
+            "summary": "[{\"issueUrl\":\"https://github.com/arqhive/star-fox-zero-korean-translation/issues/42\",\"title\":\"[제보] 타이틀 화면 멈춤\",\"state\":\"open\",\"excerpt\":\"v1.2f를 SDCafiine으로 넣으니 타…"
+          },
+          {
+            "tool": "submitProposal",
+            "args": {
+              "category": "실행 문제",
+              "confidence": "0.9",
+              "duplicateOf": "https://github.com/arqhive/star-fox-zero-korean-translation/issues/42",
+              "knownIssue": "",
+              "outdatedVersion": "no",
+              "reasoning": "제보 내용과 중복 제보의 내용이 비슷하여 실행 문제로 판단",
+              "reply": "제보 감사해요. 말씀하신 문제는 알려진 문제가 아니지만, 다른 분이 비슷한 증상을 겪으셨어요. 해결 방법을 찾고 있으니 조금만 기다려 주세요."
+            },
+            "summary": "제출"
+          }
+        ],
+        "inputTokens": 6101,
+        "outputTokens": 222
+      }
+    },
+    {
+      "id": "not-dup-different-symptom",
+      "checks": {
+        "category": true,
+        "duplicate": true,
+        "knownIssue": true,
+        "decided": true,
+        "politeStyle": true,
+        "usedGetPatch": true
+      },
+      "passed": 6,
+      "total": 6,
+      "ms": 8643,
+      "neurons": 269,
+      "run": {
+        "proposal": {
+          "category": "실행 문제",
+          "duplicateOf": null,
+          "knownIssue": "Dolphin에서 보너스 게임(제비우스 등)은 텍스처 필터링을 강제하면 화면이 깨집니다.",
+          "outdatedVersion": false,
+          "reply": "제보 감사해요. Dolphin에서 보너스 게임을 할 때 화면이 깨지는 문제는 알려진 문제예요. 텍스처 필터링을 기본값으로 두시면 해결돼요. 다른 불편한 점이 있으면 알려 주세요.",
+          "confidence": 0.8,
+          "reasoning": "getPatch의 알려진 문제와 일치합니다."
+        },
+        "corrections": [],
+        "gaveUp": false,
+        "steps": [
+          {
+            "tool": "getPatch",
+            "args": {
+              "slug": "star-fox-assault"
+            },
+            "summary": "{\"slug\":\"star-fox-assault\",\"title\":\"스타폭스 어설트\",\"platform\":\"gc\",\"status\":\"released\",\"latestVersion\":\"v1.2f\",\"baseRegion\":\"JP\",\"patchMethod\":\"디스크 파일 단위 패처\",\"transl…"
+          },
+          {
+            "tool": "searchSimilarReports",
+            "args": {
+              "query": "[제보] 보너스 게임 화면 깨짐"
+            },
+            "summary": "[{\"issueUrl\":\"https://github.com/arqhive/star-fox-assault-korean-translation/issues/7\",\"title\":\"[제보] 무전 이름표 글자가 거칠어요\",\"state\":\"open\",\"excerpt\":\"무전 화자 이름표 글자 가장자…"
+          },
+          {
+            "tool": "searchGuides",
+            "args": {
+              "query": "Dolphin에서 보너스 게임 화면 깨짐"
+            },
+            "summary": "[]"
+          },
+          {
+            "tool": "submitProposal",
+            "args": {
+              "category": "실행 문제",
+              "confidence": "0.8",
+              "duplicateOf": "",
+              "knownIssue": "Dolphin에서 보너스 게임(제비우스 등)은 텍스처 필터링을 강제하면 화면이 깨집니다.",
+              "outdatedVersion": "no",
+              "reasoning": "getPatch의 알려진 문제와 일치합니다.",
+              "reply": "제보 감사해요. Dolphin에서 보너스 게임을 할 때 화면이 깨지는 문제는 알려진 문제예요. 텍스처 필터링을 기본값으로 두시면 해결돼요. 다른 불편한 점이 있으면 알려 주세요."
+            },
+            "summary": "제출"
+          }
+        ],
+        "inputTokens": 8474,
+        "outputTokens": 223
+      }
+    }
+  ]
+}

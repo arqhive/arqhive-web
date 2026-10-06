@@ -16,7 +16,8 @@
     "typegen": "wrangler types --strict-vars=false",
     "types": "wrangler types --strict-vars=false && tsc -p tsconfig.types.json",
     "typecheck": "wrangler types --strict-vars=false && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "agent:eval": "node eval/run.mjs"
   },
   "dependencies": {
     "@arqhive/content": "workspace:*",

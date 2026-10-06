@@ -17,6 +17,7 @@ arqhive가 **어떤 순서로 움직이는지** 정리한 문서입니다. 기�
 11. [검사·배포](#11-검사배포)
 12. [보안](#12-보안)
 13. [모니터링과 장애 대응](#13-모니터링과-장애-대응)
+14. [제보 처리 에이전트(만드는 중)](#14-제보-처리-에이전트만드는-중)
 
 ## 1. 전체 그림
 
@@ -345,3 +346,26 @@ flowchart LR
 | 정산 직접 돌려 보기(개발) | `pnpm --dir apps/api dev --test-scheduled` 후 `/__scheduled?cron=50+14+*+*+*` |
 
 `pnpm ops`가 읽는 키는 저장소 맨 위 `.env.ops`(git 제외)에 둡니다: `UPTIMEROBOT_API_KEY`(UptimeRobot의 Read-only API key), `HEALTHCHECKS_API_KEY`(healthchecks 프로젝트 Settings의 read-only key). 둘 다 읽기 전용이라 새도 바꿀 수 있는 것은 없습니다.
+
+## 14. 제보 처리 에이전트(만드는 중)
+
+새 제보를 읽고 **처리안**(분류·중복·알려진 문제·첫 답변 초안)을 만드는 에이전트입니다. 프레임워크 없이 루프를 직접 짰고(ADR 0017), 지금은 평가(eval)로 다듬는 단계입니다. 제보 API에 붙여 운영자 승인을 받는 길은 다음 단계에서 이어집니다.
+
+```mermaid
+flowchart TD
+  R["제보(본문은 report 태그로 감싼 데이터)"] --> L["루프(loop.ts, 최대 6턴)"]
+  L -- "도구 호출" --> T["도구(tools.ts, 읽기만)<br/>getPatch · searchSimilarReports · searchGuides"]
+  T -- "결과(JSON)" --> L
+  L -- "submitProposal" --> V{"검증(proposal.ts)"}
+  V -- "오류·고칠 점 → 한 번 다시 쓰게" --> L
+  V -- "통과" --> P["처리안"]
+  V -- "두 번째도 쓸 수 없음" --> F["판단 보류"]
+  M["Workers AI(llama-3.3-70b)"] <--> L
+```
+
+- 모델은 `ModelFn` 하나로 감싸(`src/platform/workers-ai.ts`) 루프가 모델을 모릅니다. 시험은 정해 둔 답을 내는 가짜 모델로 돌립니다.
+- 검증은 모델 출력을 믿지 않습니다.
+  - 지어낸 근거(도구 결과에 없는 중복 주소·알려진 문제)는 지웁니다.
+  - 합니다체, 옛 버전인데 최신 버전을 안 알림, getPatch를 안 봄, 중복 가능성이 높은 결과를 무시함 → 한 번 다시 쓰게 합니다.
+- 평가: `apps/api/eval/cases.json`(사례 30개, 핵심 15개)을 개발 서버의 `POST /api/agent/eval`(`AGENT_EVAL=1`일 때만 열림)에 보내 채점합니다. `pnpm --dir apps/api agent:eval -- --set core`. 결과는 `eval/results/`에 시각·모델·지시문 버전을 붙여 쌓습니다.
+- 실제 모델을 부르므로 Workers AI 무료 한도(하루 1만 뉴런)를 씁니다. 70B는 사례 하나에 약 200~400뉴런입니다.
