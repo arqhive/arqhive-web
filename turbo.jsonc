@@ -8,14 +8,19 @@
   "tasks": {
     "build": {
       // ^ 는 "내가 의존하는 패키지의 같은 작업을 먼저"라는 뜻이다(예: web 빌드 전에 shared 빌드).
-      "dependsOn": ["^build"],
+      // ^types: web이 쓰는 API 타입 선언(.d.ts)을 먼저 만든다(Hono RPC 클라이언트).
+      "dependsOn": ["^build", "^types"],
       // 빌드 결과에 영향을 주는 환경 변수. 값이 바뀌면 캐시를 쓰지 않고 다시 빌드한다(진열장 다운로드 수용 GitHub 토큰).
       "env": ["GITHUB_TOKEN"],
       // 캐시에 저장할 결과물. 입력이 같으면 다음엔 빌드하지 않고 이걸 되살린다.
       "outputs": [".next/**", "!.next/cache/**", "dist/**", ".velite/**", "public/fonts/**"]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": ["^typecheck", "^types"]
+    },
+    // api가 web에 내보내는 타입 선언(apps/api/types). 이 스크립트가 있는 패키지(api)에서만 돈다
+    "types": {
+      "outputs": ["types/**"]
     },
     "test": {
       "dependsOn": ["^test"]

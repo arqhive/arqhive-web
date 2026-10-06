@@ -54,6 +54,9 @@ importers:
       '@arqhive/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      hono:
+        specifier: 4.13.12
+        version: 4.13.12
       next:
         specifier: 16.3.8
         version: 16.3.8(@types/node@26.6.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -73,6 +76,9 @@ importers:
         specifier: 4.0.1
         version: 4.0.1
     devDependencies:
+      '@arqhive/api':
+        specifier: workspace:*
+        version: link:../api
       '@arqhive/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig

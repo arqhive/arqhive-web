@@ -1,0 +1,14 @@
+{
+  // web이 Hono RPC 클라이언트에 쓸 API 타입(AppType)만 .d.ts로 내보내는 설정.
+  // web이 API 소스(.ts)를 직접 검사하면 Workers 전용 타입(Env, KVNamespace)을 몰라 오류가 난다.
+  // .d.ts는 web의 skipLibCheck로 내부 검사를 건너뛰어, 경로·요청·응답 모양만 가져간다.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "types"
+  },
+  "include": ["src"]
+}

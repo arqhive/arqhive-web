@@ -5,12 +5,16 @@
   "description": "arqhive API — Hono on Cloudflare Workers",
   "type": "module",
   "exports": {
-    "./app-type": "./src/app.ts"
+    "./app-type": {
+      "types": "./types/app.d.ts",
+      "default": "./src/app.ts"
+    }
   },
   "scripts": {
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typegen": "wrangler types --strict-vars=false",
+    "types": "wrangler types --strict-vars=false && tsc -p tsconfig.types.json",
     "typecheck": "wrangler types --strict-vars=false && tsc --noEmit",
     "test": "vitest run"
   },

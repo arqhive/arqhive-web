@@ -40,3 +40,5 @@ Thumbs.db
 apps/web/public/static/
 # Pretendard 글꼴 복사본(apps/web/scripts/copy-fonts.mjs가 dev·build 때 만든다)
 apps/web/public/fonts/
+# web이 쓰는 API 타입 선언(apps/api의 `pnpm types`가 만든다)
+apps/api/types/
