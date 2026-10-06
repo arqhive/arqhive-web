@@ -1,12 +1,13 @@
 ---
 slug: "kid-icarus-famicom-mini"
-titleKo: "광신화 파르테나의 거울"
-spineLines: ["광신화", "파르테나의 거울"]  # 선반 등줄기 줄바꿈
+titleKo: "패미컴 미니 광신화 파르테나의 거울"
+spineLines: ["패미컴 미니 광신화", "파르테나의 거울"]  # 선반 등줄기 줄바꿈
 titleOriginal: "ファミコンミニ24 光神話 パルテナの鏡"
 titleEn: null
 catalogNo: "ARQ-GBA-001"  # 기종 안에서 저장소를 만든 순서
 platform: "gba"
-status: "in_progress"
+downloadCode: "FPTJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+status: "released"
 repo:
   owner: "arqhive"
   name: "kid-icarus-korean-translation"
@@ -21,28 +22,43 @@ baseRequirements:
     note: "4,194,304 바이트, SHA-256 7a2118c605713898a8befa0dce2835998481bcbdd92850379620450de6209e4b. 예: Famicom Mini 24 - Hikari Shinwa - Palthena no Kagami (Japan).gba"
 patchMethod: "bps-ips"
 patchMethodLabel: "IPS 패치"
-latestVersion: "v0.1"
-latestReleaseDate: "2026-09-29"
-translationScope: "타이틀 로고, 이름 등록·기록 삭제·상태·구간·점수·게임 오버·엔딩 문구, 상점·신전 등 대사 14개, 패미컴 미니 공통 일본어 메시지 블록 47개"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-10-07"
+translationScope: "타이틀 로고, 이름 등록·기록 삭제·상태·점수·게임 오버·엔딩 문구, 신전·상점·병원 등 대사 14개, 패미컴 미니 공통 메뉴·저장·오류·절전·통신 안내 등 메시지 블록 47개"
 compatibility:
   - environment: "3DS open_agb_firm"
     status: "works"
     note: "세이브 설정 .ini 필요(없으면 카트리지 오류)"
-  - environment: "에뮬레이터"
+  - environment: "에뮬레이터(mGBA)"
     status: "works"
-    note: null
-  - environment: "상점·신전 대사, 구간 클리어 점수, 엔딩 실제 표시 등"
-    status: "untested"
-    note: "README의 미확인 항목"
+    note: "처음부터 엔딩까지 플레이"
 knownIssues:
-  - "원래 영문인 그래픽(BEST, NO., FIN 등)은 유지했습니다."
-  - "이름 입력은 영문·숫자만 쓸 수 있습니다."
-  - "이전 버전의 세이브 스테이트를 불러오면 예전 글꼴·코드가 복원될 수 있습니다."
-  - "모든 숨겨진 실행 경로를 플레이로 확인하지는 않았습니다."
+  - "점수 화면의 '총점 / 점수'는 위아래 글자가 엇갈려 보입니다(한글이 두 줄 높이라 가로 위치를 어긋나게 두었습니다)."
+  - "요새의 '구간 / 보스' 표시줄은 한 칸 높이의 작은 한글이라 다른 글자보다 작습니다."
+  - "원래 영어인 문구(PUSH START BUTTON., BEST, NO., FIN 등)는 그대로입니다."
 extraDownloads: []
+fileCheck:
+  source: "일본판"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "4,194,304 바이트"
+      patched: "4,194,304 바이트"
+    - label: "CRC32"
+      original: "F311EDAC"
+      patched: "BF3DF949"
+    - label: "MD5"
+      original: "76759e14e1a4072397c105419d702735"
+      patched: "282b3a193b53732fb10a43d2914212bc"
+    - label: "SHA-1"
+      original: "cca6eb41ea8edc8115994fad2a0b329af44bb659"
+      patched: "32cd1c2b131fa39e62623515dcae05c1399719ec"
+    - label: "SHA-256"
+      original: "7a2118c605713898a8befa0dce2835998481bcbdd92850379620450de6209e4b"
+      patched: "d002667786f96b7919ecc9f4a6f39da328729e29be9f111ac8ccfa6e6d5c5173"
 screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
 credits: "제작: arqhive. 도구 코드·번역 기여분·문서 MIT License. 갈무리7·갈무리11(Lee Minseo/quiple, OFL 1.1). 한국어 타이틀 로고는 ImageGen으로 제작한 워드마크. 상표·저작권은 Nintendo."
-summary: "게임보이 어드밴스 패미컴 미니 일본판 「광신화 파르테나의 거울」의 타이틀·메뉴·대사와 패미컴 미니 공통 메시지를 한글화한 IPS 패치입니다. ROM 크기는 원본과 같은 4 MiB를 유지합니다."
+summary: "게임보이 어드밴스 일본판 「패미컴 미니 광신화 파르테나의 거울」의 타이틀 로고·메뉴·대사와 패미컴 미니 공통 메시지를 한글화한 최종판(v1.0f) IPS 패치입니다. 3DS open_agb_firm과 mGBA에서 엔딩까지 확인했고, ROM 크기는 원본과 같은 4 MiB를 유지합니다."
 featured: false
 ---
 
