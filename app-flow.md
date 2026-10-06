@@ -1,0 +1,295 @@
+# 앱 흐름
+
+arqhive가 **어떤 순서로 움직이는지** 정리한 문서입니다. 기능을 바꿔 흐름이 달라지면 함께 고칩니다.
+설계 이유(왜 이렇게 정했는지)는 각 절에 적은 ADR 번호를 따라가면 됩니다(ADR은 비공개 문서).
+
+목차
+1. [전체 그림](#1-전체-그림)
+2. [저장소 구성](#2-저장소-구성)
+3. [페이지가 만들어지는 길](#3-페이지가-만들어지는-길)
+4. [진열장과 케이스 열기](#4-진열장과-케이스-열기)
+5. [제보 보내기](#5-제보-보내기)
+6. [운영자 알림과 일일 정산](#6-운영자-알림과-일일-정산)
+7. [방문 통계](#7-방문-통계)
+8. [타입이 흐르는 길](#8-타입이-흐르는-길)
+9. [콘텐츠가 데이터가 되는 길](#9-콘텐츠가-데이터가-되는-길)
+10. [디자인 토큰과 글꼴](#10-디자인-토큰과-글꼴)
+11. [검사·배포](#11-검사배포)
+12. [보안](#12-보안)
+
+## 1. 전체 그림
+
+```mermaid
+flowchart LR
+  B["브라우저"]
+  subgraph vercel["Vercel"]
+    W["web<br/>Next.js 16 (App Router)"]
+  end
+  subgraph cf["Cloudflare"]
+    A["api<br/>Hono on Workers"]
+    KV[("KV<br/>요청 제한·못 보낸 알림")]
+    R2[("R2<br/>제보 스크린샷")]
+    T["Turnstile<br/>봇 확인"]
+  end
+  N[("Neon Postgres<br/>다운로드 기록")]
+  GH["GitHub<br/>릴리즈·이슈·CHANGELOG"]
+  D["Discord 웹훅<br/>운영자 채널"]
+  U["Umami Cloud<br/>방문 통계"]
+
+  B -- "페이지" --> W
+  W -- "다운로드 수·CHANGELOG·제보 목록 읽기(캐시)" --> GH
+  B -- "제보 보내기(Hono RPC)" --> A
+  B -- "봇 확인 위젯" --> T
+  B -- "이벤트" --> U
+  A --> KV
+  A --> R2
+  A -- "토큰 확인" --> T
+  A -- "이슈 만들기·다운로드 수" --> GH
+  A -- "알림·일일 정산" --> D
+  A -- "기록" --> N
+  A -- "하루 통계(공유 링크)" --> U
+```
+
+- **web**은 거의 모든 페이지를 미리 만들어 두고(정적·ISR), 바깥 데이터(GitHub)는 서버에서 읽어 캐시합니다. 브라우저에서 바로 부르는 곳은 제보 API와 업데이트 내역(서버 함수)뿐입니다.
+- **api**는 사용자 입력을 받는 일(제보)과 정해진 시각에 도는 일(Cron)을 맡습니다. 비밀값(GitHub 토큰, 웹훅, DB 주소)은 모두 여기 있습니다.
+- 운영비는 0원입니다(모두 무료 플랜, ADR 0002).
+
+## 2. 저장소 구성
+
+```mermaid
+flowchart LR
+  shared["packages/shared<br/>기종·제보 규칙·다운로드 셈법<br/>(zod 스키마는 *-schema.ts)"]
+  content["packages/content<br/>MDX → Velite 데이터"]
+  db["packages/db<br/>Drizzle 스키마·마이그레이션"]
+  tsconfig["packages/tsconfig"]
+  web["apps/web<br/>Next.js + FSD"]
+  api["apps/api<br/>Hono + 기능별 모듈"]
+  shared --> web
+  shared --> api
+  content --> web
+  content --> api
+  db --> api
+  api -- "AppType(.d.ts만)" --> web
+  tsconfig --> web & api & shared & content & db
+```
+
+| 경로 | 맡는 일 |
+|---|---|
+| `apps/web` | 사이트. `src/`는 FSD 층(app → pages → widgets → entities → shared, 위에서 아래로만 import) |
+| `apps/api` | API. `src/modules/<기능>`(health·reports·notifications·daily-report), 바깥 연결은 `src/platform` |
+| `packages/shared` | web·api가 함께 쓰는 규칙. 빌드 없는 내부 패키지(TS 원본을 그대로 씀), `sideEffects: false` |
+| `packages/content` | `content/`의 MDX를 Velite로 읽어 타입이 붙은 데이터로 |
+| `packages/db` | Neon(Postgres) 표 정의와 SQL 마이그레이션(`drizzle/`) |
+| `content/` | 패치·가이드·FAQ 글(MDX·MD). 패치 하나 = 폴더 하나 |
+
+## 3. 페이지가 만들어지는 길
+
+```mermaid
+sequenceDiagram
+  participant B as 브라우저
+  participant V as Vercel(Next.js)
+  participant L as app/layout.tsx
+  participant P as app/(site)/…/page.tsx
+  participant F as src/pages/…(FSD)
+  participant G as GitHub API
+  B->>V: GET /korean-translation
+  V-->>B: 미리 만든 HTML(있으면 바로)
+  Note over V: revalidate 시간이 지나면 뒤에서 다시 그림(ISR)
+  V->>L: 루트 레이아웃(메타데이터·전역 CSS·화면 모드·글꼴 스크립트·통계)
+  L->>P: 라우트 파일(얇게: metadata·revalidate만)
+  P->>F: 화면 컴포넌트
+  F->>G: 다운로드 수·CHANGELOG 있는지(1시간 캐시)
+  F-->>V: HTML + 페이지 데이터(RSC)
+```
+
+| 주소 | 화면(`src/pages`) | 다시 그리는 주기 |
+|---|---|---|
+| `/` | `home` 사이트 소개 | 빌드 때 한 번 |
+| `/korean-translation` | `korean-translation` 진열장 | 1시간(최근 갱신·다운로드 수) |
+| `/korean-translation/<slug>` | 같은 진열장 + 소개 띠, 그 패치 케이스를 바로 엶 | 1시간 |
+| `/guide` | `guide` 버전 가이드·FAQ | 빌드 때 |
+| `/report` | `report` 제보 양식 + 들어온 제보 | 5분(제보 목록) |
+| `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | 빌드 때(콘텐츠에서 생성) |
+
+- 라우트 파일(`app/(site)/…/page.tsx`)은 FSD의 화면을 다시 내보내고, Next.js만 읽는 설정(`metadata`, `revalidate`, `generateStaticParams`)만 둡니다.
+- **검색 노출**: 페이지마다 description·canonical·OG(`shared/lib/page-metadata.ts`), 패치 주소는 진열장 위 소개 띠(h1·소개)를 서버에서 그립니다. 등줄기·표지·목록 줄은 진짜 링크(`<a href>`)라 검색엔진이 패치 주소를 찾습니다.
+- 서버 컴포넌트가 클라이언트 컴포넌트에 넘긴 값은 HTML 안의 페이지 데이터로 실립니다. 그래서 바로 안 보이는 큰 데이터(CHANGELOG 본문)는 넘기지 않고 누를 때 받습니다(4절).
+
+## 4. 진열장과 케이스 열기
+
+```mermaid
+flowchart TB
+  page["translation-page.tsx(서버)<br/>콘텐츠 → toCaseData, 다운로드 수, CHANGELOG 있는 slug"] --> client["translation-client.tsx('use client')<br/>필터·보기·꺼낸 패치, QueryProvider"]
+  client --> shelf["widgets/shelf<br/>최근 갱신 표지 · 책장"]
+  client --> table["widgets/patch-table<br/>목록 보기"]
+  client --> viewer["widgets/case-viewer<br/>케이스 열기 모달"]
+  viewer --> liner["case-liner<br/>속지(기종·버전·방식·구동 확인·번역 범위…)"]
+  viewer --> media["entities/patch<br/>표지·디스크·카드·카트리지 그림"]
+  viewer -- "업데이트 내역 보기" --> q["useChangelog(useQuery)"]
+  q --> sf["pages/korean-translation/api/load-changelog.tsx<br/>'use server' — 서버에서 마크다운을 그려 돌려줌"]
+```
+
+열고 닫는 순서
+
+```mermaid
+sequenceDiagram
+  participant U as 사용자
+  participant C as translation-client
+  participant H as useCaseDialog
+  participant D as dialog
+  U->>C: 등줄기 링크 클릭(그냥 클릭만 가로챔, Ctrl·가운데 클릭은 새 탭)
+  C->>C: 누른 요소 감추기, 주소창·탭 제목을 패치 주소로(replaceState)
+  C->>H: picked = 패치
+  H->>D: showModal() → dialog에 포커스
+  H->>D: 누른 자리에서 가운데로 날아옴(FLIP, Web Animations)
+  Note over D: GC·SFC·GB·GBA는 상자 뚜껑 → 상자 빠짐 → 펼침(단계 phase)
+  H->>H: 모든 transition이 끝나면 닫기 단추 보임
+  U->>D: ESC · 빈 곳 · X
+  H->>D: 1.5배 빠르게 덮고 원래 자리로 → close()
+  C->>C: 감춘 요소 되살리기, 주소를 진열장으로
+```
+
+- 패치 주소로 바로 들어오면 선반이 자리 잡은 뒤(글꼴·두 번 그린 뒤) 그 등줄기를 누른 것처럼 엽니다(`use-open-from-address.ts`).
+- **매체 → 최신 릴리즈**: 디스크·카드·카트리지를 누르면 GitHub `releases/latest`가 새 탭으로 열립니다.
+- **업데이트 내역**: 모달을 열 때 `useQuery(['changelog', slug])`가 서버 함수를 부릅니다. 한 번 받은 패치는 캐시에서 바로 나오고, 받는 동안은 높이가 고정된 창에 스켈레톤이 보입니다.
+- "동작 줄이기" 설정이면 연출 없이 바로 열고 닫습니다.
+
+## 5. 제보 보내기
+
+```mermaid
+sequenceDiagram
+  participant B as 제보 양식
+  participant A as api /api/reports
+  participant KV as KV
+  participant R2 as R2
+  participant GH as GitHub
+  participant D as Discord
+  B->>B: Turnstile 토큰, 스크린샷 다시 저장(webp·위치 정보 제거)
+  B->>A: POST multipart(useMutation → Hono RPC 클라이언트)
+  A->>A: 허니팟·시간 → Turnstile 확인
+  A->>KV: 횟수 제한(IP 시간당 3, 사이트 하루 50) · 같은 글 하루 1번
+  A->>A: 입력 검사(공개 패치인지, 글 길이, 이미지 매직 바이트)
+  A->>KV: 저장 용량 예산(누적 9GB)
+  A->>R2: 스크린샷 올리기(넘으면 글만)
+  A->>GH: 그 패치 저장소에 "제보" 라벨 이슈
+  A-->>B: { ok, url, report }
+  A-)D: 새 제보 알림(waitUntil, 실패하면 KV에 쌓음)
+  B->>B: 목록 맨 위에 방금 제보 붙이기
+```
+
+- 실패하면 코드(invalid·rate·bot·server)로 알맞은 안내를 고릅니다. 응답이 아예 없으면 network.
+- **들어온 제보 목록**은 web 서버가 GitHub 검색(`user:arqhive label:"제보"`)으로 읽어 5분 캐시합니다. 방금 보낸 제보는 API 응답으로 바로 붙이고, 나중에 서버 목록에 들어오면 id로 걸러 두 번 보이지 않습니다.
+- 개발 중(`REPORT_DRY_RUN=1`)에는 이슈를 만들지 않고, 알림에 `[시험]`이 붙습니다.
+- 개발용 스크린샷 주소(`/api/reports/images/…`)는 이미지 주소 설정이 API 자신을 가리킬 때만 열립니다(배포는 R2 공개 주소).
+
+## 6. 운영자 알림과 일일 정산
+
+```mermaid
+flowchart TB
+  cron["Workers Cron(scheduled)"] -->|"0 * * * * 매시"| retry["못 보낸 알림 재전송<br/>(KV notify:pending)"]
+  cron -->|"50 14 * * * (한국 23:50)"| daily["일일 정산(modules/daily-report)"]
+  daily --> dl["공개 패치 다운로드 수(GitHub)"]
+  dl --> up["Neon download_snapshots에 오늘 값 upsert"]
+  up --> cmp["어제·7일 전과 비교"]
+  daily --> um["Umami 하루 통계(공유 링크)"]
+  cmp --> msg["메시지 만들기(message.ts)"]
+  um --> msg
+  msg --> notify["notify → Discord 웹훅<br/>실패하면 KV에 쌓아 매시 재전송"]
+```
+
+- 알림은 디스코드 웹훅 하나입니다(ADR 0014). 사용자 글의 멘션은 울리지 않게 막습니다.
+- 다운로드 기록은 날짜별로 남습니다(ADR 0016). 셈법은 사이트 화면과 같습니다(`@arqhive/shared`의 `sumLargestDownloads`: 릴리즈마다 가장 많이 받은 파일 하나).
+- Umami Cloud 공식 API는 유료라, 무료인 공유 링크가 쓰는 방식으로 읽습니다. 실패하면 그 부분만 "읽지 못함"이 되고 나머지는 보냅니다.
+
+## 7. 방문 통계
+
+```mermaid
+flowchart LR
+  layout["app/layout.tsx"] --> an["src/app/analytics<br/>Umami 스크립트(배포 주소에서만) + 자동 측정"]
+  an --> clk["모든 클릭(document 하나에 위임)<br/>data-track이 있으면 그 이름"]
+  an --> stay["페이지별 체류 시간(보이는 동안만)"]
+  an --> depth["스크롤 깊이 25·50·75·100%"]
+  an --> wv["웹 바이탈 LCP·CLS·INP"]
+  other["case-open · download · changelog-open · report-sent/failed"] --> track["shared/analytics track()<br/>스크립트 오기 전엔 모아 뒀다 보냄"]
+  clk & stay & depth & wv --> track
+  track --> U["Umami Cloud"]
+```
+
+- 쿠키를 쓰지 않아 동의 배너가 없습니다(ADR 0015). 사용자가 입력한 글은 보내지 않습니다.
+
+## 8. 타입이 흐르는 길
+
+```mermaid
+flowchart LR
+  pl["shared: PLATFORMS(as const)"] --> ptype["Platform 타입"]
+  vel["velite.config.ts 스키마"] --> ctype["Patch·Guide 타입(.velite/index.d.ts)"]
+  wj["wrangler.jsonc"] -- "wrangler types" --> env["Env(바인딩·변수) 타입"]
+  app["api: app.ts(라우트를 .route()로 이어 붙임)"] -- "pnpm --filter @arqhive/api types" --> dts["apps/api/types/app.d.ts(AppType)"]
+  dts --> hc["web: hc&lt;AppType&gt; · InferResponseType<br/>(주소·응답이 API와 자동으로 맞음)"]
+  routes["app/ 라우트 폴더"] -- "next typegen" --> rt["라우트 타입(typedRoutes, PageProps)"]
+  drz["db: pgTable"] --> rowt["DownloadSnapshot 타입"]
+```
+
+- 도구가 만드는 타입 파일(`worker-configuration.d.ts`, `.next/types`, `apps/api/types`, `.velite/`)은 git에 올리지 않습니다. 검사·빌드 전에 먼저 만듭니다(turbo의 `^types`, CI 단계).
+- web이 API 소스(.ts)를 직접 가져오면 Workers 전용 타입을 몰라 오류가 나서, API는 `.d.ts`만 따로 내보냅니다(`exports`의 `types` 조건).
+
+## 9. 콘텐츠가 데이터가 되는 길
+
+```mermaid
+flowchart LR
+  mdx["content/patches/&lt;slug&gt;/index.mdx<br/>frontmatter + 본문 · 그림"] --> v["velite build(packages/content)"]
+  g["content/guides · faq · guide-page"] --> v
+  v -- "스키마 검사(틀리면 빌드 실패)" --> out[".velite/ 데이터 + 타입"]
+  v -- "s.image()" --> img["apps/web/public/static/(해시 붙은 그림)"]
+  out --> web["web: 진열장·가이드·사이트맵"]
+  out --> api["api: 제보받을 공개 패치 표, 정산 대상"]
+```
+
+- 패치 정보는 DB가 아니라 파일입니다. 릴리즈 때 저장소 작업과 함께 MDX를 고치고 커밋하면, 배포 때 사이트·사이트맵·API가 함께 바뀝니다.
+- 날짜(`latestReleaseDate`)는 한국 날짜로 적습니다.
+- 개발 중에는 `pnpm dev:web`이 콘텐츠 감시(`velite dev`)를 같이 띄웁니다.
+
+## 10. 디자인 토큰과 글꼴
+
+```mermaid
+flowchart TB
+  vars[":root 의미 변수 --paper --ink --stamp …"] --> theme["@theme inline → Tailwind 토큰"]
+  dark["prefers-color-scheme · data-theme=dark"] --> vars
+  theme --> cls["bg-paper · text-ink · font-title …"]
+  init["화면 모드 초기화 스크립트(head)"] --> dark
+  pre["Pretendard CSS<br/>public/fonts/pretendard-버전(복사 스크립트)"] -- "preload + 스크립트로 붙임(화면을 막지 않음)" --> cls
+  mono["IBM Plex Mono(next/font, 미리 받지 않음)"] --> cls
+```
+
+- 화면 모드 우선순위: 사용자가 고른 값 > 시스템 설정 > 밝은 화면.
+- 한글 글꼴은 첫 화면을 막지 않습니다. 기기 글꼴로 먼저 뜨고, 글꼴 파일이 오면 Pretendard로 바뀝니다(font-display: swap).
+- 16진수 색은 토큰 파일과 재질 CSS에서만 씁니다(Biome `noHexColors`).
+
+## 11. 검사·배포
+
+```mermaid
+flowchart TB
+  commit["git commit"] --> hook["lefthook: 바뀐 파일 biome check --write"]
+  hook --> push["git push"]
+  push --> ci["GitHub Actions"]
+  ci --> c1["pnpm install --frozen-lockfile"] --> c2["콘텐츠 데이터(velite)"] --> c3["API 타입 선언(.d.ts)"] --> c4["biome ci"] --> c5["turbo: typecheck · lint:fsd · test · build"]
+  push --> vercel["Vercel: web 빌드·배포(글꼴 복사 → next build)"]
+  manual["wrangler deploy(수동)"] --> workers["Cloudflare Workers: api + Cron"]
+```
+
+| 검사 | 도구 | 잡는 것 |
+|---|---|---|
+| 린트·포맷 | Biome(최대한 엄격, ADR 0007) | 스타일, 흔한 실수, 접근성, 보안 패턴, 없는 import |
+| 타입 | tsc + next typegen + wrangler types | 타입 오류, 없는 라우트 |
+| FSD | Steiger | 층 import 방향, 공개 창구 우회 |
+| 테스트 | Vitest | 제보 규칙, 셈법, 알림, 정산 메시지, 한국 날짜 |
+| 빌드 | next build, wrangler deploy --dry-run | 배포 가능한 결과물 |
+
+- 비밀값은 저장소에 없습니다. 개발은 `apps/api/.dev.vars`·`apps/web/.env.local`·`packages/db/.env`(git 제외), 배포는 `wrangler secret put`과 Vercel 환경 변수.
+- DB 표를 바꾸면 `pnpm --dir packages/db db:generate`로 SQL을 만들고(git에 올림) `db:migrate`로 적용합니다.
+
+## 12. 보안
+
+- **웹**(`apps/web/next.config.ts`): CSP 허용 목록(스크립트: 사이트·Turnstile·Umami / 이미지: 사이트·R2 / 접속: 사이트·API·Umami), `frame-ancestors 'none'`, nosniff, Referrer-Policy, Permissions-Policy. 정적 생성을 지키려고 인라인 스크립트는 허용합니다(사용자 글을 HTML로 넣지 않음).
+- **API**: Hono `secureHeaders`, CORS는 사이트 주소만. 제보는 봇 확인·횟수 제한·입력 검사·멘션 무력화·이미지 매직 바이트 검사.
+- 이슈를 만드는 GitHub 토큰은 패치 저장소의 Issues 권한만 가집니다.

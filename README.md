@@ -8,9 +8,12 @@
 |---|---|
 | `apps/web` | Next.js(App Router) on Vercel, FSD 구조 |
 | `apps/api` | Hono on Cloudflare Workers, 기능별 모듈 |
-| `packages/shared` | web·api가 함께 쓰는 Zod 스키마·상수 |
+| `packages/shared` | web·api가 함께 쓰는 규칙·상수(Zod 스키마는 `*-schema.ts`) |
+| `packages/content` | 패치·가이드 글(MDX)을 Velite 데이터로 |
+| `packages/db` | Neon(Postgres) 스키마·마이그레이션(Drizzle) |
 | `packages/tsconfig` | 환경별 TypeScript 설정 |
-| `packages/db`, `content`, `ui` | 해당 단계에서 채움(README 참고) |
+
+앱이 어떤 순서로 움직이는지는 [app-flow.md](app-flow.md)에 그림으로 정리해 두었습니다.
 
 ## 시작하기
 

@@ -42,3 +42,7 @@ apps/web/public/static/
 apps/web/public/fonts/
 # web이 쓰는 API 타입 선언(apps/api의 `pnpm types`가 만든다)
 apps/api/types/
+
+# Next.js 16 개발 서버가 AI 도구용 안내문으로 자동 생성하는 파일
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
