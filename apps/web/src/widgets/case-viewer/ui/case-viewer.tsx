@@ -12,7 +12,7 @@ import {
 } from '@/entities/patch';
 import { CLOSE_TEMPO } from '../lib/motion.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
-import { useChangelogContent } from '../model/use-changelog-content.ts';
+import { useChangelog } from '../model/use-changelog.ts';
 import { CaseLiner } from './case-liner.tsx';
 import { ChangelogDialog } from './changelog-dialog.tsx';
 import { CloseButton } from './close-button.tsx';
@@ -52,7 +52,7 @@ export function CaseViewer({
   const isOpen = phase === 'open';
   // 업데이트 내역 모달이 열린 작품. 모달은 케이스 위에 떠서, 케이스를 닫기 전에 늘 먼저 닫힌다
   const [changelogSlug, setChangelogSlug] = useState<string | null>(null);
-  const changelog = useChangelogContent(changelogSlug, loadChangelog);
+  const changelog = useChangelog(changelogSlug, loadChangelog);
   const tempo = { '--case-tempo': view.isClosing ? CLOSE_TEMPO : 1 } as CSSProperties;
 
   return (

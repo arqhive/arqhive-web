@@ -43,7 +43,7 @@ export function ReportForm({
     submit(
       event.currentTarget,
       picker.images.map((image) => image.file),
-    ).catch(() => undefined);
+    );
   };
 
   return (

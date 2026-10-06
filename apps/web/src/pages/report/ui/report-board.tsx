@@ -3,6 +3,7 @@
 import type { SubmittedReport } from '@arqhive/shared';
 import { useCallback, useState } from 'react';
 import type { Report } from '@/entities/report';
+import { QueryProvider } from '@/shared/query';
 import type { GameOption } from './report-fields.tsx';
 import { ReportForm } from './report-form.tsx';
 import { ReportList } from './report-list.tsx';
@@ -36,9 +37,10 @@ export function ReportBoard({
   const merged = [...added, ...reports.filter((report) => !addedIds.has(report.id))];
 
   return (
-    <>
+    // 제보 보내기(useMutation)가 쓰는 TanStack Query 제공자
+    <QueryProvider>
       <ReportForm games={games} onSubmitted={onSubmitted} />
       <ReportList reports={merged} titleOfRepo={titleOfRepo} />
-    </>
+    </QueryProvider>
   );
 }

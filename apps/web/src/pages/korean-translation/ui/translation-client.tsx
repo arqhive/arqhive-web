@@ -9,6 +9,7 @@ import {
   toggleFilter,
 } from '@/entities/patch';
 import { SITE } from '@/shared/config';
+import { QueryProvider } from '@/shared/query';
 import { CaseViewer } from '@/widgets/case-viewer';
 import { PatchTable } from '@/widgets/patch-table';
 import { FaceOutRow, Shelf } from '@/widgets/shelf';
@@ -76,43 +77,46 @@ export function TranslationClient({
   useOpenFromAddress(items, initialSlug, onPick);
 
   return (
-    <div className="space-y-10">
-      {/* 최근 2주 안에 갱신된 패치가 없으면 이 칸은 통째로 보이지 않는다 */}
-      {recent.length === 0 ? null : (
-        <section aria-labelledby={recentId}>
-          <h2 id={recentId} className="font-bold font-title text-xl">
-            최근 갱신 패치
-          </h2>
-          <FaceOutRow items={recent} onPick={onPick} />
-        </section>
-      )}
-
-      <section aria-labelledby={shelfId} className="space-y-4">
-        <h2 id={shelfId} className="sr-only">
-          전체 진열
-        </h2>
-        <TranslationToolbar
-          items={items}
-          filter={filter}
-          onToggleFilter={(key) => setFilter((prev) => toggleFilter(prev, key))}
-          view={view}
-          onView={setView}
-        />
-        {view === 'shelf' ? (
-          <Shelf items={items} filter={filter} onPick={onPick} />
-        ) : (
-          <PatchTable items={items} filter={filter} onPick={onPick} />
+    // 업데이트 내역 불러오기(CaseViewer의 useQuery)가 쓰는 TanStack Query 제공자
+    <QueryProvider>
+      <div className="space-y-10">
+        {/* 최근 2주 안에 갱신된 패치가 없으면 이 칸은 통째로 보이지 않는다 */}
+        {recent.length === 0 ? null : (
+          <section aria-labelledby={recentId}>
+            <h2 id={recentId} className="font-bold font-title text-xl">
+              최근 갱신 패치
+            </h2>
+            <FaceOutRow items={recent} onPick={onPick} />
+          </section>
         )}
-      </section>
 
-      <CaseViewer
-        patch={picked}
-        loadChangelog={
-          picked !== null && changelogSlugs.includes(picked.slug) ? loadChangelog : undefined
-        }
-        originRef={originRef}
-        onClose={onClose}
-      />
-    </div>
+        <section aria-labelledby={shelfId} className="space-y-4">
+          <h2 id={shelfId} className="sr-only">
+            전체 진열
+          </h2>
+          <TranslationToolbar
+            items={items}
+            filter={filter}
+            onToggleFilter={(key) => setFilter((prev) => toggleFilter(prev, key))}
+            view={view}
+            onView={setView}
+          />
+          {view === 'shelf' ? (
+            <Shelf items={items} filter={filter} onPick={onPick} />
+          ) : (
+            <PatchTable items={items} filter={filter} onPick={onPick} />
+          )}
+        </section>
+
+        <CaseViewer
+          patch={picked}
+          loadChangelog={
+            picked !== null && changelogSlugs.includes(picked.slug) ? loadChangelog : undefined
+          }
+          originRef={originRef}
+          onClose={onClose}
+        />
+      </div>
+    </QueryProvider>
   );
 }
