@@ -2,6 +2,7 @@ import { PLATFORM_LABELS } from '@arqhive/shared';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { CASE_SPECS, type PatchCaseData, releaseStage, TitleLines } from '@/entities/patch';
+import { FileCheck } from './file-check.tsx';
 
 /** 이 비율보다 작은 케이스(3DS·NDS·GB·GBA)는 속지가 좁아서 글자를 줄인다 */
 const COMPACT_SCALE = 0.7;
@@ -222,6 +223,10 @@ export function CaseLiner({
         </span>
         {isReleased ? <LinerLinks patch={patch} onShowChangelog={onShowChangelog} /> : null}
         <LinerFacts patch={patch} listClass={desk.list} />
+        {/* 롬 패치(BPS·IPS)에만 있다: 원본·패치 후 크기와 해시 표 */}
+        {isReleased && patch.fileCheck !== undefined ? (
+          <FileCheck check={patch.fileCheck} latestVersion={patch.latestVersion} />
+        ) : null}
         {/* 맨 아래 안내는 작업 중(공개 전)인 작품에만 둔다 */}
         {isReleased ? null : (
           <span

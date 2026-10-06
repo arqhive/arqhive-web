@@ -71,6 +71,22 @@ const patches = defineCollection({
     extraDownloads: s
       .array(s.object({ label: s.string(), note: s.string().optional(), url: s.string().url() }))
       .default([]),
+    // 롬 패치(BPS·IPS)의 파일 확인값: 패치 전 원본과 패치 후 결과의 크기·해시. 각 저장소 README 「파일 확인값」 표를 옮긴다.
+    // source는 원본 판 설명, version은 결과 값이 어느 버전의 것인지(새 버전을 내면 결과 값과 함께 고친다).
+    // rows의 label은 "크기"·"CRC32"·"MD5"·"SHA-1"·"SHA-256" 등. 원본·결과 중 README에 없는 값은 null.
+    fileCheck: s
+      .object({
+        source: s.string(),
+        version: s.string(),
+        rows: s.array(
+          s.object({
+            label: s.string(),
+            original: s.string().nullable(),
+            patched: s.string().nullable(),
+          }),
+        ),
+      })
+      .optional(),
     // 디스크 라벨 그림 칸(GC 디스크 위 칸)에 까는 이미지. 게임 타이틀 화면을 로고가 가운데 오게 3:2로 잘라 작품 폴더에 둔다.
     // s.image()는 파일을 출력 폴더로 복사하고 { src, width, height, blurDataURL }을 돌려준다. 없으면 글자 제목만 쓴다.
     discArt: s.image().optional(),
