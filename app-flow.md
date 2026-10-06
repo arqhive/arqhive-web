@@ -368,8 +368,26 @@ sequenceDiagram
   end
   AG->>AG: 처리안 검증(고칠 점은 한 번 다시 쓰게)
   AG->>DB: agent_runs를 pending(승인 대기)·failed로
-  AG->>D: 처리안(분류·근거·답변 초안)
+  AG->>D: 처리안(분류·근거·답변 초안) + 서명한 검토 링크(72시간)
   AG->>DB: 이 제보의 임베딩 저장(다음 제보의 중복 검색용)
+```
+
+운영자 승인(사람이 눌러야 GitHub에 반영됩니다):
+
+```mermaid
+sequenceDiagram
+  participant O as 운영자(휴대폰)
+  participant API as 검토 화면(agent.route.ts /review)
+  participant DB as Neon
+  participant GH as GitHub
+  O->>API: 디스코드의 검토 링크 열기(GET, 보기만)
+  API->>API: HMAC 서명·만료 확인
+  API->>DB: 실행 기록 읽기
+  API-->>O: 처리안 + 고칠 수 있는 답변 + [적용]·[무시]
+  O->>API: [적용](POST, 서명 다시 확인)
+  API->>DB: pending일 때만 applied로(두 번 눌러도 한 번)
+  API->>GH: 분류 라벨(+중복) → 답변 댓글(스팸은 라벨만)
+  Note over API,DB: GitHub가 실패하면 pending으로 되돌림
 ```
 
 ```mermaid
@@ -388,6 +406,7 @@ flowchart TD
   - 지어낸 근거(도구 결과에 없는 중복 주소·알려진 문제)는 지웁니다.
   - 합니다체, 옛 버전인데 최신 버전을 안 알림, getPatch를 안 봄, 중복 가능성이 높은 결과(`likelyDuplicate`)를 무시함 → 한 번 다시 쓰게 합니다.
 - 표(Neon, `packages/db`): `agent_runs`(실행 기록·상태), `report_embeddings`(제보 임베딩), `guide_chunks`(가이드·FAQ 28문단). 가이드 문단은 일일 정산 Cron이 내용 해시를 비교해 바뀐 것만 다시 임베딩합니다.
+- 승인: 링크는 실행 번호·만료 시각을 `AGENT_SIGNING_KEY`로 서명합니다. 링크를 여는 것만으로는 아무것도 바뀌지 않아, 디스코드가 링크를 미리 읽어도 안전합니다. 댓글 끝에는 AI 초안을 운영자가 확인했다는 안내가 붙고, `agent_runs.decision`에 실제로 올린 답변·라벨·초안 수정 여부가 남습니다. 시험 제보는 GitHub에 쓰지 않습니다.
 - 한도: Workers AI 무료 한도(하루 1만 뉴런) 때문에 에이전트는 UTC 날짜별 20회까지만 돕니다. `wrangler.jsonc`의 `AGENT_ENABLED`를 `"0"`으로 배포하면 꺼집니다.
 - 개발: 시험 제보(REPORT_DRY_RUN)도 에이전트가 돌고 `dry_run`으로 표시됩니다(검색은 같은 쪽끼리만). `POST /api/agent/sync-guides`로 가이드 색인을 바로 맞춥니다(`AGENT_EVAL=1`일 때만).
 - 평가: `apps/api/eval/cases.json`(사례 30개, 핵심 15개)을 개발 서버의 `POST /api/agent/eval`(`AGENT_EVAL=1`일 때만 열림)에 보내 채점합니다. `pnpm --dir apps/api agent:eval -- --set core`. 결과는 `eval/results/`에 시각·모델·지시문 버전을 붙여 쌓습니다.

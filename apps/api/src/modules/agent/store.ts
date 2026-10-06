@@ -1,4 +1,4 @@
-import { agentRuns, type Db, guideChunks, reportEmbeddings } from '@arqhive/db';
+import { type AgentRunRow, agentRuns, type Db, guideChunks, reportEmbeddings } from '@arqhive/db';
 import { and, cosineDistance, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { ChunkSource } from './guide-chunks.ts';
 import type { AgentRun, GuideChunk, SimilarReport } from './types.ts';
@@ -148,10 +148,44 @@ async function failRun(db: Db, id: number, message: string, ms: number): Promise
     .where(eq(agentRuns.id, id));
 }
 
+async function loadRun(db: Db, id: number): Promise<AgentRunRow | null> {
+  const [row] = await db.select().from(agentRuns).where(eq(agentRuns.id, id));
+  return row ?? null;
+}
+
+/**
+ * 승인 대기(pending)인 실행만 결정 상태로 바꾼다. 바꿨으면 true.
+ * 조건부 UPDATE 한 번이라, 버튼을 두 번 누르거나 두 곳에서 동시에 눌러도 한 번만 통과한다.
+ */
+async function claimDecision(
+  db: Db,
+  id: number,
+  status: 'applied' | 'ignored',
+  decision: unknown,
+): Promise<boolean> {
+  const rows = await db
+    .update(agentRuns)
+    .set({ status, decision, decidedAt: new Date() })
+    .where(and(eq(agentRuns.id, id), eq(agentRuns.status, 'pending')))
+    .returning({ id: agentRuns.id });
+  return rows.length > 0;
+}
+
+/** 적용 중 GitHub가 실패하면 다시 승인 대기로 되돌린다(오류는 남긴다) */
+async function releaseDecision(db: Db, id: number, message: string): Promise<void> {
+  await db
+    .update(agentRuns)
+    .set({ status: 'pending', decision: null, decidedAt: null, error: message })
+    .where(eq(agentRuns.id, id));
+}
+
 export {
+  claimDecision,
   failRun,
   finishRun,
   loadGuideHashes,
+  loadRun,
+  releaseDecision,
   saveReportEmbedding,
   searchGuideChunks,
   searchSimilarReports,

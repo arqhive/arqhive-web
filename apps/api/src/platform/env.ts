@@ -18,4 +18,6 @@ export type ApiEnv = Env & {
   readonly HEALTHCHECK_DAILY_URL?: string;
   /** "1"이면 에이전트 평가 주소(/api/agent/eval)를 연다. 개발(.dev.vars)에서만 넣는다 */
   readonly AGENT_EVAL?: string;
+  /** 처리안 검토 링크 서명 키(HMAC, 아무 긴 임의 문자열). 없으면 디스코드 처리안에 검토 링크를 달지 않는다 */
+  readonly AGENT_SIGNING_KEY?: string;
 };

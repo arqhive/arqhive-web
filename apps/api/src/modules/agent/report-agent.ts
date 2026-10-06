@@ -7,6 +7,7 @@ import { runAgent } from './loop.ts';
 import { proposalNotice } from './message.ts';
 import { patchFacts } from './patch-facts.ts';
 import { PROMPT_VERSION } from './prompt.ts';
+import { reviewLink } from './review-link.ts';
 import {
   failRun,
   finishRun,
@@ -24,7 +25,7 @@ import type { AgentData, AgentReport } from './types.ts';
  * 2. 하루 한도(UTC 날짜별 20회)를 넘으면 skipped로 기록만 한다. 제보는 하루 50건까지 받지만,
  *    70B 모델은 한 번에 약 300뉴런이라 50번이면 무료 한도(하루 1만 뉴런)를 넘는다.
  * 3. 실행 기록(agent_runs)을 running으로 만들고 → 에이전트 실행 → pending(승인 대기)·failed로 마무리.
- * 4. 처리안을 디스코드로 보낸다(승인 버튼은 다음 단계).
+ * 4. 처리안을 디스코드로 보낸다. 서명한 검토 링크를 달아, 운영자가 화면에서 적용·무시를 고른다(agent.route의 /review).
  * 5. 마지막에 이 제보의 임베딩을 넣는다(검색보다 먼저 넣으면 자기 자신을 중복으로 찾는다).
  *
  * 실패해도 제보는 이미 성공했다. 오류는 운영자에게 알리고 기록에 남긴다.
@@ -40,6 +41,13 @@ const DATE_LENGTH = 10;
 interface ReportForAgent extends AgentReport {
   /** 디스코드에 보일 게임 이름 */
   readonly game: string;
+}
+
+interface AgentContext {
+  /** 시험 제보(REPORT_DRY_RUN)인지 */
+  readonly dryRun: boolean;
+  /** 이 API의 주소(검토 링크를 만들 때 쓴다. 개발은 localhost:8787) */
+  readonly apiOrigin: string;
 }
 
 /** 도구가 읽는 데이터: 패치 정보는 콘텐츠, 비슷한 제보·가이드는 Neon(pgvector) */
@@ -65,7 +73,11 @@ async function indexReport(
   }
 }
 
-async function runReportAgent(env: ApiEnv, report: ReportForAgent, dryRun: boolean): Promise<void> {
+async function runReportAgent(
+  env: ApiEnv,
+  report: ReportForAgent,
+  { dryRun, apiOrigin }: AgentContext,
+): Promise<void> {
   if (env.AGENT_ENABLED !== '1' || !env.DATABASE_URL) {
     return;
   }
@@ -94,7 +106,10 @@ async function runReportAgent(env: ApiEnv, report: ReportForAgent, dryRun: boole
     );
     const ms = Date.now() - started;
     await finishRun(db, runId, run, ms);
-    await notify(env, proposalNotice(report, run, { ms, dryRun, runId }));
+    const reviewUrl = env.AGENT_SIGNING_KEY
+      ? await reviewLink(env.AGENT_SIGNING_KEY, apiOrigin, runId)
+      : null;
+    await notify(env, proposalNotice(report, run, { ms, dryRun, runId, reviewUrl }));
   } catch (error) {
     await failRun(
       db,

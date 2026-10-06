@@ -156,12 +156,12 @@ async function afterReport(
     readonly title: string;
     readonly text: string;
   },
-  url: string,
-  dryRun: boolean,
+  where: { readonly url: string; readonly dryRun: boolean; readonly apiOrigin: string },
 ): Promise<void> {
+  const { url, dryRun, apiOrigin } = where;
   await notify(env, reportNotice(report, url, dryRun));
   const issueUrl = dryRun ? `${url}#dry-${Date.now()}` : url;
-  await runReportAgent(env, { ...report, issueUrl }, dryRun);
+  await runReportAgent(env, { ...report, issueUrl }, { dryRun, apiOrigin });
 }
 
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
@@ -188,7 +188,11 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
         const reposUrl = `https://github.com/${repo.owner}/${repo.name}/issues`;
         // 시험 중에도 알림·에이전트는 돈다(받는 사람이 운영자 자신뿐이라 안전하다). 문구 앞에 [시험]이 붙는다
         c.executionCtx.waitUntil(
-          afterReport(c.env, { slug, game: repo.title, title: issue.title, text }, reposUrl, true),
+          afterReport(
+            c.env,
+            { slug, game: repo.title, title: issue.title, text },
+            { url: reposUrl, dryRun: true, apiOrigin: new URL(c.req.url).origin },
+          ),
         );
         return c.json({
           ok: true,
@@ -206,7 +210,11 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       });
       const { url } = created;
       c.executionCtx.waitUntil(
-        afterReport(c.env, { slug, game: repo.title, title: issue.title, text }, url, false),
+        afterReport(
+          c.env,
+          { slug, game: repo.title, title: issue.title, text },
+          { url, dryRun: false, apiOrigin: new URL(c.req.url).origin },
+        ),
       );
       return c.json({
         ok: true,

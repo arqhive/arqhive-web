@@ -10,6 +10,8 @@ const GITHUB_API = 'https://api.github.com';
 const LABEL_COLOR = 'd73a4a';
 /** 이미 있는 라벨을 다시 만들려 하면 GitHub가 돌려주는 상태 코드 */
 const ALREADY_EXISTS = 422;
+/** 이슈 주소 모양: https://github.com/owner/name/issues/12 */
+const ISSUE_URL = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)\/issues\/(\d+)$/u;
 
 interface Repo {
   readonly owner: string;
@@ -27,15 +29,16 @@ function headers(token: string): Headers {
 }
 
 /** 저장소에 라벨이 없으면 만든다(이미 있으면 422 → 그대로 둔다) */
-async function ensureLabel(token: string, repo: Repo, label: string): Promise<void> {
+async function ensureLabel(
+  token: string,
+  repo: Repo,
+  label: string,
+  description = '사이트 제보 양식으로 들어온 제보',
+): Promise<void> {
   const response = await fetch(`${GITHUB_API}/repos/${repo.owner}/${repo.name}/labels`, {
     method: 'POST',
     headers: headers(token),
-    body: JSON.stringify({
-      name: label,
-      color: LABEL_COLOR,
-      description: '사이트 제보 양식으로 들어온 제보',
-    }),
+    body: JSON.stringify({ name: label, color: LABEL_COLOR, description }),
   });
   if (!response.ok && response.status !== ALREADY_EXISTS) {
     throw new Error(`라벨 만들기 실패: ${response.status}`);
@@ -60,6 +63,57 @@ export async function createIssue(
   // biome-ignore lint/style/useNamingConvention: GitHub API 응답의 필드 이름을 그대로 쓴다
   const created = (await response.json()) as { readonly html_url: string; readonly id: number };
   return { url: created.html_url, id: created.id };
+}
+
+/** 이슈 주소(https://github.com/owner/name/issues/12) → 저장소·번호. 모양이 다르면 null */
+export function parseIssueUrl(
+  url: string,
+): { readonly repo: Repo; readonly number: number } | null {
+  const match = ISSUE_URL.exec(url);
+  if (match === null) {
+    return null;
+  }
+  const [, owner = '', name = '', number = ''] = match;
+  return { repo: { owner, name }, number: Number(number) };
+}
+
+/** 이슈에 라벨 붙이기(없는 라벨은 먼저 만든다). 에이전트 처리안을 운영자가 승인했을 때 쓴다 */
+export async function addIssueLabels(
+  token: string,
+  issue: { readonly repo: Repo; readonly number: number },
+  labels: readonly string[],
+): Promise<void> {
+  await Promise.all(
+    labels.map((label) => ensureLabel(token, issue.repo, label, '제보 처리 에이전트 분류')),
+  );
+  const { owner, name } = issue.repo;
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${name}/issues/${issue.number}/labels`,
+    {
+      method: 'POST',
+      headers: headers(token),
+      body: JSON.stringify({ labels }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`라벨 붙이기 실패: ${response.status}`);
+  }
+}
+
+/** 이슈에 댓글 달기 */
+export async function addIssueComment(
+  token: string,
+  issue: { readonly repo: Repo; readonly number: number },
+  body: string,
+): Promise<void> {
+  const { owner, name } = issue.repo;
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${name}/issues/${issue.number}/comments`,
+    { method: 'POST', headers: headers(token), body: JSON.stringify({ body }) },
+  );
+  if (!response.ok) {
+    throw new Error(`댓글 달기 실패: ${response.status}`);
+  }
 }
 
 /**

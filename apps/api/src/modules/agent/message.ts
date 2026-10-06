@@ -15,7 +15,13 @@ const MS_PER_SECOND = 1000;
 export function proposalNotice(
   report: { readonly game: string; readonly title: string; readonly issueUrl: string },
   run: AgentRun,
-  meta: { readonly ms: number; readonly dryRun: boolean; readonly runId: number },
+  meta: {
+    readonly ms: number;
+    readonly dryRun: boolean;
+    readonly runId: number;
+    /** 서명한 검토 링크(서명 키가 없으면 null) */
+    readonly reviewUrl: string | null;
+  },
 ): DiscordMessage {
   const p = run.proposal;
   const lines = [
@@ -28,6 +34,10 @@ export function proposalNotice(
     '**답변 초안**',
     ...p.reply.split('\n').map((line) => `> ${line}`),
     ...(run.corrections.length > 0 ? ['', `**검증에서 고침** ${run.corrections.join(' / ')}`] : []),
+    // 판단 보류는 반영할 것이 없어 링크를 달지 않는다
+    ...(meta.reviewUrl !== null && !run.gaveUp
+      ? ['', `**[👉 검토하고 적용·무시하기](${meta.reviewUrl})** (72시간)`]
+      : []),
     '',
     `-# 실행 #${meta.runId} · ${run.steps.map((step) => step.tool).join('→')} · ${(meta.ms / MS_PER_SECOND).toFixed(1)}초 · 토큰 ${run.inputTokens}+${run.outputTokens}`,
   ];
