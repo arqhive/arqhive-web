@@ -17,6 +17,18 @@
       // 캐시에 저장할 결과물. 입력이 같으면 다음엔 빌드하지 않고 이걸 되살린다.
       "outputs": [".next/**", "!.next/cache/**", "dist/**", ".velite/**", "public/fonts/**"]
     },
+    // 콘텐츠 패키지는 자기 폴더 밖(저장소 맨 위 content/)의 MDX를 읽는다. turbo는 기본으로 패키지 폴더 안 파일만
+    // 입력으로 보므로, content/를 입력에 넣지 않으면 MDX만 바꾼 커밋을 "바뀐 것 없음"으로 보고 옛 빌드를 되살린다
+    // (10/7 Vercel 원격 캐시로 패치 공개가 반영되지 않음). web은 이 패키지에 의존하므로 함께 다시 빌드된다.
+    "@arqhive/content#build": {
+      "dependsOn": ["^build", "^types"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/content/**"],
+      "outputs": [".velite/**"]
+    },
+    "@arqhive/content#typecheck": {
+      "dependsOn": ["^typecheck", "^types"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/content/**"]
+    },
     "typecheck": {
       "dependsOn": ["^typecheck", "^types"]
     },

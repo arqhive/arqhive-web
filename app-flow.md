@@ -300,6 +300,7 @@ flowchart TB
 
 - 비밀값은 저장소에 없습니다. 개발은 `apps/api/.dev.vars`·`apps/web/.env.local`·`packages/db/.env`(git 제외), 배포는 `wrangler secret put`과 Vercel 환경 변수.
 - DB 표를 바꾸면 `pnpm --dir packages/db db:generate`로 SQL을 만들고(git에 올림) `db:migrate`로 적용합니다.
+- Vercel 빌드는 Turborepo 원격 캐시를 씁니다. 입력이 같으면 빌드하지 않고 결과를 되살리므로, 패키지 폴더 밖을 읽는 작업은 그 경로를 입력에 적어야 합니다. 콘텐츠(`@arqhive/content`)는 저장소 맨 위 `content/`를 입력에 넣어 두어, MDX만 바꾼 커밋도 web을 다시 빌드합니다(`turbo.jsonc`).
 
 ## 12. 보안
 
