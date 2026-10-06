@@ -84,8 +84,11 @@ export function CaseTray({
       <div className="@container flex size-full flex-col items-center justify-center gap-2">
         <Cartridge patch={patch} mediaClass={mediaClass} isOpen={isOpen} />
         {/* 카트리지 바로 아래 안내(판 맨 아래에 두면 세로로 긴 SFC 상자에서 카트리지와 너무 멀어진다).
-            바탕이 모달 배경이라 배경과 반대인 종이색 글자(화면 모드에 따라 함께 바뀜) */}
-        <ReleaseHint patch={patch} className="w-[84%] text-paper opacity-80" />
+            바탕이 모달 배경(뒤 페이지 글자가 비침)이라, 자막처럼 글자 폭에 맞춘 반투명 검은 띠를 깔고 흰 글자로 쓴다(10/7) */}
+        <ReleaseHint
+          patch={patch}
+          className="w-fit max-w-[84%] rounded-[0.4em] bg-black/60 px-[0.8em] py-[0.3em] text-white"
+        />
       </div>
     );
   }

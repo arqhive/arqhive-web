@@ -130,7 +130,7 @@ function GbCartridge({ patch }: { readonly patch: PatchCaseData }) {
 function GbaCartridge({ patch }: { readonly patch: PatchCaseData }) {
   return (
     <>
-      <div className="cartridge cart-gba absolute inset-x-0 top-0 h-[12%] rounded-t-[2cqw]" />
+      <div className="cartridge cart-gba absolute inset-x-0 top-0 h-[12%] rounded-t-[2cqw] shadow-none" />
       <div className="cartridge cart-gba absolute inset-x-[1.8%] top-[6%] bottom-0 rounded-b-[2.5cqw] shadow-none">
         <div className="cart-emboss absolute top-[0%] left-[13%] flex h-[18%] w-[74%] items-end justify-center rounded-t-[50%_100%] pb-[1.5%]">
           <span className="cart-emboss-text font-bold font-num text-[4.2cqw] leading-none tracking-wide">
@@ -160,6 +160,14 @@ const CARTRIDGES = {
   gba: GbaCartridge,
 } as const;
 
+/**
+ * 카트리지 전체 그림자(바깥 래퍼의 drop-shadow). GBA는 가로로 넓어 판 밖까지 번져 보여서 아주 얇게 둔다(10/7 사용자 요청).
+ */
+const CART_SHADOWS: Readonly<Record<string, string>> = {
+  gba: 'drop-shadow-[0_1px_1px_rgb(0_0_0/0.3)]',
+};
+const DEFAULT_CART_SHADOW = 'drop-shadow-[2px_4px_6px_rgb(0_0_0/0.35)]';
+
 /** 상자에서 나온 카트리지. 크기는 상자 폭 대비 비율(mediaClass). 열리면 살짝 떠오른다 */
 export function Cartridge({
   patch,
@@ -176,7 +184,7 @@ export function Cartridge({
       : SfcCartridge;
   return (
     <div
-      className={`@container relative drop-shadow-[2px_4px_6px_rgb(0_0_0/0.35)] transition-[translate] delay-[calc(300ms*var(--case-tempo,1))] duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${mediaClass} ${isOpen ? '-translate-y-[4%]' : 'translate-y-0'}`}
+      className={`@container relative ${CART_SHADOWS[patch.platform] ?? DEFAULT_CART_SHADOW} transition-[translate] delay-[calc(300ms*var(--case-tempo,1))] duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${mediaClass} ${isOpen ? '-translate-y-[4%]' : 'translate-y-0'}`}
     >
       <Shape patch={patch} />
       <ReleaseLink patch={patch} shape="absolute inset-0 rounded-[2cqw]" />
