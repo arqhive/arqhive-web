@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { downloadSnapshots } from './schema.ts';
+import { agentRuns, downloadSnapshots, guideChunks, reportEmbeddings } from './schema.ts';
 
 /**
  * Neon에 붙는 Drizzle 클라이언트. Workers에서는 오래 붙어 있는 TCP 연결을 쓸 수 없어서,
@@ -8,7 +8,9 @@ import { downloadSnapshots } from './schema.ts';
  * 연결 문자열(DATABASE_URL)은 비밀값이라 부르는 쪽(api의 env)이 넘긴다.
  */
 export function createDb(databaseUrl: string) {
-  return drizzle(neon(databaseUrl), { schema: { downloadSnapshots } });
+  return drizzle(neon(databaseUrl), {
+    schema: { downloadSnapshots, guideChunks, reportEmbeddings, agentRuns },
+  });
 }
 
 export type Db = ReturnType<typeof createDb>;
