@@ -1,4 +1,5 @@
 import { app } from './app.ts';
+import { syncGuideIndex } from './modules/agent/index.ts';
 import { runDailyReport } from './modules/daily-report/index.ts';
 import { alertError, runNotificationCron } from './modules/notifications/index.ts';
 import type { ApiEnv } from './platform/env.ts';
@@ -27,12 +28,18 @@ async function runJob(
   }
 }
 
+/** 하루 한 번: 일일 정산 → 가이드 문단 색인 맞추기(에이전트 검색용, 바뀐 문단만 임베딩) */
+async function runDailyJobs(env: ApiEnv): Promise<void> {
+  await runDailyReport(env);
+  await syncGuideIndex(env);
+}
+
 /**
  * Workers 진입점. Cloudflare는 이 파일의 기본 내보내기에서 이벤트별 처리 함수를 찾는다.
  *
  * - `fetch`: HTTP 요청이 들어올 때
  * - `scheduled`: Cron 시각이 됐을 때(wrangler.jsonc의 triggers). 매시 정각은 못 보낸 운영자 알림 재전송,
- *   한국 시간 23시 50분은 일일 정산(controller.cron으로 어느 일정인지 가른다)
+ *   한국 시간 23시 50분은 일일 정산과 가이드 색인(controller.cron으로 어느 일정인지 가른다)
  * - `queue`: 큐에 메시지가 쌓였을 때 (아직 안 씀)
  *
  * 한 Worker가 세 가지를 모두 맡고, 각각 해당 모듈로 나눠 보내기만 한다.
@@ -49,7 +56,7 @@ export default {
         apiEnv,
         daily ? 'cron 일일 정산' : 'cron 알림 재전송',
         daily ? apiEnv.HEALTHCHECK_DAILY_URL : apiEnv.HEALTHCHECK_HOURLY_URL,
-        () => (daily ? runDailyReport(apiEnv) : runNotificationCron(apiEnv)),
+        () => (daily ? runDailyJobs(apiEnv) : runNotificationCron(apiEnv)),
       ),
     );
   },

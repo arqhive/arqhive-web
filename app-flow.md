@@ -17,7 +17,7 @@ arqhive가 **어떤 순서로 움직이는지** 정리한 문서입니다. 기�
 11. [검사·배포](#11-검사배포)
 12. [보안](#12-보안)
 13. [모니터링과 장애 대응](#13-모니터링과-장애-대응)
-14. [제보 처리 에이전트(만드는 중)](#14-제보-처리-에이전트만드는-중)
+14. [제보 처리 에이전트](#14-제보-처리-에이전트)
 
 ## 1. 전체 그림
 
@@ -347,25 +347,47 @@ flowchart LR
 
 `pnpm ops`가 읽는 키는 저장소 맨 위 `.env.ops`(git 제외)에 둡니다: `UPTIMEROBOT_API_KEY`(UptimeRobot의 Read-only API key), `HEALTHCHECKS_API_KEY`(healthchecks 프로젝트 Settings의 read-only key). 둘 다 읽기 전용이라 새도 바꿀 수 있는 것은 없습니다.
 
-## 14. 제보 처리 에이전트(만드는 중)
+## 14. 제보 처리 에이전트
 
-새 제보를 읽고 **처리안**(분류·중복·알려진 문제·첫 답변 초안)을 만드는 에이전트입니다. 프레임워크 없이 루프를 직접 짰고(ADR 0017), 지금은 평가(eval)로 다듬는 단계입니다. 제보 API에 붙여 운영자 승인을 받는 길은 다음 단계에서 이어집니다.
+새 제보를 읽고 **처리안**(분류·중복·알려진 문제·첫 답변 초안)을 만들어 운영자에게 보내는 에이전트입니다. 프레임워크 없이 루프를 직접 짰습니다(ADR 0017). GitHub에는 직접 쓰지 않고, 운영자가 승인해야 반영됩니다.
+
+```mermaid
+sequenceDiagram
+  participant API as 제보 받기(reports.route.ts)
+  participant AG as 에이전트(report-agent.ts)
+  participant AI as Workers AI
+  participant DB as Neon(pgvector)
+  participant D as Discord
+  API->>D: 새 제보 알림
+  API->>AG: waitUntil(응답 뒤)
+  AG->>DB: agent_runs에 running(하루 20회 넘으면 skipped)
+  loop 최대 6턴
+    AG->>AI: 대화 + 도구 목록(llama-3.3-70b)
+    AI-->>AG: 도구 호출
+    AG->>DB: 비슷한 제보·가이드 문단 검색(임베딩 bge-m3, 코사인 유사도)
+  end
+  AG->>AG: 처리안 검증(고칠 점은 한 번 다시 쓰게)
+  AG->>DB: agent_runs를 pending(승인 대기)·failed로
+  AG->>D: 처리안(분류·근거·답변 초안)
+  AG->>DB: 이 제보의 임베딩 저장(다음 제보의 중복 검색용)
+```
 
 ```mermaid
 flowchart TD
-  R["제보(본문은 report 태그로 감싼 데이터)"] --> L["루프(loop.ts, 최대 6턴)"]
-  L -- "도구 호출" --> T["도구(tools.ts, 읽기만)<br/>getPatch · searchSimilarReports · searchGuides"]
+  L["루프(loop.ts)"] -- "도구 호출" --> T["도구(tools.ts, 읽기만)<br/>getPatch · searchSimilarReports · searchGuides"]
   T -- "결과(JSON)" --> L
   L -- "submitProposal" --> V{"검증(proposal.ts)"}
   V -- "오류·고칠 점 → 한 번 다시 쓰게" --> L
-  V -- "통과" --> P["처리안"]
+  V -- "통과(남은 고칠 점은 기록)" --> P["처리안"]
   V -- "두 번째도 쓸 수 없음" --> F["판단 보류"]
-  M["Workers AI(llama-3.3-70b)"] <--> L
 ```
 
+- 제보 본문은 `<report>`로 감싼 데이터로만 다룹니다(그 안의 지시는 따르지 않음, 프롬프트 인젝션 대비).
 - 모델은 `ModelFn` 하나로 감싸(`src/platform/workers-ai.ts`) 루프가 모델을 모릅니다. 시험은 정해 둔 답을 내는 가짜 모델로 돌립니다.
 - 검증은 모델 출력을 믿지 않습니다.
   - 지어낸 근거(도구 결과에 없는 중복 주소·알려진 문제)는 지웁니다.
-  - 합니다체, 옛 버전인데 최신 버전을 안 알림, getPatch를 안 봄, 중복 가능성이 높은 결과를 무시함 → 한 번 다시 쓰게 합니다.
+  - 합니다체, 옛 버전인데 최신 버전을 안 알림, getPatch를 안 봄, 중복 가능성이 높은 결과(`likelyDuplicate`)를 무시함 → 한 번 다시 쓰게 합니다.
+- 표(Neon, `packages/db`): `agent_runs`(실행 기록·상태), `report_embeddings`(제보 임베딩), `guide_chunks`(가이드·FAQ 28문단). 가이드 문단은 일일 정산 Cron이 내용 해시를 비교해 바뀐 것만 다시 임베딩합니다.
+- 한도: Workers AI 무료 한도(하루 1만 뉴런) 때문에 에이전트는 UTC 날짜별 20회까지만 돕니다. `wrangler.jsonc`의 `AGENT_ENABLED`를 `"0"`으로 배포하면 꺼집니다.
+- 개발: 시험 제보(REPORT_DRY_RUN)도 에이전트가 돌고 `dry_run`으로 표시됩니다(검색은 같은 쪽끼리만). `POST /api/agent/sync-guides`로 가이드 색인을 바로 맞춥니다(`AGENT_EVAL=1`일 때만).
 - 평가: `apps/api/eval/cases.json`(사례 30개, 핵심 15개)을 개발 서버의 `POST /api/agent/eval`(`AGENT_EVAL=1`일 때만 열림)에 보내 채점합니다. `pnpm --dir apps/api agent:eval -- --set core`. 결과는 `eval/results/`에 시각·모델·지시문 버전을 붙여 쌓습니다.
-- 실제 모델을 부르므로 Workers AI 무료 한도(하루 1만 뉴런)를 씁니다. 70B는 사례 하나에 약 200~400뉴런입니다.

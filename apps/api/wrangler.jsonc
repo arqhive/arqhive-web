@@ -22,11 +22,13 @@
     "REPORT_IMAGE_BASE_URL": "https://pub-032e2a3dea5c4e4c89f0c7196a9606ca.r2.dev",
     // "1"이면 GitHub 이슈를 만들지 않고 가짜 주소를 돌려준다. 배포된 서버는 "0"(실제로 만든다).
     // 개발 PC는 .dev.vars의 REPORT_DRY_RUN=1이 이 값을 덮어써서, 시험 중 공개 저장소에 이슈가 생기지 않는다.
-    "REPORT_DRY_RUN": "0"
+    "REPORT_DRY_RUN": "0",
+    // "1"이면 새 제보마다 처리 에이전트를 돌린다(ADR 0017). 문제가 생기면 "0"으로 바꿔 배포하면 꺼진다.
+    "AGENT_ENABLED": "1"
   },
-  // 제보 스크린샷 저장소. 개발(wrangler dev)에서는 PC 안의 가짜 버킷을 쓴다.
   // Workers AI(제보 처리 에이전트의 모델·임베딩, ADR 0017). 개발(wrangler dev)에서도 실제 Cloudflare 모델을 부르며 무료 한도(하루 1만 뉴런)를 쓴다.
   "ai": { "binding": "AI" },
+  // 제보 스크린샷 저장소. 개발(wrangler dev)에서는 PC 안의 가짜 버킷을 쓴다.
   "r2_buckets": [{ "binding": "REPORT_IMAGES", "bucket_name": "arqhive-reports" }],
   // 요청 횟수 세기(IP별 시간당, 사이트 전체 하루)와 R2 저장 용량 누적. 개발(wrangler dev)에서는 PC 안의 가짜 저장소를 쓴다.
   // id는 `wrangler kv namespace create RATE_LIMIT`로 만든 Cloudflare KV(비밀값 아님).

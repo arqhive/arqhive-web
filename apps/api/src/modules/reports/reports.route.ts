@@ -11,6 +11,7 @@ import { createIssue } from '../../platform/github.ts';
 import { markOnce, sha256, takeToken } from '../../platform/rate-limit.ts';
 import { reserveStorage, STORAGE_LIMIT_BYTES } from '../../platform/storage-budget.ts';
 import { verifyTurnstile } from '../../platform/turnstile.ts';
+import { runReportAgent } from '../agent/index.ts';
 import { alertError, notify, reportNotice } from '../notifications/index.ts';
 import { RELEASED_REPOS } from './released-repos.ts';
 import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './report-checks.ts';
@@ -19,7 +20,7 @@ import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './re
  * 제보 받기(POST /api/reports, multipart/form-data). 위에서부터 차례로 거르고, 하나라도 걸리면 그 자리에서 거절한다:
  * 봇 흔적(허니팟·시간) → Turnstile → 횟수 제한(IP별 시간당 3건, 사이트 하루 50건) → 입력 검사 → 같은 내용 재전송
  * → 스크린샷을 R2에 올림(누적 9GB를 넘을 것 같으면 스크린샷은 빼고 글만) → 그 패치 저장소에 "제보" 라벨 이슈 생성
- * → 운영자에게 디스코드 알림(notifications 모듈).
+ * → 운영자에게 디스코드 알림(notifications 모듈) → 처리 에이전트(agent 모듈, 처리안도 디스코드로).
  * 실패 코드(invalid·rate·bot·server)는 양식이 알맞은 문구를 고르는 데 쓴다.
  */
 
@@ -98,7 +99,7 @@ async function validate(env: ApiEnv, form: FormData) {
   ) {
     throw new Reject('rate');
   }
-  return { repo, text: parsed.data.text, images };
+  return { repo, slug: parsed.data.slug, text: parsed.data.text, images };
 }
 
 /**
@@ -142,6 +143,27 @@ function submitted(
   };
 }
 
+/**
+ * 제보를 받은 뒤 할 일(응답을 기다리게 하지 않는다): 운영자에게 디스코드 알림 → 처리 에이전트(처리안도 디스코드로).
+ * 알림을 먼저 보내야 디스코드에서 제보 → 처리안 순서로 보인다. 실패해도 제보는 이미 성공이다.
+ * 시험(dryRun)에는 이슈 주소가 없어서, 고유한 가짜 주소를 에이전트 기록·임베딩의 키로 쓴다.
+ */
+async function afterReport(
+  env: ApiEnv,
+  report: {
+    readonly slug: string;
+    readonly game: string;
+    readonly title: string;
+    readonly text: string;
+  },
+  url: string,
+  dryRun: boolean,
+): Promise<void> {
+  await notify(env, reportNotice(report, url, dryRun));
+  const issueUrl = dryRun ? `${url}#dry-${Date.now()}` : url;
+  await runReportAgent(env, { ...report, issueUrl }, dryRun);
+}
+
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
 export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
   // 허락한 사이트에서만 양식을 보낼 수 있다(브라우저가 지키는 규칙. 서버 검사는 위 단계들이 따로 한다)
@@ -156,7 +178,7 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
     try {
       const form = await c.req.formData();
       await guard(c.env, form, c.req.header('cf-connecting-ip') ?? null);
-      const { repo, text, images } = await validate(c.env, form);
+      const { repo, slug, text, images } = await validate(c.env, form);
       const { urls: imageUrls, skipped } = await upload(c.env, images);
       const issue = buildReportIssue({ text, imageUrls });
       // 스크린샷을 저장 한도 때문에 뺐으면 양식이 알려 줄 수 있게 함께 돌려준다
@@ -164,12 +186,9 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       // 개발 중에는 공개 저장소에 시험 이슈가 생기지 않게 만들지 않는다(wrangler.jsonc의 REPORT_DRY_RUN)
       if (c.env.REPORT_DRY_RUN === '1' || c.env.GITHUB_ISSUES_TOKEN === undefined) {
         const reposUrl = `https://github.com/${repo.owner}/${repo.name}/issues`;
-        // 시험 중에도 알림은 보낸다(받는 사람이 운영자 자신뿐이라 안전하다). 문구 앞에 [시험]이 붙는다
+        // 시험 중에도 알림·에이전트는 돈다(받는 사람이 운영자 자신뿐이라 안전하다). 문구 앞에 [시험]이 붙는다
         c.executionCtx.waitUntil(
-          notify(
-            c.env,
-            reportNotice({ game: repo.title, title: issue.title, text }, reposUrl, true),
-          ),
+          afterReport(c.env, { slug, game: repo.title, title: issue.title, text }, reposUrl, true),
         );
         return c.json({
           ok: true,
@@ -186,9 +205,8 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
         label: REPORT_LABEL,
       });
       const { url } = created;
-      // 운영자에게 디스코드 알림. 응답을 기다리게 하지 않고(waitUntil), 실패해도 제보는 성공이다
       c.executionCtx.waitUntil(
-        notify(c.env, reportNotice({ game: repo.title, title: issue.title, text }, url, false)),
+        afterReport(c.env, { slug, game: repo.title, title: issue.title, text }, url, false),
       );
       return c.json({
         ok: true,
