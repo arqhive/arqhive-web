@@ -275,7 +275,7 @@ flowchart TB
   push --> ci["GitHub Actions"]
   ci --> c1["pnpm install --frozen-lockfile"] --> c2["콘텐츠 데이터(velite)"] --> c3["API 타입 선언(.d.ts)"] --> c4["biome ci"] --> c5["turbo: typecheck · lint:fsd · test · build"]
   push --> vercel["Vercel: web 빌드·배포(글꼴 복사 → next build)"]
-  manual["wrangler deploy(수동)"] --> workers["Cloudflare Workers: api + Cron"]
+  c5 -- "main 푸시일 때만" --> deploy["deploy-api: wrangler deploy"] --> workers["Cloudflare Workers: api + Cron"]
 ```
 
 | 검사 | 도구 | 잡는 것 |
@@ -322,3 +322,21 @@ flowchart LR
 5. **제보가 안 들어옴**: 제보는 이슈로 바로 공개되므로, GitHub 장애 중에는 "보내지 못했습니다"가 뜬다. 복구되면 저절로 돌아온다.
 
 - 비밀값을 바꿨으면(유출 의심 등) 각 서비스에서 새로 만든 뒤 `wrangler secret put 이름` / Vercel 환경 변수를 고치고 다시 배포한다.
+
+### 관리 명령(터미널)
+
+배포는 `main`에 푸시하면 끝납니다. web은 Vercel이, API는 CI가 검사를 통과한 뒤 `wrangler deploy`로 배포합니다(`.github/workflows/ci.yml`의 deploy-api).
+
+| 하고 싶은 일 | 명령(저장소 맨 위에서) |
+|---|---|
+| **전체 상태 한눈에** | `pnpm ops` (사이트·CI·배포·UptimeRobot·healthchecks·Neon·KV·R2) |
+| API 실시간 로그 | `pnpm --dir apps/api exec wrangler tail` |
+| API 배포 기록 / 되돌리기 | `pnpm --dir apps/api exec wrangler deployments list` / `… wrangler rollback` |
+| API 비밀값 목록 / 넣기 | `… wrangler secret list` / `… wrangler secret put 이름` |
+| KV 값 보기 | `… wrangler kv key get notify:pending --binding RATE_LIMIT --remote` |
+| CI 기록 / 실패 로그 | `gh run list` / `gh run view --log-failed` |
+| 웹 배포 상태 | `gh api repos/arqhive/arqhive-web/commits/main/status` |
+| DB 마이그레이션 만들기 / 적용 / 표 보기 | `pnpm --dir packages/db db:generate` / `db:migrate` / `db:studio` |
+| 정산 직접 돌려 보기(개발) | `pnpm --dir apps/api dev --test-scheduled` 후 `/__scheduled?cron=50+14+*+*+*` |
+
+`pnpm ops`가 읽는 키는 저장소 맨 위 `.env.ops`(git 제외)에 둡니다: `UPTIMEROBOT_API_KEY`(UptimeRobot의 Read-only API key), `HEALTHCHECKS_API_KEY`(healthchecks 프로젝트 Settings의 read-only key). 둘 다 읽기 전용이라 새도 바꿀 수 있는 것은 없습니다.
