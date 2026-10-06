@@ -44,6 +44,10 @@ jobs:
       - name: 콘텐츠 데이터 생성 (Velite)
         run: pnpm --filter @arqhive/content build
 
+      # web이 Hono RPC로 쓰는 API 타입 선언(apps/api/types)도 git에 없다. 같은 이유로 검사 전에 만든다.
+      - name: API 타입 선언 생성 (Hono RPC)
+        run: pnpm --filter @arqhive/api types
+
       # biome ci: check와 같지만 파일을 고치지 않고 검사만 하며, CI에 맞는 형식으로 결과를 낸다.
       - name: Biome (린트 · 포맷)
         run: pnpm biome ci .
