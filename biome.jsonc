@@ -137,13 +137,17 @@
       }
     },
     {
-      // 빌드 보조 스크립트(예: apps/web/scripts/copy-fonts.mjs): 브라우저가 아니라 Node.js에서 도는 파일이라
-      // node: 내장 모듈을 쓰고, 무엇을 했는지 터미널에 한 줄 남긴다.
-      "includes": ["apps/*/scripts/**"],
+      // 빌드 보조 스크립트(예: apps/web/scripts/copy-fonts.mjs)와 drizzle-kit 설정: 브라우저가 아니라 Node.js에서 도는 파일이라
+      // node: 내장 모듈·환경 변수를 쓰고, 무엇을 했는지 터미널에 한 줄 남긴다.
+      "includes": ["apps/*/scripts/**", "packages/db/drizzle.config.ts"],
       "linter": {
         "rules": {
           "correctness": {
-            "noNodejsModules": "off"
+            "noNodejsModules": "off",
+            "noProcessGlobal": "off"
+          },
+          "style": {
+            "noProcessEnv": "off"
           },
           "suspicious": {
             "noConsole": "off"

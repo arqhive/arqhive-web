@@ -1,0 +1,6 @@
+{
+  // Workers·Node 어디서나 쓰이는 순수 TS 설정.
+  // drizzle.config.ts는 drizzle-kit이 Node에서 직접 읽으므로(process 사용) 여기서 검사하지 않는다.
+  "extends": "@arqhive/tsconfig/library.json",
+  "include": ["src"]
+}

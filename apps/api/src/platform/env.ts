@@ -9,4 +9,8 @@ export type ApiEnv = Env & {
   readonly GITHUB_ISSUES_TOKEN?: string;
   /** 운영자 알림을 보낼 디스코드 웹훅 주소. 없으면 알림을 보내지 않는다 */
   readonly DISCORD_WEBHOOK_URL?: string;
+  /** Neon 연결 문자열(다운로드 기록, ADR 0016). 없으면 정산에서 저장·증가분을 건너뛴다 */
+  readonly DATABASE_URL?: string;
+  /** Umami 공유 링크(일일 정산의 방문 통계를 읽는다, 무료 플랜용). 링크를 아는 사람은 대시보드를 볼 수 있어 비밀값으로 다룬다 */
+  readonly UMAMI_SHARE_URL?: string;
 };

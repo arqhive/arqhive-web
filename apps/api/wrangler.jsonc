@@ -30,9 +30,11 @@
   // id는 `wrangler kv namespace create RATE_LIMIT`로 만든 Cloudflare KV(비밀값 아님).
   // 못 보낸 운영자 알림(디스코드)도 이 저장소에 notify: 접두사로 둔다(ADR 0014).
   "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "fd69a10501a74b84841533334a70b85f" }],
-  // 정기 실행(무료 플랜은 5개까지). 매시 정각: 못 보낸 운영자 알림 재전송(src/index.ts의 scheduled).
-  // 시각은 UTC 기준이다. 개발 중에는 `wrangler dev --test-scheduled` 후 /__scheduled 주소로 직접 불러 볼 수 있다.
-  "triggers": { "crons": ["0 * * * *"] }
+  // 정기 실행(무료 플랜은 5개까지, src/index.ts의 scheduled). 시각은 UTC 기준이다.
+  // - 매시 정각: 못 보낸 운영자 알림 재전송
+  // - 14:50(한국 23:50): 일일 정산(다운로드 기록 + 방문 통계 → 디스코드, ADR 0016)
+  // 개발 중에는 `wrangler dev --test-scheduled` 후 /__scheduled?cron=50+14+*+*+* 로 직접 불러 볼 수 있다.
+  "triggers": { "crons": ["0 * * * *", "50 14 * * *"] }
   // Queues·Workers AI·Vectorize 바인딩은 각 기능을 만드는 단계에서 추가한다.
   // 바인딩을 추가하면 `pnpm --filter @arqhive/api typegen`으로 Env 타입을 다시 만든다.
 }

@@ -10,6 +10,7 @@
 | `reports` | 제보 접수·판별·이슈 생성·이슈 동기화·검토 승인 | 4단계 |
 | `search` | 검색·임베딩 | 5·6단계 |
 | `notifications` | 운영자 알림(디스코드 웹훅)·못 보낸 알림 재전송 | 4단계 |
+| `daily-report` | 일일 정산: 다운로드 기록(Neon) + 방문 통계(Umami) → 디스코드 | 5단계 |
 | `webhooks` | `repository_dispatch` 수신 | 8단계 |
 
 규칙
