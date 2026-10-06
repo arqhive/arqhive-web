@@ -14,6 +14,7 @@ export const metadata: Metadata = pageMetadata({
   path: '/korean-translation',
 });
 
-// 최근 갱신(2주 이내)은 "오늘"에 따라 바뀌므로, 미리 만들어 둔 페이지를 1시간마다 새로 그린다(ISR).
+// 릴리즈(버전·다운로드 수)와 최근 갱신(2주 이내, "오늘"에 따라 바뀜)을 따라가도록 미리 만들어 둔 페이지를 10분마다 새로 그린다(ISR).
+// 데이터 캐시(GITHUB_CACHE_SECONDS)와 같은 값으로 둔다.
 // 이 값은 Next.js가 라우트 파일에서만 읽는다(src/pages 쪽에 두면 적용되지 않는다).
-export const revalidate = 3600;
+export const revalidate = 600;

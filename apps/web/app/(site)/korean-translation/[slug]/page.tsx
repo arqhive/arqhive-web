@@ -28,8 +28,8 @@ export async function generateMetadata({
   });
 }
 
-// 진열장과 같은 주기(1시간)로 다시 그린다(최근 갱신·다운로드 수). 라우트 파일에서만 읽히는 설정이다.
-export const revalidate = 3600;
+// 진열장과 같은 주기(10분)로 다시 그린다(버전·다운로드 수·최근 갱신). 라우트 파일에서만 읽히는 설정이다.
+export const revalidate = 600;
 
 export default async function TranslationSlugRoute({
   params,

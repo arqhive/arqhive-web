@@ -11,7 +11,7 @@ import { MarkdownBody } from '@/shared/markdown';
  * - 진열장 페이지에 20개 패치의 CHANGELOG를 미리 다 실으면 HTML이 커져서(페이지 데이터의 대부분), 누를 때만 받는다.
  * - 마크다운 라이브러리는 여전히 서버에서만 돈다(브라우저 묶음에 들어가지 않는다).
  * - 바깥에서 누구나 부를 수 있는 주소가 되므로, 받은 slug는 콘텐츠 목록에 있는 공개 패치인지 확인한다.
- *   GitHub 읽기는 fetchChangelog의 캐시(1시간)를 그대로 쓴다.
+ *   GitHub 읽기는 fetchChangelog의 캐시(10분)를 그대로 쓴다.
  */
 export async function loadChangelog(slug: string): Promise<ReactNode | null> {
   const patch = patches.find(

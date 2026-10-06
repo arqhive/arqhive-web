@@ -100,15 +100,15 @@ sequenceDiagram
   V->>L: 루트 레이아웃(메타데이터·전역 CSS·화면 모드·글꼴 스크립트·통계)
   L->>P: 라우트 파일(얇게: metadata·revalidate만)
   P->>F: 화면 컴포넌트
-  F->>G: 다운로드 수·CHANGELOG 있는지(1시간 캐시)
+  F->>G: 릴리즈(다운로드 수·버전·받을 파일)·CHANGELOG 있는지(10분 캐시)
   F-->>V: HTML + 페이지 데이터(RSC)
 ```
 
 | 주소 | 화면(`src/pages`) | 다시 그리는 주기 |
 |---|---|---|
 | `/` | `home` 사이트 소개 | 빌드 때 한 번 |
-| `/korean-translation` | `korean-translation` 진열장 | 1시간(최근 갱신·다운로드 수) |
-| `/korean-translation/<slug>` | 같은 진열장 + 소개 띠, 그 패치 케이스를 바로 엶 | 1시간 |
+| `/korean-translation` | `korean-translation` 진열장 | 10분(버전·다운로드 수·최근 갱신) |
+| `/korean-translation/<slug>` | 같은 진열장 + 소개 띠, 그 패치 케이스를 바로 엶 | 10분 |
 | `/guide` | `guide` 버전 가이드·FAQ | 빌드 때 |
 | `/report` | `report` 제보 양식 + 들어온 제보 | 5분(제보 목록) |
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | 빌드 때(콘텐츠에서 생성) |
@@ -153,7 +153,7 @@ sequenceDiagram
 
 - 패치 주소로 바로 들어오면 선반이 자리 잡은 뒤(글꼴·두 번 그린 뒤) 그 등줄기를 누른 것처럼 엽니다(`use-open-from-address.ts`).
   - 위에는 서버가 그린 소개 띠(제목 h1·요약, 검색엔진용)가 보입니다. 케이스를 닫으면 주소만 진열장으로 바뀌고 페이지는 다시 그리지 않으므로, 클라이언트가 소개 띠를 치웁니다(서버 페이지가 `intro` 칸으로 넘김).
-- **매체 → 직접 다운로드**: 릴리즈 첨부 파일 이름 규칙 `[게임 코드]_KPatch_[버전][_꼬리].[확장자]`(게임 코드는 콘텐츠의 `downloadCode`)로 서버가 최신 릴리즈에서 파일을 고릅니다(`@arqhive/shared`의 `pickDownloads`, 다운로드 수와 같은 요청·1시간 캐시).
+- **매체 → 직접 다운로드**: 릴리즈 첨부 파일 이름 규칙 `[게임 코드]_KPatch_[버전][_꼬리].[확장자]`(게임 코드는 콘텐츠의 `downloadCode`)로 서버가 최신 릴리즈에서 파일을 고릅니다(`@arqhive/shared`의 `pickDownloads`, 다운로드 수와 같은 요청·10분 캐시).
   - 같은 최신 릴리즈의 태그·공개 날짜(한국 날짜)를 버전·날짜 표시에 씁니다(`releaseStamp`). 패치 저장소에 릴리즈만 올려도 케이스·목록·소개 띠의 버전이 따라오고, 콘텐츠의 `latestVersion`·`latestReleaseDate`는 GitHub를 못 읽을 때의 예비값입니다. 에이전트의 `getPatch`도 같은 값을 씁니다.
   - 대표 파일(꼬리 없음, 여럿이면 zip)이 있으면 매체를 누르는 즉시 받습니다.
   - 받는 방식이 두 벌인 패치(`_CIA`·`_LayeredFS`, 3DS)는 매체 대신 케이스 아래 버튼 두 개로 나눕니다.
