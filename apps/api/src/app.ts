@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
+import { agentRoute } from './modules/agent/index.ts';
 import { healthRoute } from './modules/health/index.ts';
 import { alertError } from './modules/notifications/index.ts';
 import { reportsRoute } from './modules/reports/index.ts';
@@ -24,6 +25,7 @@ export const app = new Hono<{ Bindings: ApiEnv }>()
   .use('*', secureHeaders({ crossOriginResourcePolicy: false, xFrameOptions: 'DENY' }))
   .route('/health', healthRoute)
   .route('/reports', reportsRoute)
+  .route('/agent', agentRoute)
   // 라우트에서 잡지 못한 오류: 디스코드로 알리고(같은 오류는 1시간에 한 번) 500을 돌려준다
   .onError((error, c) => {
     c.executionCtx.waitUntil(alertError(c.env, `${c.req.method} ${c.req.path}`, error));

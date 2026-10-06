@@ -16,4 +16,6 @@ export type ApiEnv = Env & {
   /** healthchecks.io 신호 주소(정기 작업 감시). 매시 재전송·일일 정산이 끝날 때 부른다. 없으면 신호를 보내지 않는다 */
   readonly HEALTHCHECK_HOURLY_URL?: string;
   readonly HEALTHCHECK_DAILY_URL?: string;
+  /** "1"이면 에이전트 평가 주소(/api/agent/eval)를 연다. 개발(.dev.vars)에서만 넣는다 */
+  readonly AGENT_EVAL?: string;
 };
