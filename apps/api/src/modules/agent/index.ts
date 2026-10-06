@@ -3,3 +3,4 @@ export { agentRoute } from './agent.route.ts';
 export { syncGuideIndex } from './guide-index.ts';
 export { runAgent } from './loop.ts';
 export { type ReportForAgent, runReportAgent } from './report-agent.ts';
+export { type AgentDayStats, loadAgentDayStats } from './stats.ts';

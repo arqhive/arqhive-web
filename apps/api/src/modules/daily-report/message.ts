@@ -1,5 +1,6 @@
 import type { DiscordMessage } from '../../platform/discord.ts';
 import type { Count, UmamiDay } from '../../platform/umami.ts';
+import type { AgentDayStats } from '../agent/index.ts';
 import type { DownloadRow } from './downloads.ts';
 import { shortKstLabel } from './kst.ts';
 
@@ -9,6 +10,7 @@ const DOWNLOAD_ROWS = 8;
 const TOP = 5;
 const SECONDS_PER_MINUTE = 60;
 const PERCENT = 100;
+const MS_PER_SECOND = 1000;
 /** 임베드 띠 색(사이트 남색 잉크 #1e2a3a) */
 const COLOR_REPORT = 0x1e_2a_3a;
 
@@ -67,6 +69,34 @@ function umamiLines(umami: UmamiDay | null, titleOf: (slug: string) => string): 
   ];
 }
 
+/** 비율(분모가 0이면 "—") */
+function ratio(part: number, whole: number): string {
+  return whole === 0 ? '—' : `${Math.round((part / whole) * PERCENT)}%`;
+}
+
+/**
+ * 제보 처리 에이전트 묶음(ADR 0017): 오늘 만든 처리안 · 오늘 결정 · 누적 적용률·수정률·승인 대기.
+ * DB를 못 읽었으면 한 줄 안내. 시험 제보는 집계에서 빠져 있다.
+ */
+function agentLines(stats: AgentDayStats | null): string[] {
+  if (stats === null) {
+    // biome-ignore lint/security/noSecrets: 한글 안내 문장을 비밀값으로 잘못 본다
+    return ['**🤖 에이전트** 기록을 읽지 못했습니다(DATABASE_URL 또는 Neon 확인)'];
+  }
+  const extras = [
+    stats.failed > 0 ? `보류·오류 ${stats.failed}` : null,
+    stats.skipped > 0 ? `한도로 건너뜀 ${stats.skipped}` : null,
+    stats.stale > 0 ? `끊긴 실행 정리 ${stats.stale}` : null,
+  ].filter((text) => text !== null);
+  const speed = stats.avgMs === null ? '' : ` · 평균 ${(stats.avgMs / MS_PER_SECOND).toFixed(1)}초`;
+  const decidedTotal = stats.appliedTotal + stats.ignoredTotal;
+  return [
+    `**🤖 에이전트** 처리안 ${number(stats.proposals)}건${extras.length > 0 ? `(${extras.join(' · ')})` : ''}${speed} · 약 ${number(stats.neurons)}뉴런`,
+    `오늘 결정: 적용 ${stats.appliedToday}(고쳐서 ${stats.editedToday}) · 무시 ${stats.ignoredToday} · 승인 대기 ${stats.pending}건`,
+    `누적: 적용률 ${ratio(stats.appliedTotal, decidedTotal)}(${stats.appliedTotal}/${decidedTotal}) · 수정률 ${ratio(stats.editedTotal, stats.appliedTotal)}`,
+  ];
+}
+
 /**
  * 일일 정산 디스코드 메시지. 푸시에는 "📊 일일 정산 · 날짜" 한 줄, 카드에는 방문·다운로드·이벤트 요약.
  * 순수 함수라 시험하기 쉽다(가져오기는 run.ts가 한다).
@@ -75,6 +105,8 @@ function buildDailyReport(input: {
   readonly day: string;
   readonly downloads: readonly DownloadRow[];
   readonly umami: UmamiDay | null;
+  /** 에이전트 지표. undefined면(DB 설정 전) 묶음을 아예 넣지 않는다 */
+  readonly agent?: AgentDayStats | null;
   readonly siteUrl: string;
 }): DiscordMessage {
   const titles = new Map(input.downloads.map((row) => [row.slug, row.title]));
@@ -84,9 +116,12 @@ function buildDailyReport(input: {
     content: `📊 arqhive 일일 정산 · ${label}`,
     title: `일일 정산 · ${label}`,
     url: input.siteUrl,
-    description: [...umamiLines(input.umami, titleOf), '', ...downloadLines(input.downloads)].join(
-      '\n',
-    ),
+    description: [
+      ...umamiLines(input.umami, titleOf),
+      '',
+      ...downloadLines(input.downloads),
+      ...(input.agent === undefined ? [] : ['', ...agentLines(input.agent)]),
+    ].join('\n'),
     color: COLOR_REPORT,
   };
 }

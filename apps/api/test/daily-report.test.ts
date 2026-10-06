@@ -68,3 +68,42 @@ describe('buildDailyReport', () => {
     expect(message.description).toContain('이탈 25%');
   });
 });
+
+describe('buildDailyReport — 에이전트 묶음', () => {
+  const base = { day: '2026-10-07', downloads: [], umami: null, siteUrl: 'https://x' };
+  const stats = {
+    proposals: 3,
+    failed: 1,
+    skipped: 0,
+    stale: 0,
+    avgMs: 9800,
+    neurons: 640,
+    appliedToday: 2,
+    ignoredToday: 1,
+    editedToday: 1,
+    appliedTotal: 6,
+    ignoredTotal: 2,
+    editedTotal: 3,
+    pending: 4,
+  };
+
+  // biome-ignore lint/security/noSecrets: 한글 테스트 이름을 비밀값으로 잘못 본다
+  it('처리안·결정·누적 비율을 한 묶음으로', () => {
+    const text = buildDailyReport({ ...base, agent: stats }).description;
+    // biome-ignore lint/security/noSecrets: 한글 기대 문장을 비밀값으로 잘못 본다
+    expect(text).toContain('처리안 3건(보류·오류 1) · 평균 9.8초 · 약 640뉴런');
+    expect(text).toContain('적용 2(고쳐서 1) · 무시 1 · 승인 대기 4건');
+    expect(text).toContain('적용률 75%(6/8) · 수정률 50%');
+  });
+
+  it('결정이 없으면 비율은 —, DB 설정 전이면 묶음이 없다', () => {
+    const empty = { ...stats, appliedTotal: 0, ignoredTotal: 0, editedTotal: 0 };
+    expect(buildDailyReport({ ...base, agent: empty }).description).toContain(
+      '적용률 —(0/0) · 수정률 —',
+    );
+    expect(buildDailyReport(base).description).not.toContain('에이전트');
+    expect(buildDailyReport({ ...base, agent: null }).description).toContain(
+      '기록을 읽지 못했습니다',
+    );
+  });
+});
