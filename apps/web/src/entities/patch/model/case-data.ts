@@ -26,6 +26,7 @@ type CaseContentData = Pick<
   | 'knownIssues'
   | 'compatibility'
   | 'discArt'
+  | 'extraDownloads'
 >;
 
 export type PatchCaseData = CaseContentData & {
@@ -54,6 +55,7 @@ export function toCaseData(patch: Patch): PatchCaseData {
     knownIssues: patch.knownIssues,
     compatibility: patch.compatibility,
     discArt: patch.discArt,
+    extraDownloads: patch.extraDownloads,
     downloadCount: null,
     downloads: null,
   };

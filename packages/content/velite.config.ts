@@ -67,7 +67,10 @@ const patches = defineCollection({
     translationScope: s.string().nullable(),
     compatibility: s.array(compatibility),
     knownIssues: s.array(s.string()),
-    extraDownloads: s.array(s.object({ label: s.string(), url: s.string().url() })).default([]),
+    // 패치 파일 말고 따로 받는 선택 파일(용량이 커서 릴리즈에 못 올린 것). note는 버튼 아래 작은 줄(받는 곳·크기)
+    extraDownloads: s
+      .array(s.object({ label: s.string(), note: s.string().optional(), url: s.string().url() }))
+      .default([]),
     // 디스크 라벨 그림 칸(GC 디스크 위 칸)에 까는 이미지. 게임 타이틀 화면을 로고가 가운데 오게 3:2로 잘라 작품 폴더에 둔다.
     // s.image()는 파일을 출력 폴더로 복사하고 { src, width, height, blurDataURL }을 돌려준다. 없으면 글자 제목만 쓴다.
     discArt: s.image().optional(),
