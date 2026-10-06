@@ -1,11 +1,12 @@
 import { createDb, type Db } from '@arqhive/db';
 import type { ApiEnv } from '../../platform/env.ts';
+import { fetchLatestStamp } from '../../platform/github.ts';
 import { takeToken } from '../../platform/rate-limit.ts';
 import { embed, workersAiModel } from '../../platform/workers-ai.ts';
 import { alertError, notify } from '../notifications/index.ts';
 import { runAgent } from './loop.ts';
 import { proposalNotice } from './message.ts';
-import { patchFacts } from './patch-facts.ts';
+import { patchFacts, patchRepo } from './patch-facts.ts';
 import { PROMPT_VERSION } from './prompt.ts';
 import { reviewLink } from './review-link.ts';
 import {
@@ -50,11 +51,16 @@ interface AgentContext {
   readonly apiOrigin: string;
 }
 
-/** 도구가 읽는 데이터: 패치 정보는 콘텐츠, 비슷한 제보·가이드는 Neon(pgvector) */
-function liveData(env: ApiEnv, db: Db, slug: string, dryRun: boolean): AgentData {
+/**
+ * 도구가 읽는 데이터: 패치 정보는 콘텐츠(최신 버전은 GitHub 릴리즈가 먼저), 비슷한 제보·가이드는 Neon(pgvector).
+ * 최신 릴리즈는 루프를 돌기 전에 한 번만 읽는다(getPatch는 동기 함수라서).
+ */
+async function liveData(env: ApiEnv, db: Db, slug: string, dryRun: boolean): Promise<AgentData> {
   const vectorOf = async (query: string) => (await embed(env.AI, [query]))[0] ?? [];
+  const repo = patchRepo(slug);
+  const latest = repo === null ? null : await fetchLatestStamp(env.GITHUB_ISSUES_TOKEN, repo);
   return {
-    getPatch: patchFacts,
+    getPatch: (asked) => patchFacts(asked, asked === slug ? latest : null),
     searchSimilarReports: async (query) =>
       searchSimilarReports(db, slug, await vectorOf(query), dryRun),
     searchGuides: async (query) => searchGuideChunks(db, await vectorOf(query)),
@@ -101,7 +107,7 @@ async function runReportAgent(
   try {
     const run = await runAgent(
       report,
-      liveData(env, db, report.slug, dryRun),
+      await liveData(env, db, report.slug, dryRun),
       workersAiModel(env.AI, AGENT_MODEL),
     );
     const ms = Date.now() - started;

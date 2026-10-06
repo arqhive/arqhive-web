@@ -1,4 +1,12 @@
-import { type ReleaseAssets, releasesUrl, sumLargestDownloads } from '@arqhive/shared';
+import {
+  latestRelease,
+  type ReleaseAssets,
+  type ReleaseMeta,
+  type ReleaseStamp,
+  releaseStamp,
+  releasesUrl,
+  sumLargestDownloads,
+} from '@arqhive/shared';
 
 /**
  * GitHub 이슈 만들기·릴리즈 다운로드 수 읽기. 토큰은 Issues 읽기·쓰기 권한만, 패치 저장소들에만 준다(새면 할 수 있는 일을 줄이기).
@@ -113,6 +121,34 @@ export async function addIssueComment(
   );
   if (!response.ok) {
     throw new Error(`댓글 달기 실패: ${response.status}`);
+  }
+}
+
+/**
+ * 최신 정식 릴리즈의 버전(태그)·한국 날짜(@arqhive/shared의 releaseStamp, 사이트 화면과 같은 기준).
+ * 에이전트가 "옛 버전인지" 판단할 때 콘텐츠 값 대신 쓴다. 실패하면 null(콘텐츠 값으로 판단).
+ */
+export async function fetchLatestStamp(
+  token: string | undefined,
+  repo: Repo,
+): Promise<ReleaseStamp | null> {
+  const requestHeaders = new Headers({
+    accept: 'application/vnd.github+json',
+    'user-agent': 'arqhive-api',
+    'x-github-api-version': '2022-11-28',
+  });
+  if (token !== undefined) {
+    requestHeaders.set('authorization', `Bearer ${token}`);
+  }
+  try {
+    const response = await fetch(releasesUrl(repo), { headers: requestHeaders });
+    if (!response.ok) {
+      return null;
+    }
+    const latest = latestRelease((await response.json()) as ReleaseMeta[]);
+    return latest === undefined ? null : releaseStamp(latest);
+  } catch {
+    return null;
   }
 }
 
