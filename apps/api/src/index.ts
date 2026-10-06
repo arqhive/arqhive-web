@@ -1,10 +1,31 @@
 import { app } from './app.ts';
 import { runDailyReport } from './modules/daily-report/index.ts';
-import { runNotificationCron } from './modules/notifications/index.ts';
+import { alertError, runNotificationCron } from './modules/notifications/index.ts';
 import type { ApiEnv } from './platform/env.ts';
+import { heartbeat } from './platform/heartbeat.ts';
 
 /** 일일 정산 일정(UTC 14:50 = 한국 23:50). wrangler.jsonc의 triggers.crons와 글자까지 같아야 한다 */
 const DAILY_REPORT_CRON = '50 14 * * *';
+
+/**
+ * 정기 작업 하나 실행: 끝나면 healthchecks에 "다녀감" 신호, 실패하면 /fail 신호 + 디스코드 오류 알림.
+ * (신호가 아예 안 오면 healthchecks가 알린다 — Worker가 통째로 멈춘 경우까지 잡는다.)
+ */
+async function runJob(
+  env: ApiEnv,
+  where: string,
+  heartbeatUrl: string | undefined,
+  job: () => Promise<void>,
+): Promise<void> {
+  try {
+    await job();
+    await heartbeat(heartbeatUrl, true);
+  } catch (error) {
+    // biome-ignore lint/suspicious/noConsole: 정기 작업 실패를 운영 로그로 남긴다
+    console.error(where, error);
+    await Promise.all([heartbeat(heartbeatUrl, false), alertError(env, where, error)]);
+  }
+}
 
 /**
  * Workers 진입점. Cloudflare는 이 파일의 기본 내보내기에서 이벤트별 처리 함수를 찾는다.
@@ -22,8 +43,14 @@ export default {
   // waitUntil: 응답(여기서는 없음)과 상관없이 이 작업이 끝날 때까지 Worker를 살려 둔다
   scheduled: (controller, env, ctx) => {
     const apiEnv = env as ApiEnv;
+    const daily = controller.cron === DAILY_REPORT_CRON;
     ctx.waitUntil(
-      controller.cron === DAILY_REPORT_CRON ? runDailyReport(apiEnv) : runNotificationCron(apiEnv),
+      runJob(
+        apiEnv,
+        daily ? 'cron 일일 정산' : 'cron 알림 재전송',
+        daily ? apiEnv.HEALTHCHECK_DAILY_URL : apiEnv.HEALTHCHECK_HOURLY_URL,
+        () => (daily ? runDailyReport(apiEnv) : runNotificationCron(apiEnv)),
+      ),
     );
   },
 } satisfies ExportedHandler<Env>;

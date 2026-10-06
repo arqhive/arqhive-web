@@ -11,7 +11,7 @@ import { createIssue } from '../../platform/github.ts';
 import { markOnce, sha256, takeToken } from '../../platform/rate-limit.ts';
 import { reserveStorage, STORAGE_LIMIT_BYTES } from '../../platform/storage-budget.ts';
 import { verifyTurnstile } from '../../platform/turnstile.ts';
-import { notify, reportNotice } from '../notifications/index.ts';
+import { alertError, notify, reportNotice } from '../notifications/index.ts';
 import { RELEASED_REPOS } from './released-repos.ts';
 import { type CheckedImage, CONTENT_TYPES, looksLikeBot, readImages } from './report-checks.ts';
 
@@ -198,6 +198,10 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       });
     } catch (error) {
       const code: RejectCode = error instanceof Reject ? error.code : 'server';
+      // 거절(봇·횟수·입력)은 정상 흐름이고, 그 밖의 오류(GitHub·R2 실패 등)만 운영자에게 알린다
+      if (!(error instanceof Reject)) {
+        c.executionCtx.waitUntil(alertError(c.env, 'POST /api/reports', error));
+      }
       return c.json({ ok: false, code }, STATUS[code]);
     }
   })

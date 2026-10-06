@@ -10,6 +10,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       readonly GITHUB_TOKEN?: string;
+      readonly DISCORD_WEBHOOK_URL?: string;
     }
   }
 }
@@ -18,4 +19,10 @@ declare global {
 export function githubToken(): string | undefined {
   // biome-ignore lint/style/noProcessEnv lint/correctness/noProcessGlobal: 서버 비밀값은 이 파일 한 곳에서만 읽는다(웹 앱은 node: 모듈 import 금지라 전역 process를 쓴다)
   return globalThis.process?.env.GITHUB_TOKEN || undefined;
+}
+
+/** 운영자 디스코드 웹훅(서버 오류 알림, instrumentation.ts). API와 같은 웹훅을 Vercel 환경 변수에도 넣는다. 없으면 알리지 않는다 */
+export function discordWebhookUrl(): string | undefined {
+  // biome-ignore lint/style/noProcessEnv lint/correctness/noProcessGlobal: 서버 비밀값은 이 파일 한 곳에서만 읽는다
+  return globalThis.process?.env.DISCORD_WEBHOOK_URL || undefined;
 }

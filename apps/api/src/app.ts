@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import { healthRoute } from './modules/health/index.ts';
+import { alertError } from './modules/notifications/index.ts';
 import { reportsRoute } from './modules/reports/index.ts';
 import type { ApiEnv } from './platform/env.ts';
 
@@ -15,12 +16,19 @@ import type { ApiEnv } from './platform/env.ts';
  * - `.route()`를 **이어서 호출**해야 한다. 그래야 `typeof app`에 모든 경로의 타입이 쌓이고,
  *   web이 그 타입으로 자동완성되는 API 클라이언트(Hono RPC)를 만들 수 있다.
  */
+const HTTP_SERVER_ERROR = 500;
+
 // biome-ignore lint/style/useNamingConvention: Hono가 정한 키 이름(Bindings)이라 바꿀 수 없다
 export const app = new Hono<{ Bindings: ApiEnv }>()
   .basePath('/api')
   .use('*', secureHeaders({ crossOriginResourcePolicy: false, xFrameOptions: 'DENY' }))
   .route('/health', healthRoute)
-  .route('/reports', reportsRoute);
+  .route('/reports', reportsRoute)
+  // 라우트에서 잡지 못한 오류: 디스코드로 알리고(같은 오류는 1시간에 한 번) 500을 돌려준다
+  .onError((error, c) => {
+    c.executionCtx.waitUntil(alertError(c.env, `${c.req.method} ${c.req.path}`, error));
+    return c.json({ ok: false, code: 'server' } as const, HTTP_SERVER_ERROR);
+  });
 
 /** web이 가져다 쓸 API 타입. 런타임 코드는 넘어가지 않고 타입만 공유된다. */
 export type AppType = typeof app;

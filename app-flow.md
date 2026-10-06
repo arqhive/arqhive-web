@@ -16,6 +16,7 @@ arqhive가 **어떤 순서로 움직이는지** 정리한 문서입니다. 기�
 10. [디자인 토큰과 글꼴](#10-디자인-토큰과-글꼴)
 11. [검사·배포](#11-검사배포)
 12. [보안](#12-보안)
+13. [모니터링과 장애 대응](#13-모니터링과-장애-대응)
 
 ## 1. 전체 그림
 
@@ -293,3 +294,31 @@ flowchart TB
 - **웹**(`apps/web/next.config.ts`): CSP 허용 목록(스크립트: 사이트·Turnstile·Umami / 이미지: 사이트·R2 / 접속: 사이트·API·Umami), `frame-ancestors 'none'`, nosniff, Referrer-Policy, Permissions-Policy. 정적 생성을 지키려고 인라인 스크립트는 허용합니다(사용자 글을 HTML로 넣지 않음).
 - **API**: Hono `secureHeaders`, CORS는 사이트 주소만. 제보는 봇 확인·횟수 제한·입력 검사·멘션 무력화·이미지 매직 바이트 검사.
 - 이슈를 만드는 GitHub 토큰은 패치 저장소의 Issues 권한만 가집니다.
+
+## 13. 모니터링과 장애 대응
+
+```mermaid
+flowchart LR
+  ur["UptimeRobot(바깥, 5분마다)"] -- "/ · /korean-translation · /api/health" --> site["사이트·API"]
+  ur -- "안 열림 / 다시 열림" --> D["Discord"]
+  cron["Workers Cron"] -- "끝나면 신호, 실패하면 /fail" --> hc["healthchecks.io"]
+  hc -- "신호가 안 옴 / 실패" --> D
+  api["api 오류<br/>(라우트 밖 오류, 제보 처리 중 서버 오류, Cron 실패)"] -- "alertError(같은 오류 1시간에 1번)" --> D
+  web["web 서버 오류<br/>(instrumentation.ts onRequestError)"] --> D
+```
+
+| 겹 | 무엇을 잡나 | 어디서 |
+|---|---|---|
+| 바깥 감시 | 사이트·API가 통째로 안 열림(Vercel·Cloudflare 장애, 배포 실수) | UptimeRobot(무료) |
+| 정기 작업 감시 | Cron이 안 돌았거나 실패(Worker 멈춤 포함) | healthchecks.io(무료), `src/platform/heartbeat.ts` |
+| 오류 바로 알림 | 요청 처리 중 예상 못 한 오류 | api `modules/notifications/alert.ts`, web `instrumentation.ts` |
+
+### 알림이 오면
+
+1. **사이트가 안 열림(UptimeRobot)**: [Vercel 대시보드](https://vercel.com/dashboard)의 Deployments에서 마지막 배포가 실패했는지 본다. 실패했으면 이전 배포를 **Promote**(되돌리기). 배포는 정상인데 안 열리면 [Vercel 상태](https://www.vercel-status.com)를 본다.
+2. **API가 안 열림(UptimeRobot)**: Cloudflare 대시보드 → Workers → arqhive-api → **Deployments**에서 이전 버전으로 되돌리거나(`wrangler rollback`), [Cloudflare 상태](https://www.cloudflarestatus.com)를 본다.
+3. **정기 작업 실패(healthchecks)**: Workers → arqhive-api → **Logs**에서 그 시각의 오류를 본다. 일일 정산은 다음 날 다시 돌면 증가분이 이틀치가 될 뿐이라 급하지 않다. 손으로 다시 돌리려면 개발 서버에서 `/__scheduled?cron=50+14+*+*+*`.
+4. **오류 알림(🚨)**: 메시지와 스택 첫 줄로 위치를 찾는다. 웹 오류의 digest는 Vercel → Logs에서 검색한다. GitHub·Neon·Umami 같은 바깥 서비스 오류면 그쪽 상태 페이지부터 본다.
+5. **제보가 안 들어옴**: 제보는 이슈로 바로 공개되므로, GitHub 장애 중에는 "보내지 못했습니다"가 뜬다. 복구되면 저절로 돌아온다.
+
+- 비밀값을 바꿨으면(유출 의심 등) 각 서비스에서 새로 만든 뒤 `wrangler secret put 이름` / Vercel 환경 변수를 고치고 다시 배포한다.
