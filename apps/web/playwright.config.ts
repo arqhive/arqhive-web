@@ -39,7 +39,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // 데스크톱: 휴대폰 화면에만 있는 것(mobile.spec)은 돌리지 않는다
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile\.spec\.ts$/u },
     { name: 'webkit-iphone', use: { ...devices['iPhone 15'] } },
   ],
   webServer: {
