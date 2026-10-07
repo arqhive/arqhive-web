@@ -8,6 +8,6 @@ export { GuidePage as default } from '@/pages/guide';
 export const metadata: Metadata = pageMetadata({
   title: '가이드',
   description:
-    '한글 패치 버전 표기(v0.x 시험판·v1.0f 최종판)와 적용 방법, 구동 환경, 자주 묻는 질문을 정리했습니다.',
+    '한글 패치 버전 표기(v0.x 시험판·v1.0f 완성판)와 적용 방법, 구동 환경, 자주 묻는 질문을 정리했습니다.',
   path: '/guide',
 });
