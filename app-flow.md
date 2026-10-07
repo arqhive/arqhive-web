@@ -286,6 +286,7 @@ flowchart TB
   hook --> push["git push"]
   push --> ci["GitHub Actions"]
   ci --> c1["pnpm install --frozen-lockfile"] --> c2["콘텐츠 데이터(velite)"] --> c3["API 타입 선언(.d.ts)"] --> c4["biome ci"] --> c5["turbo: typecheck · lint:fsd · test · build"]
+  ci --> e1["화면 검사(e2e 작업): web 빌드 → next start"] --> e2["Playwright: Chromium · WebKit(아이폰)"]
   push --> vercel["Vercel: web 빌드·배포(글꼴 복사 → next build)"]
   c5 -- "main 푸시일 때만" --> deploy["deploy-api: wrangler deploy"] --> workers["Cloudflare Workers: api + Cron"]
 ```
@@ -296,6 +297,7 @@ flowchart TB
 | 타입 | tsc + next typegen + wrangler types | 타입 오류, 없는 라우트 |
 | FSD | Steiger | 층 import 방향, 공개 창구 우회 |
 | 테스트 | Vitest | 제보 규칙, 셈법, 알림, 정산 메시지, 한국 날짜 |
+| 화면 검사(E2E) | Playwright(Chromium, WebKit 아이폰) | 페이지 오류, 등줄기 글자 겹침·잘림, 케이스 열고 닫기·주소, 소개 띠, 다운로드 링크, 가이드·제보 페이지 |
 | 빌드 | next build, wrangler deploy --dry-run | 배포 가능한 결과물 |
 
 - 비밀값은 저장소에 없습니다. 개발은 `apps/api/.dev.vars`·`apps/web/.env.local`·`packages/db/.env`(git 제외), 배포는 `wrangler secret put`과 Vercel 환경 변수.

@@ -64,13 +64,14 @@ flowchart LR
 | 검증·보안 | Zod, Cloudflare Turnstile, HMAC 서명 링크, CSP·보안 헤더 | 제보·승인 |
 | 통계·알림 | Umami(쿠키 없음), Discord 웹훅 | 방문 통계·운영 알림 |
 | 감시 | UptimeRobot, healthchecks.io, Next.js `onRequestError` | 모니터링 |
-| 품질 | Biome(엄격 규칙), Vitest, lefthook, GitHub Actions | 커밋·CI |
+| 품질 | Biome(엄격 규칙), Vitest, Playwright(Chromium·WebKit), lefthook, GitHub Actions | 커밋·CI |
 | 배포 | Vercel(web), GitHub Actions → `wrangler deploy`(api) | main 푸시 |
 
 ### 지키는 것
 
 - **운영비 0원**: 모든 서비스를 무료 플랜 안에서 씁니다. 기능을 고를 때 무료 플랜에서 되는지부터 확인합니다.
-- **엄격한 검사**: Biome 엄격 규칙·FSD 규칙·타입·테스트·빌드를 커밋(lefthook)과 CI에서 같은 순서로 돌립니다.
+- **엄격한 검사**: Biome 엄격 규칙·FSD 규칙·타입·테스트·빌드를 커밋(lefthook)과 CI에서 같은 순서로 돌리고, 화면은 Chromium과 WebKit(아이폰 Safari 엔진)으로 따로 검사합니다.
+- **지원 브라우저**: 최신 데스크톱 브라우저와 iOS 17 이상 Safari.
 - **비밀값은 저장소 밖에**: Cloudflare·Vercel·GitHub 비밀값으로만 넣습니다.
 
 ## 구성
@@ -104,6 +105,7 @@ pnpm dev
 | `pnpm lint:fsd` | FSD 규칙 검사(Steiger) |
 | `pnpm typecheck` | 타입 검사 |
 | `pnpm test` | 단위 테스트 |
+| `pnpm e2e` | 화면 검사(Playwright, Chromium·WebKit). 먼저 `pnpm build`, 처음 한 번 `pnpm --filter @arqhive/web exec playwright install chromium webkit` |
 | `pnpm check` | CI와 같은 검사 전체 |
 | `pnpm ops` | 운영 상태 한눈에(사이트·CI·배포·감시·DB) |
 | `pnpm --dir apps/api agent:eval` | 에이전트 평가(개발 서버 필요, 실제 모델 호출) |
