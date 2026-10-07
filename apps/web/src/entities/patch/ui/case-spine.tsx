@@ -4,12 +4,14 @@ import type { PatchCaseData } from '../model/case-data.ts';
 
 /**
  * 선반에 꽂힌 케이스의 등줄기. 크기는 모든 기종이 같고, 겉면(색·재질)만 기종을 따른다.
- * 글자는 세로쓰기이고, 로마자·숫자·기호도 한글처럼 한 글자씩 바로 세운다(text-orientation: upright).
- * 이때 띄어쓰기도 글자 한 자 높이로 세워져 너무 벌어지므로, 낱말 사이 간격(word-spacing)을 줄여 글자의 약 1/3로 맞춘다. 줄은 왼쪽에서 오른쪽으로 넘어간다(vertical-lr, 일본식 vertical-rl의 반대).
- * 제목은 두 줄(세로쓰기라 두 열)까지 쓴다. 폭을 줄 간격 두 배(2lh)로 묶고 넘치는 셋째 열(오른쪽)은 잘라 낸다.
- * 줄 간격(1.4)을 글자 폭보다 넉넉히 두어, 둘째 열 글자 가장자리가 잘리지 않게 한다.
- * 위아래 여백은 pt·pb(물리 방향)로 준다. py는 글 흐름 기준(padding-block)이라 세로쓰기에서는 좌우 여백이 되어 열을 밀어낸다.
- * (세로쓰기에서는 줄 수 말줄임 line-clamp가 듣지 않는다.) 전체 제목은 케이스를 열면 보인다.
+ * 제목은 세로로 한 글자씩 쌓는다. 로마자·숫자·기호도 한글처럼 바로 세운다. 줄(열)은 왼쪽에서 오른쪽으로 넘어간다.
+ *
+ * 세로쓰기(writing-mode)를 쓰지 않고 **글자마다 같은 높이의 칸을 세로로 쌓는다**(10/7). 세로쓰기는 띄어쓰기 높이를
+ * 브라우저·글꼴마다 다르게 그려서, 낱말 간격을 줄이려 넣은 음수 word-spacing이 iOS Safari에서 음수 간격이 되어
+ * 띄어쓰기 자리의 글자가 겹쳤다. 칸 높이·낱말 사이 빈칸을 em으로 고정하면 어느 브라우저에서나 같은 모양이 된다.
+ * - 줄 나누기: 콘텐츠에 spineLines가 있으면 그 줄대로, 없으면 낱말 단위로 한 열 높이(COLUMN_EM)에 맞춰 나눈다.
+ * - 두 열까지 쓰고, 넘치면 잘라 낸다. 전체 제목은 케이스를 열면 보인다.
+ * - 글자 칸들은 화면 낭독기에서 숨긴다(한 글자씩 읽히지 않게). 제목은 감싸는 링크의 aria-label이 읽힌다(widgets/shelf).
  * 클릭 등 상호작용은 감싸는 쪽(widgets/shelf)이 맡는다.
  */
 /**
@@ -38,16 +40,85 @@ function bandSurface(spec: CaseSpec): string {
 }
 
 /**
- * 등줄기 제목. 작품 정보에 spineLines(고정 줄)가 있으면 그 줄대로 나눠 쓰고(줄 안에서는 바꾸지 않음),
- * 없으면 titleKo를 낱말 단위로 자동 줄바꿈한다. 세로쓰기에서는 블록(block) 하나가 한 열이 되어, 줄마다 다음 열(오른쪽)로 넘어간다.
+ * 글자 한 칸의 높이(em)와 낱말 사이 빈칸의 높이(em, 글자 칸의 약 1/3). 아래 SpineTitle의 h-[1.15em]·h-[0.35em]과 같은 값이어야 한다
+ * (Tailwind는 클래스 이름을 소스에서 그대로 찾으므로 숫자를 끼워 만든 클래스는 쓸 수 없다).
  */
-function SpineTitle({ patch }: { readonly patch: PatchCaseData }) {
-  if (patch.spineLines === undefined) {
-    return patch.titleKo;
+const CELL_EM = 1.15;
+const GAP_EM = 0.35;
+/**
+ * 한 열에 쓸 수 있는 높이(em). 등줄기(h-60 = 15rem)에서 위 기종 띠·아래 버전 띠·위아래 여백을 빼면 약 12.8em(글자 text-sm 기준).
+ * 등줄기 크기와 글자 크기가 모두 rem이라 기기·확대 설정과 상관없이 같은 값이다.
+ */
+const COLUMN_EM = 12.5;
+/** 열 수 상한(등줄기 폭에 두 열까지) */
+const MAX_COLUMNS = 2;
+
+/** 그릴 글자 한 칸. key는 제목 안의 위치(같은 글자가 되풀이돼도 겹치지 않게) */
+interface SpineChar {
+  readonly key: string;
+  readonly char: string;
+}
+
+/** 낱말 하나의 높이(em) */
+function wordEm(word: string): number {
+  return Array.from(word).length * CELL_EM;
+}
+
+/**
+ * 제목 → 열(낱말 묶음) 목록. spineLines가 있으면 줄마다 한 열, 없으면 앞에서부터 한 열 높이에 들어가는 만큼 낱말을 담는다.
+ */
+function spineColumns(patch: PatchCaseData): string[][] {
+  if (patch.spineLines !== undefined) {
+    return patch.spineLines.map((line) => line.split(' ').filter((word) => word !== ''));
   }
-  return patch.spineLines.map((line) => (
-    <span key={line} className="block whitespace-nowrap">
-      {line}
+  const columns: string[][] = [];
+  let current: string[] = [];
+  let used = 0;
+  for (const word of patch.titleKo.split(' ').filter((item) => item !== '')) {
+    if (current.length > 0 && used + GAP_EM + wordEm(word) > COLUMN_EM) {
+      columns.push(current);
+      current = [];
+      used = 0;
+    }
+    used += (current.length > 0 ? GAP_EM : 0) + wordEm(word);
+    current.push(word);
+  }
+  if (current.length > 0) {
+    columns.push(current);
+  }
+  return columns;
+}
+
+/** 열 → 그릴 낱말·글자 칸(키는 "열.낱말.글자" 위치로 미리 만든다) */
+function spineLayout(patch: PatchCaseData) {
+  return spineColumns(patch)
+    .slice(0, MAX_COLUMNS)
+    .map((words, column) => ({
+      key: `c${column}`,
+      words: words.map((word, index) => ({
+        key: `c${column}w${index}`,
+        gapBefore: index > 0,
+        chars: Array.from(word).map(
+          (char, position): SpineChar => ({ key: `c${column}w${index}p${position}`, char }),
+        ),
+      })),
+    }));
+}
+
+/** 등줄기 제목: 열마다 글자 칸을 세로로 쌓고, 낱말 사이에는 고정 높이 빈칸을 둔다 */
+function SpineTitle({ patch }: { readonly patch: PatchCaseData }) {
+  return spineLayout(patch).map((column) => (
+    <span key={column.key} className="flex w-[1.4em] shrink-0 flex-col items-center">
+      {column.words.map((word) => (
+        <span key={word.key} className="flex flex-col items-center">
+          {word.gapBefore ? <span className="block h-[0.35em] w-px shrink-0" /> : null}
+          {word.chars.map((cell) => (
+            <span key={cell.key} className="flex h-[1.15em] shrink-0 items-center justify-center">
+              {cell.char}
+            </span>
+          ))}
+        </span>
+      ))}
     </span>
   ));
 }
@@ -67,7 +138,10 @@ export function CaseSpine({ patch }: { readonly patch: PatchCaseData }) {
       <span className={`w-full text-center font-num text-[0.625rem] ${band}`}>
         {PLATFORM_LABELS[patch.platform]}
       </span>
-      <span className="min-h-0 max-w-[2lh] flex-1 overflow-hidden break-keep pt-2 pb-2 font-bold font-title text-sm leading-[1.4] [text-orientation:upright] [word-spacing:-0.8em] [writing-mode:vertical-lr]">
+      <span
+        aria-hidden="true"
+        className="flex min-h-0 flex-1 justify-center overflow-hidden pt-2 pb-2 font-bold font-title text-sm leading-none"
+      >
         <SpineTitle patch={patch} />
       </span>
       {/* 아랫부분: 공개된 작품은 최신 버전, 작업 중이면 빨간 "작업 중" 띠. 같은 높이라 등줄기 제목 자리가 흔들리지 않는다 */}
