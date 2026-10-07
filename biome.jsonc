@@ -233,6 +233,29 @@
           }
         }
       }
+    },
+    {
+      // 화면 검사(Playwright): 설정·테스트는 Node에서 돈다(process.env.CI로 CI인지 가림).
+      // @playwright/test는 이름을 다른 패키지에서 다시 내보내 Biome이 따라가지 못한다(없는 이름이라는 오탐).
+      // 한글 테스트 이름·기대 문장을 비밀값으로 잘못 보고, 테스트 안 정규식은 한 번만 쓰여 맨 위로 뺄 이유가 없다.
+      "includes": ["apps/web/e2e/**", "apps/web/playwright.config.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off",
+            "noUnresolvedImports": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
+          },
+          "security": {
+            "noSecrets": "off"
+          },
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
     }
   ]
 }

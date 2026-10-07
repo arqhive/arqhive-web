@@ -8,6 +8,7 @@
     "dev": "node scripts/copy-fonts.mjs && next dev",
     "build": "node scripts/copy-fonts.mjs && next build",
     "start": "next start",
+    "e2e": "playwright test",
     "typecheck": "next typegen && tsc --noEmit",
     "lint:fsd": "steiger ./src"
   },
@@ -27,6 +28,7 @@
     "@arqhive/api": "workspace:*",
     "@arqhive/tsconfig": "workspace:*",
     "@feature-sliced/steiger-plugin": "0.8.0",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.4",
     "@types/react": "19.3.0",

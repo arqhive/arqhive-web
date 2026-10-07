@@ -113,7 +113,11 @@ function SpineTitle({ patch }: { readonly patch: PatchCaseData }) {
         <span key={word.key} className="flex flex-col items-center">
           {word.gapBefore ? <span className="block h-[0.35em] w-px shrink-0" /> : null}
           {word.chars.map((cell) => (
-            <span key={cell.key} className="flex h-[1.15em] shrink-0 items-center justify-center">
+            <span
+              key={cell.key}
+              data-spine="cell"
+              className="flex h-[1.15em] shrink-0 items-center justify-center"
+            >
               {cell.char}
             </span>
           ))}
@@ -140,6 +144,7 @@ export function CaseSpine({ patch }: { readonly patch: PatchCaseData }) {
       </span>
       <span
         aria-hidden="true"
+        data-spine="title"
         className="flex min-h-0 flex-1 justify-center overflow-hidden pt-2 pb-2 font-bold font-title text-sm leading-none"
       >
         <SpineTitle patch={patch} />
