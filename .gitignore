@@ -24,8 +24,8 @@ coverage/
 playwright-report/
 test-results/
 
-# 개인용 문서(기획·ADR·디자인 시안·학습 노트). 로컬에만 두고 올리지 않는다
-docs/
+# 개인 학습 노트. 로컬에만 두고 올리지 않는다(기획·ADR·디자인 시안·실수 목록은 10/8부터 공개)
+docs/learning/
 
 # 운영체제·편집기
 .DS_Store

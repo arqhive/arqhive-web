@@ -4,6 +4,9 @@
 
 - 사이트: https://arqhive.vercel.app
 - 앱 흐름(그림): [app-flow.md](app-flow.md)
+- 설계 결정 기록(ADR): [docs/adr](docs/adr/README.md)
+- 처음 기획과 달라진 점: [docs/project-plan.md](docs/project-plan.md)
+- 만들면서 나온 실수와 교훈: [docs/mistake-log.md](docs/mistake-log.md)
 
 ## 소개
 
