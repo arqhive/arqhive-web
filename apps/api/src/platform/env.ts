@@ -11,8 +11,8 @@ export type ApiEnv = Env & {
   readonly DISCORD_WEBHOOK_URL?: string;
   /** Neon 연결 문자열(다운로드 기록, ADR 0016). 없으면 정산에서 저장·증가분을 건너뛴다 */
   readonly DATABASE_URL?: string;
-  /** Umami 공유 링크(일일 정산의 방문 통계를 읽는다, 무료 플랜용). 링크를 아는 사람은 대시보드를 볼 수 있어 비밀값으로 다룬다 */
-  readonly UMAMI_SHARE_URL?: string;
+  /** GoatCounter API 키(일일 정산의 방문 통계를 읽는다, ADR 0019). 통계 읽기 권한만, arqhive 사이트만 */
+  readonly GOATCOUNTER_API_KEY?: string;
   /** healthchecks.io 신호 주소(정기 작업 감시). 매시 재전송·일일 정산이 끝날 때 부른다. 없으면 신호를 보내지 않는다 */
   readonly HEALTHCHECK_HOURLY_URL?: string;
   readonly HEALTHCHECK_DAILY_URL?: string;

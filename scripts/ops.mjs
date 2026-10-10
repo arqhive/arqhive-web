@@ -1,5 +1,5 @@
 // `pnpm ops`: arqhive 운영 상태를 터미널 한 화면에 모아 보여 준다(읽기만 한다, 아무것도 바꾸지 않는다).
-// 관리 사이트 6곳(Vercel·Cloudflare·Neon·Umami·UptimeRobot·healthchecks)을 일일이 열지 않으려고 만들었다.
+// 관리 사이트 6곳(Vercel·Cloudflare·Neon·GoatCounter·UptimeRobot·healthchecks)을 일일이 열지 않으려고 만들었다.
 //
 // 필요한 것
 // - gh(GitHub CLI 로그인), wrangler(Cloudflare 로그인): 이미 쓰고 있는 로그인 그대로

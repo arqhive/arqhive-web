@@ -1,5 +1,6 @@
+import { parseEventPath, TIME_BUCKET_LABELS, TIME_BUCKETS } from '@arqhive/shared';
 import type { DiscordMessage } from '../../platform/discord.ts';
-import type { Count, UmamiDay } from '../../platform/umami.ts';
+import type { Count, GoatCounterDay } from '../../platform/goatcounter.ts';
 import type { AgentDayStats } from '../agent/index.ts';
 import type { DownloadRow } from './downloads.ts';
 import { shortKstLabel } from './kst.ts';
@@ -8,8 +9,9 @@ import { shortKstLabel } from './kst.ts';
 const DOWNLOAD_ROWS = 8;
 /** 순위 목록 길이(많이 연 케이스·유입 경로 등) */
 const TOP = 5;
-const SECONDS_PER_MINUTE = 60;
 const PERCENT = 100;
+/** 웹 바이탈 줄에 보일 지표 순서 */
+const VITALS = ['LCP', 'INP', 'CLS'] as const;
 const MS_PER_SECOND = 1000;
 /** 임베드 띠 색(사이트 남색 잉크 #1e2a3a) */
 const COLOR_REPORT = 0x1e_2a_3a;
@@ -26,16 +28,59 @@ function topLine(counts: readonly Count[], titleOf: (name: string) => string): s
     : top.map((item) => `${titleOf(item.name)} ${number(item.count)}`).join(' · ');
 }
 
-function countOf(events: readonly Count[], name: string): number {
-  return events.find((event) => event.name === name)?.count ?? 0;
+/** 비율(분모가 0이면 "—") */
+function ratio(part: number, whole: number): string {
+  return whole === 0 ? '—' : `${Math.round((part / whole) * PERCENT)}%`;
 }
 
-/** 방문 요약 한 줄: 방문자·페이지뷰·평균 체류·이탈률 */
-function visitLine(umami: UmamiDay): string {
-  const average = umami.visits === 0 ? 0 : Math.round(umami.totalTime / umami.visits);
-  const minutes = Math.floor(average / SECONDS_PER_MINUTE);
-  const bounce = umami.visits === 0 ? 0 : Math.round((umami.bounces / umami.visits) * PERCENT);
-  return `방문자 ${number(umami.visitors)} · 페이지뷰 ${number(umami.pageviews)} · 평균 체류 ${minutes}분 ${average % SECONDS_PER_MINUTE}초 · 이탈 ${bounce}%`;
+/**
+ * 이벤트 경로(이름/값/값, @arqhive/shared eventPath)를 이름이 같은 것끼리 값 조각 하나로 묶어 센다.
+ * 예: case-open/star-fox-2, case-open/star-fox-2/address → { star-fox-2: 합 }
+ */
+function groupEvents(events: readonly Count[], name: string, valueIndex = 0): Count[] {
+  const sums = new Map<string, number>();
+  for (const event of events) {
+    const parsed = parseEventPath(event.name);
+    const value = parsed.values[valueIndex];
+    if (parsed.name === name && value !== undefined) {
+      sums.set(value, (sums.get(value) ?? 0) + event.count);
+    }
+  }
+  return [...sums]
+    .map(([key, count]) => ({ name: key, count }))
+    .toSorted((a, b) => b.count - a.count);
+}
+
+/** 이름이 같은 이벤트 합(값은 가리지 않음) */
+function sumEvents(events: readonly Count[], name: string): number {
+  return events
+    .filter((event) => parseEventPath(event.name).name === name)
+    .reduce((sum, event) => sum + event.count, 0);
+}
+
+/** 체류 시간 줄: 구간별 횟수(짧은 구간부터, 0인 구간은 뺀다) */
+function stayLine(events: readonly Count[]): string {
+  const counts = new Map(groupEvents(events, 'page-time').map((item) => [item.name, item.count]));
+  const parts = TIME_BUCKETS.map(([, bucket]) => [bucket, counts.get(bucket) ?? 0] as const)
+    .filter(([, count]) => count > 0)
+    .map(([bucket, count]) => `${TIME_BUCKET_LABELS[bucket] ?? bucket} ${number(count)}`);
+  return parts.length === 0 ? '기록 없음' : parts.join(' · ');
+}
+
+/** 웹 바이탈 줄: 지표마다 "좋음" 비율(기록이 없는 지표는 뺀다) */
+function vitalsLine(events: readonly Count[]): string {
+  const parts = VITALS.flatMap((metric) => {
+    const ratings = events.filter((event) => {
+      const parsed = parseEventPath(event.name);
+      return parsed.name === 'web-vitals' && parsed.values[0] === metric;
+    });
+    const total = ratings.reduce((sum, event) => sum + event.count, 0);
+    const good = ratings
+      .filter((event) => parseEventPath(event.name).values[1] === 'good')
+      .reduce((sum, event) => sum + event.count, 0);
+    return total === 0 ? [] : [`${metric} ${ratio(good, total)}`];
+  });
+  return parts.length === 0 ? '기록 없음' : parts.join(' · ');
 }
 
 /** 다운로드 표: 오늘 늘어난 패치 먼저, 그다음 누적 많은 순 */
@@ -53,25 +98,26 @@ function downloadLines(rows: readonly DownloadRow[]): string[] {
   ];
 }
 
-/** 방문 통계 부분. Umami를 못 읽었으면 한 줄 안내 */
-function umamiLines(umami: UmamiDay | null, titleOf: (slug: string) => string): string[] {
-  if (umami === null) {
+/**
+ * 방문 통계 부분(GoatCounter, ADR 0019). 못 읽었으면 한 줄 안내.
+ * 숫자는 모두 "방문"(같은 사람이 8시간 안에 다시 하면 한 번) 기준이다.
+ */
+function statsLines(stats: GoatCounterDay | null, titleOf: (slug: string) => string): string[] {
+  if (stats === null) {
     // biome-ignore lint/security/noSecrets: 한글 안내 문장을 비밀값으로 잘못 본다
-    return ['**👀 방문** 통계를 읽지 못했습니다(UMAMI_SHARE_URL 또는 Umami 응답 확인)'];
+    return ['**👀 방문** 통계를 읽지 못했습니다(GOATCOUNTER_API_KEY 또는 GoatCounter 응답 확인)'];
   }
-  const reportFailed = countOf(umami.events, 'report-failed');
+  const { events } = stats;
+  const reportFailed = sumEvents(events, 'report-failed');
   return [
-    `**👀 방문** ${visitLine(umami)}`,
-    `**📂 많이 연 케이스** ${topLine(umami.caseOpens, titleOf)}`,
-    `**⬇️ 다운로드 클릭** ${topLine(umami.downloads, titleOf)}`,
-    `**📝 제보** ${number(countOf(umami.events, 'report-sent'))}건${reportFailed > 0 ? ` (실패 ${number(reportFailed)})` : ''} · 업데이트 내역 열기 ${number(countOf(umami.events, 'changelog-open'))}`,
-    `**🔗 유입** ${topLine(umami.referrers, (name) => name)}`,
+    `**👀 방문** ${number(stats.visits)} · 많이 본 페이지 ${topLine(stats.pages, (name) => name)}`,
+    `**⏱️ 체류**(페이지별) ${stayLine(events)}`,
+    `**📂 많이 연 케이스** ${topLine(groupEvents(events, 'case-open'), titleOf)}`,
+    `**⬇️ 다운로드 클릭** ${topLine(groupEvents(events, 'download'), titleOf)}`,
+    `**📝 제보** ${number(sumEvents(events, 'report-sent'))}건${reportFailed > 0 ? ` (실패 ${number(reportFailed)})` : ''} · 업데이트 내역 열기 ${number(sumEvents(events, 'changelog-open'))}`,
+    `**⚡ 성능**(좋음 비율) ${vitalsLine(events)}`,
+    `**🔗 유입** ${topLine(stats.referrers, (name) => name)}`,
   ];
-}
-
-/** 비율(분모가 0이면 "—") */
-function ratio(part: number, whole: number): string {
-  return whole === 0 ? '—' : `${Math.round((part / whole) * PERCENT)}%`;
 }
 
 /**
@@ -104,7 +150,7 @@ function agentLines(stats: AgentDayStats | null): string[] {
 function buildDailyReport(input: {
   readonly day: string;
   readonly downloads: readonly DownloadRow[];
-  readonly umami: UmamiDay | null;
+  readonly stats: GoatCounterDay | null;
   /** 에이전트 지표. undefined면(DB 설정 전) 묶음을 아예 넣지 않는다 */
   readonly agent?: AgentDayStats | null;
   readonly siteUrl: string;
@@ -117,7 +163,7 @@ function buildDailyReport(input: {
     title: `일일 정산 · ${label}`,
     url: input.siteUrl,
     description: [
-      ...umamiLines(input.umami, titleOf),
+      ...statsLines(input.stats, titleOf),
       '',
       ...downloadLines(input.downloads),
       ...(input.agent === undefined ? [] : ['', ...agentLines(input.agent)]),

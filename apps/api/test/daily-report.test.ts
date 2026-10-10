@@ -24,7 +24,7 @@ describe('buildDailyReport', () => {
     const message = buildDailyReport({
       day: '2026-10-07',
       downloads,
-      umami: null,
+      stats: null,
       siteUrl: 'https://x',
     });
     expect(message.content).toContain('10/7(수)');
@@ -40,37 +40,44 @@ describe('buildDailyReport', () => {
     const message = buildDailyReport({
       day: '2026-10-07',
       downloads: [{ slug: 'a', title: '스타폭스 2', total: 100, today: null, week: null }],
-      umami: null,
+      stats: null,
       siteUrl: 'https://x',
     });
     expect(message.description).toContain('증가분은 내일부터');
   });
 
-  it('Umami 이벤트의 패치 slug는 게임 이름으로 바꾼다', () => {
+  it('이벤트 경로를 패치별로 묶고, slug는 게임 이름으로 바꾼다', () => {
     const message = buildDailyReport({
       day: '2026-10-07',
       downloads,
-      umami: {
-        visitors: 38,
-        pageviews: 121,
+      stats: {
         visits: 40,
-        bounces: 10,
-        totalTime: 4080,
-        events: [{ name: 'report-sent', count: 2 }],
+        pages: [{ name: '/', count: 30 }],
+        events: [
+          { name: 'case-open/b', count: 7 },
+          { name: 'case-open/b/address', count: 2 },
+          { name: 'download/b/SFZ_KPatch_v1.2.1f.zip', count: 3 },
+          { name: 'report-sent/b/1', count: 2 },
+          { name: 'page-time/1-3m/guide', count: 4 },
+          { name: 'page-time/0-10s', count: 6 },
+          { name: 'web-vitals/LCP/good', count: 9 },
+          { name: 'web-vitals/LCP/poor', count: 1 },
+        ],
         referrers: [{ name: 'google.com', count: 14 }],
-        caseOpens: [{ name: 'b', count: 9 }],
-        downloads: [],
       },
       siteUrl: 'https://x',
     });
-    expect(message.description).toContain('스타폭스 제로 9');
-    expect(message.description).toContain('평균 체류 1분 42초');
-    expect(message.description).toContain('이탈 25%');
+    expect(message.description).toContain('방문** 40');
+    expect(message.description).toContain('많이 연 케이스** 스타폭스 제로 9');
+    expect(message.description).toContain('다운로드 클릭** 스타폭스 제로 3');
+    expect(message.description).toContain('제보** 2건');
+    expect(message.description).toContain('10초 미만 6 · 1~3분 4');
+    expect(message.description).toContain('LCP 90%');
   });
 });
 
 describe('buildDailyReport — 에이전트 묶음', () => {
-  const base = { day: '2026-10-07', downloads: [], umami: null, siteUrl: 'https://x' };
+  const base = { day: '2026-10-07', downloads: [], stats: null, siteUrl: 'https://x' };
   const stats = {
     proposals: 3,
     failed: 1,
