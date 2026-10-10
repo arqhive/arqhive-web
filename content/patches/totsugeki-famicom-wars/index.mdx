@@ -15,16 +15,16 @@ baseRegion: "JP"
 baseRequirements:
   - region: "JP"
     gameId: "G8WJ01"
-    dumpFormat: "ISO (RVZ·GCM은 Dolphin으로 ISO 변환 후 적용)"
+    dumpFormat: "ISO/GCM (CISO·WIA·WDF·GCZ는 패처가 ISO로 변환, RVZ·NKit 미지원)"
     md5: "edd9c78deed24f0807c3ed380a8f61d8"
     sha1: "2abe94f9e12918d5688f1995beff198a2a096350"
     crc32: "ED987629"
-    note: "1,459,978,240 바이트, SHA-256 15d338ce604215424c975dbbabaae463f009bff9d6b8af83e9a058a6f823055e. 예: Totsugeki!! Famicom Wars (Japan).iso. 북미판(Battalion Wars)·유럽판 불가"
-patchMethod: "xdelta"
-patchMethodLabel: "xdelta 패치 (ISO 전체)"
-latestVersion: "v0.1"
-latestReleaseDate: "2026-09-27"
-translationScope: "대사 전체(미션 24개 무전 대사·목표, 스토리 무비 자막 13편), 메뉴 전체(메인 메뉴·설정·유닛 설명·메모리카드 메시지), 타이틀 로고, 시작 경고 화면"
+    note: "Redump 정본 ISO 값(1,459,978,240 바이트). 파일 단위 패처라 게임 파일만 같으면 MD5가 달라도 적용. 예: Totsugeki!! Famicom Wars (Japan).iso. 북미판(Battalion Wars)·유럽판 불가"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "디스크 파일 단위 패처"
+latestVersion: "v0.1.1"
+latestReleaseDate: "2026-10-10"
+translationScope: "대사 전체(미션 24개 무전 대사·목표, 스토리 무비 자막 13편), 메뉴 전체(메인 메뉴·설정·유닛 설명·메모리카드 메시지), 타이틀 로고, 시작 경고 화면, 디스크 배너 그림"
 compatibility:
   - environment: "에뮬레이터"
     status: "works"
@@ -33,17 +33,18 @@ compatibility:
     status: "works"
     note: null
 knownIssues:
-  - "승리·패배 연출 글자(VICTORY, DEFEAT)와 배경 간판은 원본부터 영문이라 그대로입니다."
+  - "승리·패배 연출 글자(VICTORY, DEFEAT)와 배경 간판(FORT GRIDIRON, STOP)은 원본부터 영문이라 그대로입니다."
   - "스토리 무비·데모 영상 안에 그려진 글자는 바꾸지 않았습니다(자막은 한글)."
+  - "게임 목록에 나오는 디스크 배너의 제목·설명 문구와 메모리카드 세이브 이름은 Shift-JIS 전용 칸이라 일본어로 남습니다."
 extraDownloads: []
 screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
 credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 상표·저작권은 Nintendo와 Kuju Entertainment."
-summary: "게임큐브 일본판 「돌격!! 패미컴 워즈」의 대사·자막·메뉴와 타이틀 로고를 한글화한 첫 시험판 패치입니다. 일본어판 원문 기준으로 번역했습니다."
+summary: "게임큐브 일본판 「돌격!! 패미컴 워즈」의 대사·자막·메뉴와 타이틀 로고·디스크 배너를 한글화한 시험판 패치입니다. 일본어판 원문 기준으로 번역했습니다."
 featured: false
 ---
 
-게임큐브 일본판 「돌격!! 패미컴 워즈」의 대사·자막·메뉴와 타이틀 로고를 한글화한 첫 시험판 패치입니다. 일본어판 원문 기준으로 번역했습니다.
+게임큐브 일본판 「돌격!! 패미컴 워즈」의 대사·자막·메뉴와 타이틀 로고·디스크 배너를 한글화한 시험판 패치입니다. 일본어판 원문 기준으로 번역했습니다.
 
 ## 적용하기
 
-릴리즈에서 TotsugekiFamicomWars_KO_v0.1.xdelta를 받습니다. Delta Patcher나 xdelta3로 일본판 원본 ISO에 적용하고, 결과 파일의 확인값을 표와 비교합니다.
+릴리즈에서 G8WJ_KPatch_v0.1.1.zip을 받아 풀고, 원본 일본판 이미지를 폴더에 넣은 뒤 패치하기.bat을 실행(또는 끌어다 놓기)합니다. 같은 폴더에 Totsugeki!! Famicom Wars (Korean).iso가 생기고 원본 파일은 그대로 남습니다. 게임 파일을 하나하나 원본과 비교하므로 덤프 방식에 따라 ISO 전체 MD5가 달라도 적용됩니다.
