@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           {PRETENDARD_LOAD_SCRIPT}
         </Script>
         {children}
-        {/* 방문 통계(Umami). 화면에는 아무것도 그리지 않는다 */}
+        {/* 방문 통계(GoatCounter). 화면에는 아무것도 그리지 않는다 */}
         <Analytics />
       </body>
     </html>

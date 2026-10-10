@@ -4,6 +4,13 @@
 // zod 스키마는 *-schema.ts에 따로 둔다. package.json의 "sideEffects": false 덕분에, 화면 코드처럼 스키마를 쓰지 않는 쪽의
 // 묶음에는 그 파일(과 zod)이 들어가지 않는다.
 export {
+  eventPath,
+  parseEventPath,
+  TIME_BUCKET_LABELS,
+  TIME_BUCKETS,
+  timeBucket,
+} from './analytics-events.ts';
+export {
   type DownloadFile,
   type PatchDownloads,
   pickDownloads,

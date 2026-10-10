@@ -10,10 +10,10 @@ const apiOrigin = env.NEXT_PUBLIC_API_URL ? new URL(env.NEXT_PUBLIC_API_URL).ori
 const reportImageOrigin = 'https://pub-032e2a3dea5c4e4c89f0c7196a9606ca.r2.dev';
 /** Cloudflare Turnstile(봇 확인 위젯): 스크립트를 받고, 확인 화면을 iframe으로 띄운다 */
 const turnstile = 'https://challenges.cloudflare.com';
-/** 방문 통계 Umami Cloud: 스크립트 주소와 이벤트를 보내는 주소(src/app/analytics/config.ts와 맞춘다) */
-const umamiScript = 'https://cloud.umami.is';
-// 수집 주소는 배포 사이트의 브라우저 콘솔(CSP 위반 메시지)에서 확인한 실제 주소다. Umami가 바꾸면 여기도 바꾼다
-const umamiCollect = 'https://gateway.umami.is';
+/** 방문 통계 GoatCounter: 스크립트 주소와 세는 주소(src/app/analytics/config.ts와 맞춘다) */
+const goatcounterScript = 'https://gc.zgo.at';
+// count.js는 sendBeacon(connect-src)으로 보내고, 안 되면 이미지 요청(img-src)으로 보낸다. 둘 다 연다
+const goatcounterCount = 'https://arqhive.goatcounter.com';
 
 /**
  * 콘텐츠 보안 정책(CSP): 이 사이트가 어디서 무엇을 불러올 수 있는지 브라우저에 알려 주는 허용 목록.
@@ -28,11 +28,11 @@ const umamiCollect = 'https://gateway.umami.is';
  */
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${turnstile} ${umamiScript}${isDev ? " 'unsafe-eval'" : ''}`,
+  `script-src 'self' 'unsafe-inline' ${turnstile} ${goatcounterScript}${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: ${reportImageOrigin} ${apiOrigin}`,
+  `img-src 'self' data: blob: ${reportImageOrigin} ${apiOrigin} ${goatcounterCount}`,
   "font-src 'self'",
-  `connect-src 'self' ${apiOrigin} ${umamiCollect}${isDev ? ' ws:' : ''}`,
+  `connect-src 'self' ${apiOrigin} ${goatcounterCount}${isDev ? ' ws:' : ''}`,
   `frame-src ${turnstile}`,
   "frame-ancestors 'none'",
   "object-src 'none'",
