@@ -7,7 +7,7 @@ import { CaseCover } from './case-cover.tsx';
 import { CaseMedia } from './case-media.tsx';
 import { CoverPrint } from './cover-print.tsx';
 import { KeepCaseFront, KeepCaseInner, KeepCaseTray } from './keepcase.tsx';
-import { ReleaseHint } from './release-link.tsx';
+import { ExtraDownloads, ReleaseHint } from './release-link.tsx';
 
 /**
  * 케이스 열기 연출에 쓰는 부품들. 기종의 케이스 형태(form)에 맞는 그림을 고른다.
@@ -89,6 +89,7 @@ export function CaseTray({
           patch={patch}
           className="w-fit max-w-[84%] rounded-[0.4em] bg-black/60 px-[0.8em] py-[0.3em] text-white"
         />
+        <ExtraDownloads patch={patch} className="text-white" />
       </div>
     );
   }

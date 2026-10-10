@@ -21,6 +21,18 @@ test('가이드: 자주 묻는 질문을 펼칠 수 있다', async ({ page }) =>
   expect(errors).toStrictEqual([]);
 });
 
+test('선택 파일 버튼: 갈래 버튼(CIA·LayeredFS)이 있는 패치에서도 케이스 안에 보인다', async ({
+  page,
+}) => {
+  // 10/10: 갈래 버튼을 그리는 분기가 extraDownloads를 빠뜨려 Azahar 폰트 버튼이 안 보였다
+  const errors = collectErrors(page);
+  await page.goto('/korean-translation/kid-icarus-uprising');
+  const extra = page.locator('dialog[open] a[data-track="download-extra"]');
+  await expect(extra).toBeVisible();
+  await expect(extra).toContainText('Azahar');
+  expect(errors).toStrictEqual([]);
+});
+
 test('제보: 양식에 공개 패치 목록이 들어 있다', async ({ page }) => {
   const errors = collectErrors(page);
   await page.goto('/report');

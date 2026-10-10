@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { HoloText } from '@/shared/ui';
 import { type CaseTone, DISC_PRINTS, type DiscPrint, TONE_CLASSES } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
-import { ReleaseHint, ReleaseLink } from './release-link.tsx';
+import { ExtraDownloads, ReleaseHint, ReleaseLink } from './release-link.tsx';
 
 /**
  * 킵 케이스(135×191mm)를 CSS로 그린 부품들. Wii는 흰색, Wii U는 반투명 파란색, GC는 검은색.
@@ -384,6 +384,11 @@ export function KeepCaseTray({
         <ReleaseHint
           patch={patch}
           className={`absolute right-[9%] bottom-[6%] text-(--p-ink) opacity-75 ${holder === 'hex' ? 'left-[40%]' : 'left-[9%] md:left-[12%]'}`}
+        />
+        {/* 선택 파일(동영상 자막·에뮬레이터 폰트 등)은 오목한 면 오른쪽 위 구석에 작게 */}
+        <ExtraDownloads
+          patch={patch}
+          className="absolute top-[8%] right-[6.5%] text-(--p-ink) md:top-[6%]"
         />
       </div>
     </div>

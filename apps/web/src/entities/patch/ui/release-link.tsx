@@ -76,8 +76,8 @@ function DownloadChoices({
 }
 
 /**
- * 패치 파일 말고 따로 받는 선택 파일(예: 환영이문록 동영상 자막 패치, 구글 드라이브).
- * 크기가 커서 GitHub 릴리즈에 못 올린 것들이라 외부 페이지를 새 탭으로 연다. 모양·호버는 DownloadChoices와 같다
+ * 패치 파일 말고 따로 받는 선택 파일 하나(예: 환영이문록 동영상 자막 패치, 파르테나 Azahar 폰트).
+ * 새 탭으로 연다(구글 드라이브 같은 외부 페이지일 수 있다). 모양·호버는 DownloadChoices와 같고, 선택 파일이라 한 단계 작다
  */
 function ExtraDownload({
   patch,
@@ -93,9 +93,9 @@ function ExtraDownload({
       rel="noopener noreferrer"
       data-track="download-extra"
       data-track-patch={patch.slug}
-      className="group flex flex-col items-center rounded-[1.5cqw] border border-current px-[3cqw] py-[1.2cqw] text-center leading-tight opacity-100 transition-[background-color,color,translate,box-shadow] duration-200 hover:-translate-y-[0.6cqw] hover:bg-(--p-ink) hover:text-(--p-mid) hover:shadow-lg focus-visible:-translate-y-[0.6cqw] focus-visible:bg-(--p-ink) focus-visible:text-(--p-mid) focus-visible:outline-2 focus-visible:outline-stamp motion-reduce:transition-colors motion-reduce:hover:translate-y-0"
+      className="group flex flex-col items-center rounded-[1.5cqw] border border-current bg-(--p-mid) px-[2.4cqw] py-[0.8cqw] text-center leading-tight transition-[background-color,color,translate,box-shadow] duration-200 hover:-translate-y-[0.6cqw] hover:bg-(--p-ink) hover:text-(--p-mid) hover:shadow-lg focus-visible:-translate-y-[0.6cqw] focus-visible:bg-(--p-ink) focus-visible:text-(--p-mid) focus-visible:outline-2 focus-visible:outline-stamp motion-reduce:transition-colors motion-reduce:hover:translate-y-0"
     >
-      <span className="font-bold text-[max(3.6cqw,0.75rem)]">
+      <span className="font-bold text-[max(3cqw,0.6875rem)]">
         <span
           aria-hidden="true"
           className="inline-block transition-transform duration-200 group-hover:translate-y-[0.5cqw] motion-reduce:group-hover:translate-y-0"
@@ -105,9 +105,32 @@ function ExtraDownload({
         {extra.label}
       </span>
       {extra.note ? (
-        <span className="text-[max(3cqw,0.625rem)] opacity-80">{extra.note}</span>
+        <span className="text-[max(2.6cqw,0.625rem)] opacity-80">{extra.note}</span>
       ) : null}
     </a>
+  );
+}
+
+/**
+ * 선택 파일 버튼 묶음(공개 패치만). 킵 케이스는 트레이 오른쪽 위, 카트리지 상자는 안내 글 아래에 놓는다(위치는 className).
+ * 다운로드 안내·갈래 버튼(ReleaseHint)과 따로 그려서, 갈래 버튼이 있는 패치(3DS)에서도 빠지지 않는다(10/10)
+ */
+export function ExtraDownloads({
+  patch,
+  className,
+}: {
+  readonly patch: PatchCaseData;
+  readonly className: string;
+}) {
+  if (patch.status !== 'released' || patch.extraDownloads.length === 0) {
+    return null;
+  }
+  return (
+    <div className={`flex flex-col items-end gap-[1cqw] ${className}`}>
+      {patch.extraDownloads.map((extra) => (
+        <ExtraDownload key={extra.url} patch={patch} extra={extra} />
+      ))}
+    </div>
   );
 }
 
@@ -191,16 +214,5 @@ export function ReleaseHint({
       {downloads?.main ? <>패치 파일을 받습니다.</> : <>최신 릴리즈 페이지로 이동합니다.</>}
     </p>
   );
-  if (patch.extraDownloads.length === 0) {
-    return <div className={className}>{hint}</div>;
-  }
-  return (
-    // 버튼만큼 위로 자라 작은 화면에서 안내 글이 디스크에 겹치므로, 작은 화면에서는 판 아래 끝 가까이 내린다
-    <div className={`flex flex-col items-center gap-[1.5cqw] max-md:bottom-[2%] ${className}`}>
-      {hint}
-      {patch.extraDownloads.map((extra) => (
-        <ExtraDownload key={extra.url} patch={patch} extra={extra} />
-      ))}
-    </div>
-  );
+  return <div className={className}>{hint}</div>;
 }
