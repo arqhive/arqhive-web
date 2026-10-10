@@ -20,7 +20,7 @@
 | [0012](0012-defer-database.md) | DB(Neon·Drizzle)는 보류하고 GitHub API·KV로 운영한다 | 채택(다운로드 기록에 한해 → 0016) |
 | [0013](0013-page-structure-case-liner.md) | 패치 상세는 케이스 속지가 맡고, 가이드·제보는 한 페이지씩 둔다 | 채택 |
 | [0014](0014-report-alerts-discord.md) | 제보 알림은 디스코드 웹훅으로 보내고, 못 보낸 것은 KV에 쌓아 Cron이 다시 보낸다 | 채택 |
-| [0015](0015-analytics-umami.md) | 방문 통계는 Umami Cloud로 하고, 클릭·체류 시간·웹 바이탈을 이벤트로 보낸다 | 채택 |
+| [0015](0015-analytics-umami.md) | 방문 통계는 Umami Cloud로 하고, 이름 붙인 행동만 이벤트로 보낸다 | 채택 |
 | [0016](0016-download-history-neon.md) | 다운로드 수를 Neon + Drizzle에 날마다 쌓고, Umami 통계와 함께 디스코드로 일일 정산을 보낸다 | 채택 |
 | [0017](0017-patch-agent.md) | 제보 처리 에이전트를 직접 만든다(도구 호출 루프 + 사람 승인 + 평가) | 채택 |
 | [0018](0018-native-dialog-for-case-viewer.md) | 케이스 보기·업데이트 내역 모달은 네이티브 `<dialog>`(showModal)로 만든다 | 채택 |

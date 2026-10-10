@@ -219,16 +219,14 @@ flowchart TB
 ```mermaid
 flowchart LR
   layout["app/layout.tsx"] --> an["src/app/analytics<br/>Umami 스크립트(배포 주소에서만) + 자동 측정"]
-  an --> clk["모든 클릭(document 하나에 위임)<br/>data-track이 있으면 그 이름"]
-  an --> stay["페이지별 체류 시간(보이는 동안만)"]
-  an --> depth["스크롤 깊이 25·50·75·100%"]
-  an --> wv["웹 바이탈 LCP·CLS·INP"]
+  an --> clk["이름 붙인 클릭만(document 하나에 위임)<br/>data-track 이름으로"]
   other["case-open · download · changelog-open · report-sent/failed"] --> track["shared/analytics track()<br/>스크립트 오기 전엔 모아 뒀다 보냄"]
-  clk & stay & depth & wv --> track
+  clk --> track
   track --> U["Umami Cloud"]
 ```
 
 - 쿠키를 쓰지 않아 동의 배너가 없습니다(ADR 0015). 사용자가 입력한 글은 보내지 않습니다.
+- 페이지뷰·머문 시간·유입 경로는 Umami 스크립트가 셉니다. 체류 시간·스크롤 깊이·웹 바이탈·일반 클릭은 무료 한도(월 10만, 이벤트 값도 셈) 때문에 2026-10-09에 뺐습니다.
 
 ## 8. 타입이 흐르는 길
 
