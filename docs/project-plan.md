@@ -5,7 +5,7 @@
   아래 1~13장은 10/3 기획 때 생각을 그대로 남긴 것이라 지금과 다른 곳이 많다. 바뀐 점은 바로 아래 0장에 모았고,
   지금 실제로 어떻게 움직이는지는 저장소 맨 위 [`app-flow.md`](../app-flow.md), 바뀐 이유는 각 ADR에 있다.
 
-## 0. 지금과 달라진 점 (2026-10-08 기준)
+## 0. 지금과 달라진 점 (2026-10-10 기준)
 
 처음 계획과 실제 구현이 갈린 곳이다. 대부분 "무료 한도 안에서 더 단순하게" 또는 "직접 해 보니 요건이 안 맞아서" 바뀌었다.
 
@@ -34,7 +34,8 @@
 | Workers AI는 스팸 판별·임베딩 | **제보 처리 에이전트**(도구 호출 루프·처리안 검증·사람 승인·평가 eval) |
 | shadcn/ui·Storybook·Chromatic, `packages/ui` | 쓰지 않음. 케이스·디스크·카트리지까지 Tailwind로 직접 그림 |
 | giscus, Zustand, react-hook-form, es-hangul, Motion, sharp, Octokit, @hono/zod-openapi·Scalar, Lighthouse CI, CodeQL | 쓰지 않음(필요한 기능이 아직 없거나 기본 기능으로 충분) |
-| 계획에 없던 것 | Hono RPC, TanStack Query, Umami 공유 링크로 읽는 일일 정산, Playwright E2E(Chromium·WebKit 아이폰) |
+| 방문 통계 Umami Cloud | **GoatCounter**. Umami 무료 한도(월 10만)에 공개 4일 만에 닿음(ADR 0019) |
+| 계획에 없던 것 | Hono RPC, TanStack Query, 방문 통계를 읽는 일일 정산, Playwright E2E(Chromium·WebKit 아이폰) |
 
 ### 화면
 

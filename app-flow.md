@@ -36,7 +36,7 @@ flowchart LR
   N[("Neon Postgres<br/>다운로드 기록")]
   GH["GitHub<br/>릴리즈·이슈·CHANGELOG"]
   D["Discord 웹훅<br/>운영자 채널"]
-  U["Umami Cloud<br/>방문 통계"]
+  U["GoatCounter<br/>방문 통계"]
 
   B -- "페이지" --> W
   W -- "다운로드 수·CHANGELOG·제보 목록 읽기(캐시)" --> GH
@@ -200,7 +200,7 @@ flowchart TB
   daily --> dl["공개 패치 다운로드 수(GitHub)"]
   dl --> up["Neon download_snapshots에 오늘 값 upsert"]
   up --> cmp["어제·7일 전과 비교"]
-  daily --> um["Umami 하루 통계(공유 링크)"]
+  daily --> um["GoatCounter 하루 통계(공식 API)"]
   daily --> ag["에이전트 지표(agent_runs)<br/>끊긴 실행 정리 → 처리안·결정·적용률"]
   cmp --> msg["메시지 만들기(message.ts)"]
   um --> msg
@@ -211,22 +211,28 @@ flowchart TB
 
 - 알림은 디스코드 웹훅 하나입니다(ADR 0014). 사용자 글의 멘션은 울리지 않게 막습니다.
 - 다운로드 기록은 날짜별로 남습니다(ADR 0016). 셈법은 사이트 화면과 같습니다(`@arqhive/shared`의 `sumLargestDownloads`: 릴리즈마다 가장 많이 받은 파일 하나).
-- Umami Cloud 공식 API는 유료라, 무료인 공유 링크가 쓰는 방식으로 읽습니다. 실패하면 그 부분만 "읽지 못함"이 되고 나머지는 보냅니다.
+- 방문 통계는 GoatCounter 공식 API(통계 읽기 권한만 있는 키)로 읽습니다(ADR 0019). 이벤트 경로(`case-open/패치` 등)를 패치별·구간별로 묶어 셉니다. 실패하면 그 부분만 "읽지 못함"이 되고 나머지는 보냅니다.
 - 에이전트 지표(14절): 오늘 만든 처리안(보류·한도·평균 시간·뉴런 어림), 오늘 결정(적용·고쳐서 적용·무시), 누적 적용률·수정률·승인 대기. 시험 제보는 빼고, 10분 넘게 running으로 남은 실행은 "시간 초과로 끊김"으로 정리합니다.
 
 ## 7. 방문 통계
 
 ```mermaid
 flowchart LR
-  layout["app/layout.tsx"] --> an["src/app/analytics<br/>Umami 스크립트(배포 주소에서만) + 자동 측정"]
-  an --> clk["이름 붙인 클릭만(document 하나에 위임)<br/>data-track 이름으로"]
-  other["case-open · download · changelog-open · report-sent/failed"] --> track["shared/analytics track()<br/>스크립트 오기 전엔 모아 뒀다 보냄"]
-  clk --> track
-  track --> U["Umami Cloud"]
+  layout["app/layout.tsx"] --> an["src/app/analytics<br/>GoatCounter 스크립트(운영 주소에서만) + 자동 측정"]
+  an --> pv["페이지뷰(주소가 바뀔 때마다)"]
+  an --> clk["모든 클릭(document 하나에 위임)<br/>data-track 이름 · outbound · click"]
+  an --> stay["페이지별 체류 시간 → 구간"]
+  an --> depth["스크롤 깊이 25·50·75·100%"]
+  an --> wv["웹 바이탈 LCP·CLS·INP → 등급"]
+  other["case-open(주소로 들어옴) · report-sent/failed"] --> track["shared/analytics track()<br/>이름/값/값 경로로(@arqhive/shared eventPath)<br/>스크립트 오기 전엔 모아 뒀다 보냄"]
+  pv & clk & stay & depth & wv --> track
+  track --> U["GoatCounter"]
 ```
 
-- 쿠키를 쓰지 않아 동의 배너가 없습니다(ADR 0015). 사용자가 입력한 글은 보내지 않습니다.
-- 페이지뷰·머문 시간·유입 경로는 Umami 스크립트가 셉니다. 체류 시간·스크롤 깊이·웹 바이탈·일반 클릭은 무료 한도(월 10만, 이벤트 값도 셈) 때문에 2026-10-09에 뺐습니다.
+- 쿠키를 쓰지 않아 동의 배너가 없습니다(ADR 0019). 사용자가 입력한 글은 보내지 않습니다.
+- GoatCounter 이벤트는 값을 따로 못 담아 이름 뒤에 잇습니다: `case-open/star-fox-2`, `download/패치/파일`, `page-time/1-3m/guide`, `scroll-depth/50/guide`, `web-vitals/LCP/good`, `click/누른 것`, `outbound/바깥 주소`.
+- 숫자는 모두 "방문"(같은 사람이 8시간 안에 다시 하면 한 번) 기준입니다.
+- 2026-10-09까지는 Umami Cloud였습니다(ADR 0015). 무료 한도(월 10만)에 닿아 옮겼습니다.
 
 ## 8. 타입이 흐르는 길
 
@@ -304,7 +310,7 @@ flowchart TB
 
 ## 12. 보안
 
-- **웹**(`apps/web/next.config.ts`): CSP 허용 목록(스크립트: 사이트·Turnstile·Umami / 이미지: 사이트·R2 / 접속: 사이트·API·Umami), `frame-ancestors 'none'`, nosniff, Referrer-Policy, Permissions-Policy. 정적 생성을 지키려고 인라인 스크립트는 허용합니다(사용자 글을 HTML로 넣지 않음).
+- **웹**(`apps/web/next.config.ts`): CSP 허용 목록(스크립트: 사이트·Turnstile·GoatCounter / 이미지: 사이트·R2·GoatCounter / 접속: 사이트·API·GoatCounter), `frame-ancestors 'none'`, nosniff, Referrer-Policy, Permissions-Policy. 정적 생성을 지키려고 인라인 스크립트는 허용합니다(사용자 글을 HTML로 넣지 않음).
 - **API**: Hono `secureHeaders`, CORS는 사이트 주소만. 제보는 봇 확인·횟수 제한·입력 검사·멘션 무력화·이미지 매직 바이트 검사.
 - 이슈를 만드는 GitHub 토큰은 패치 저장소의 Issues 권한만 가집니다.
 
@@ -331,7 +337,7 @@ flowchart LR
 1. **사이트가 안 열림(UptimeRobot)**: [Vercel 대시보드](https://vercel.com/dashboard)의 Deployments에서 마지막 배포가 실패했는지 본다. 실패했으면 이전 배포를 **Promote**(되돌리기). 배포는 정상인데 안 열리면 [Vercel 상태](https://www.vercel-status.com)를 본다.
 2. **API가 안 열림(UptimeRobot)**: Cloudflare 대시보드 → Workers → arqhive-api → **Deployments**에서 이전 버전으로 되돌리거나(`wrangler rollback`), [Cloudflare 상태](https://www.cloudflarestatus.com)를 본다.
 3. **정기 작업 실패(healthchecks)**: Workers → arqhive-api → **Logs**에서 그 시각의 오류를 본다. 일일 정산은 다음 날 다시 돌면 증가분이 이틀치가 될 뿐이라 급하지 않다. 손으로 다시 돌리려면 개발 서버에서 `/__scheduled?cron=50+14+*+*+*`.
-4. **오류 알림(🚨)**: 메시지와 스택 첫 줄로 위치를 찾는다. 웹 오류의 digest는 Vercel → Logs에서 검색한다. GitHub·Neon·Umami 같은 바깥 서비스 오류면 그쪽 상태 페이지부터 본다.
+4. **오류 알림(🚨)**: 메시지와 스택 첫 줄로 위치를 찾는다. 웹 오류의 digest는 Vercel → Logs에서 검색한다. GitHub·Neon·GoatCounter 같은 바깥 서비스 오류면 그쪽 상태 페이지부터 본다.
 5. **제보가 안 들어옴**: 제보는 이슈로 바로 공개되므로, GitHub 장애 중에는 "보내지 못했습니다"가 뜬다. 복구되면 저절로 돌아온다.
 
 - 비밀값을 바꿨으면(유출 의심 등) 각 서비스에서 새로 만든 뒤 `wrangler secret put 이름` / Vercel 환경 변수를 고치고 다시 배포한다.

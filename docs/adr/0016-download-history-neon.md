@@ -25,6 +25,7 @@
   1. 공개 패치마다 GitHub 릴리즈를 읽어 오늘 값을 저장한다. 셈법 함수는 `packages/shared`로 옮겨 web(화면)과 api(정산)가 같이 쓴다.
   2. 어제·7일 전 값과 비교해 오늘 증가분·주간 증가분을 낸다.
   3. Umami에서 오늘 하루치를 읽는다: 방문자·페이지뷰·평균 체류·이탈, 이벤트별 횟수(case-open·download·changelog-open·report-sent/failed), 패치별 케이스 열기·다운로드 클릭, 유입 경로.
+     - (2026-10-10부터 0019: GoatCounter 공식 API로 읽는다. 키는 `GOATCOUNTER_API_KEY`, 아래 Umami 설명은 그 전 방식)
      - Umami Cloud의 공식 API(API 키)는 **유료 플랜**이라, 무료인 **공유 링크(Share URL)**가 쓰는 내부 방식으로 읽는다(공유 ID → 읽기 토큰 → `x-umami-share-token`·`x-umami-share-context: 1` 헤더). 공식 문서에 없어 바뀌면 깨질 수 있다(실패하면 그 부분만 "읽지 못함"으로 표시).
   4. 디스코드 임베드 하나로 보낸다. 실패하면 0014의 "못 보낸 알림" 목록에 쌓여 다음 정각에 다시 간다.
 - **TanStack Query**(학습 목적, 실제로 쓰는 자리만): 업데이트 내역 불러오기를 `useQuery`, 제보 보내기를 `useMutation`으로 바꾼다. Provider는 쓰는 페이지(진열장·제보)에만 둔다.

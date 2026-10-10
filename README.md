@@ -65,7 +65,7 @@ flowchart LR
 | DB | Neon Postgres + Drizzle ORM, pgvector | `packages/db` |
 | AI | Workers AI(Llama 3.3 70B 함수 호출, bge-m3 임베딩) | 제보 처리 에이전트 |
 | 검증·보안 | Zod, Cloudflare Turnstile, HMAC 서명 링크, CSP·보안 헤더 | 제보·승인 |
-| 통계·알림 | Umami(쿠키 없음), Discord 웹훅 | 방문 통계·운영 알림 |
+| 통계·알림 | GoatCounter(쿠키 없음, 공식 API로 정산), Discord 웹훅 | 방문 통계·운영 알림 |
 | 감시 | UptimeRobot, healthchecks.io, Next.js `onRequestError` | 모니터링 |
 | 품질 | Biome(엄격 규칙), Vitest, Playwright(Chromium·WebKit), lefthook, GitHub Actions | 커밋·CI |
 | 배포 | Vercel(web), GitHub Actions → `wrangler deploy`(api) | main 푸시 |
