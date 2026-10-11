@@ -31,7 +31,9 @@ const NAME_POSITIONS = {
  * (Wii 12cm 디스크와 GC 8cm 디스크가 같은 비율로 보인다).
  * 라벨 모양·기종 이름·홀로그램 색은 기종별 DISC_PRINTS를 따른다(GC: 위아래 두 칸, GameCube, 차가운 색).
  * isOpen이면 한 바퀴 돈다. 한 바퀴라서 멈추면 라벨 글자가 바로 선다.
- * art(그림 주소)가 있고 나뉜 라벨(GC)이면 위 칸(그림 칸)에 그 그림을 깐다. 그림 속 타이틀 로고가 제목 역할을 하므로 글자 제목은 쓰지 않는다.
+ * art(그림 주소)가 있으면 라벨에 그 그림을 깐다: 나뉜 라벨(GC)은 위 칸(그림 칸)에만, 한 장 라벨(Wii 계열)은 라벨 전체에.
+ * 그림은 타이틀 화면 스크린샷을 그대로 자른 것이다(로고만 따로 다듬지 않음). 그림 속 타이틀 로고가 제목 역할을 하므로 글자 제목은 쓰지 않고,
+ * 기종 이름은 같은 자리에 두되 그림 위에서도 읽히게 그림자를 단다.
  */
 function Disc({
   print,
@@ -45,7 +47,7 @@ function Disc({
   readonly isOpen: boolean;
 }) {
   const isSplit = print.layout === 'split';
-  const showArt = isSplit && art !== undefined;
+  const showArt = art !== undefined;
   return (
     <div className="@container absolute inset-0">
       <div
@@ -54,10 +56,10 @@ function Disc({
         <div
           className={`absolute inset-[2.5%] overflow-hidden rounded-full ${isSplit ? 'disc-label-split' : 'disc-label'}`}
         >
-          {/* 그림 칸: 라벨 위쪽 66.8%(나뉘는 선까지). 둥근 라벨 밖은 overflow-hidden이 자른다 */}
+          {/* 그림 칸: 나뉜 라벨은 위쪽 66.8%(나뉘는 선까지), 한 장 라벨은 전체. 둥근 라벨 밖은 overflow-hidden이 자른다 */}
           {showArt ? (
             <div
-              className="absolute inset-x-0 top-0 h-[66.8%] bg-center bg-cover"
+              className={`absolute inset-x-0 top-0 bg-center bg-cover ${isSplit ? 'h-[66.8%]' : 'h-full'}`}
               style={{ backgroundImage: `url(${art})` }}
             />
           ) : null}
@@ -74,7 +76,7 @@ function Disc({
           </span>
         )}
         <span
-          className={`absolute inset-x-0 -translate-y-1/2 text-center font-bold leading-none ${NAME_POSITIONS[print.layout]}`}
+          className={`absolute inset-x-0 -translate-y-1/2 text-center font-bold leading-none ${NAME_POSITIONS[print.layout]} ${showArt && !isSplit ? 'drop-shadow-[0_0.3cqw_0.6cqw_rgb(0_0_0/0.75)]' : ''}`}
         >
           <HoloText tone={print.holo}>{print.name}</HoloText>
         </span>
