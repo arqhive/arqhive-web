@@ -6,7 +6,8 @@ import remarkGfm from 'remark-gfm';
  * 마크다운을 화면 요소로 바꾸는 **서버 컴포넌트**(CHANGELOG, 가이드 페이지 글).
  * 서버에서 그려 결과만 내보내므로 react-markdown 코드는 방문자 브라우저로 가지 않는다.
  * 그래서 클라이언트 코드도 쓰는 shared/ui와 섞지 않고 칸(markdown)을 따로 둔다.
- * - 원문 속 HTML은 그리지 않는다(react-markdown 기본값).
+ * - 원문 속 HTML은 그리지도, 글자로 보여 주지도 않는다(skipHtml). 기본값은 글자 그대로 보여 줘서
+ *   CHANGELOG 맨 위의 작성 안내 주석(<!-- … -->)이 화면에 찍혔다(10/12).
  * - remark-gfm: 표·취소선 같은 GitHub식 문법을 읽는다.
  * - "# 제목"(h1)은 그리지 않는다. 글이 놓이는 곳(모달·페이지)이 자기 제목을 갖는다.
  * - linkBase가 있으면 상대 링크를 그 주소 기준으로 바꿔 새 탭으로 연다(저장소 파일 등). 없으면 사이트 안 주소로 둔다.
@@ -120,7 +121,7 @@ export function MarkdownBody({
   };
   return (
     <div className={block.wrap}>
-      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+      <Markdown remarkPlugins={[remarkGfm]} components={components} skipHtml={true}>
         {markdown}
       </Markdown>
     </div>
