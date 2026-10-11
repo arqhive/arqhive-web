@@ -1,8 +1,12 @@
 import type { PatchCaseData } from '../model/case-data.ts';
 
+/** 첫 덩어리 끝에 붙은 여는 줄표·물결("이터널 다크니스 -" 의 " -"). 부제를 여는 부호라 둘째 덩어리로 넘긴다 */
+const SUBTITLE_OPENER = /\s*[-–—~]\s*$/;
+
 /**
  * 한글 제목을 등줄기와 같은 줄 나눔 위치에서 나눈 두 덩어리. 등줄기 줄(spineLines)이 없거나 위치를 못 찾으면 null.
  * 등줄기 줄은 문장부호를 빼고 적은 경우가 있어("키드 이카루스" / "신화와 괴물"), 글자는 titleKo에서 그대로 잘라 쓴다.
+ * 부제를 여는 줄표는 둘째 덩어리로 넘긴다("이터널 다크니스" / "- 초대받은 13인 -").
  */
 function splitTitle(
   patch: Pick<PatchCaseData, 'titleKo' | 'spineLines'>,
@@ -15,7 +19,9 @@ function splitTitle(
   if (at <= 0) {
     return null;
   }
-  return [patch.titleKo.slice(0, at).trimEnd(), patch.titleKo.slice(at)];
+  const opener = SUBTITLE_OPENER.exec(patch.titleKo.slice(0, at));
+  const cut = opener === null ? at : opener.index;
+  return [patch.titleKo.slice(0, cut).trimEnd(), patch.titleKo.slice(cut).trimStart()];
 }
 
 /**
