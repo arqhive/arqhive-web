@@ -25,8 +25,10 @@
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/content/**"],
       "outputs": [".velite/**"]
     },
+    // 타입 검사는 같은 패키지의 build(velite가 만드는 .velite 타입)를 먼저 기다린다. 예전에는 typecheck 스크립트가
+    // velite build를 또 돌려서, 캐시가 안 맞는 커밋에서 build와 동시에 두 번 돌다 설정 읽기가 꼬여 실패했다(10/12 CI)
     "@arqhive/content#typecheck": {
-      "dependsOn": ["^typecheck", "^types"],
+      "dependsOn": ["build", "^typecheck", "^types"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/content/**"]
     },
     "typecheck": {

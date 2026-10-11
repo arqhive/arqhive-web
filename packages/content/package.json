@@ -10,7 +10,7 @@
   "scripts": {
     "build": "velite build",
     "dev": "velite dev",
-    "typecheck": "velite build && tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@arqhive/shared": "workspace:*"
