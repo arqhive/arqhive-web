@@ -31,6 +31,11 @@
       "dependsOn": ["build", "^typecheck", "^types"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/content/**"]
     },
+    // web 타입 검사(next typegen)는 .next/types를 쓰는데, 같은 때 next build가 .next를 다시 만들면 파일이 사라져
+    // 실패한다(10/20 캐시 없는 검사에서 재현). 같은 패키지의 build가 끝난 뒤에 돈다
+    "@arqhive/web#typecheck": {
+      "dependsOn": ["build", "^typecheck", "^types"]
+    },
     "typecheck": {
       "dependsOn": ["^typecheck", "^types"]
     },

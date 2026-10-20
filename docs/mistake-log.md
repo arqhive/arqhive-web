@@ -54,6 +54,7 @@ arqhive-web을 만드는 동안 Claude(AI 코딩 도우미)가 한 실수의 원
 - 무슨 일: 디스크 그림 커밋(a14f603)이 GitHub CI 「검사」에서 실패해 API 배포가 건너뛰어졌다. 로그는 velite의 「'collections' is required」. 푸시 전 새 클론 검사는 통과했다.
 - 왜: ① `@arqhive/content`의 `typecheck` 스크립트가 `velite build && tsc`라, turbo가 `build`와 `typecheck`를 동시에 돌리면 velite가 겹쳐 실행되며 설정 읽기가 꼬인다. ② 콘텐츠가 바뀌어 두 작업 모두 캐시가 안 맞는 커밋에서만 실제로 동시에 돌아 가끔만 실패했다(10/7 콘텐츠 입력을 넣은 뒤로 생긴 조건). ③ 로컬 새 클론 검사는 작업 순서가 달라 통과했고, 같은 작업을 두 번 도는 스크립트 구성을 점검하지 않았다.
 - 교훈: 같은 패키지 안에서 한 작업의 결과를 다른 작업이 쓰면 스크립트 안에서 다시 만들지 말고 turbo `dependsOn`으로 순서를 건다. CI만 실패하고 로컬은 통과하면 캐시·병렬 순서 차이부터 의심하고 `turbo run … --force`로 다시 재현한다.
+- 재발: 2026-10-20 · 같은 구조가 web에도 있었다(typecheck의 next typegen과 next build가 .next를 동시에 씀). 10/12에 content만 고치고 다른 패키지의 같은 구조를 찾지 않았다. 캐시 없는 검사(--force)에서 드러나 web#typecheck도 build 뒤로 돌렸다. 교훈 보강: 경쟁 상태를 하나 고치면 같은 모양(한 작업이 다른 작업의 산출물 폴더를 쓰는 것)을 모든 패키지에서 찾는다.
 
 ### 2026-10-12 · arqhive-web · react-markdown 기본값을 "HTML은 안 그린다"로 잘못 알아 CHANGELOG 주석이 화면에 찍힘
 - 유형: 검증 누락
