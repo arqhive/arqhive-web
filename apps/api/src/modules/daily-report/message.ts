@@ -102,10 +102,13 @@ function downloadLines(rows: readonly DownloadRow[]): string[] {
  * 방문 통계 부분(GoatCounter, ADR 0019). 못 읽었으면 한 줄 안내.
  * 숫자는 모두 "방문"(같은 사람이 8시간 안에 다시 하면 한 번) 기준이다.
  */
-function statsLines(stats: GoatCounterDay | null, titleOf: (slug: string) => string): string[] {
-  if (stats === null) {
-    // biome-ignore lint/security/noSecrets: 한글 안내 문장을 비밀값으로 잘못 본다
-    return ['**👀 방문** 통계를 읽지 못했습니다(GOATCOUNTER_API_KEY 또는 GoatCounter 응답 확인)'];
+function statsLines(
+  stats: GoatCounterDay | string | null,
+  titleOf: (slug: string) => string,
+): string[] {
+  if (stats === null || typeof stats === 'string') {
+    // 실패 이유(요청 경로·상태 코드)가 있으면 그대로 보여 준다. 다음 날 정산만 보고 원인을 알 수 있게(10/23)
+    return [`**👀 방문** 통계를 읽지 못했습니다(${stats ?? 'GoatCounter 응답 확인'})`];
   }
   const { events } = stats;
   const reportFailed = sumEvents(events, 'report-failed');
@@ -150,7 +153,8 @@ function agentLines(stats: AgentDayStats | null): string[] {
 function buildDailyReport(input: {
   readonly day: string;
   readonly downloads: readonly DownloadRow[];
-  readonly stats: GoatCounterDay | null;
+  /** 하루 통계, 또는 읽지 못한 이유(문자열). null은 이유를 모를 때 */
+  readonly stats: GoatCounterDay | string | null;
   /** 에이전트 지표. undefined면(DB 설정 전) 묶음을 아예 넣지 않는다 */
   readonly agent?: AgentDayStats | null;
   readonly siteUrl: string;

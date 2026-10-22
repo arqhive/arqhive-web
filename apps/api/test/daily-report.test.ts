@@ -76,6 +76,20 @@ describe('buildDailyReport', () => {
   });
 });
 
+describe('buildDailyReport — 통계 실패 이유', () => {
+  it('통계를 못 읽은 이유가 있으면 정산 줄에 그대로 보인다', () => {
+    const message = buildDailyReport({
+      day: '2026-10-07',
+      downloads: [{ slug: 'a', title: '스타폭스 2', total: 100, today: 0, week: 3 }],
+      stats: 'GoatCounter /stats/hits 실패: 429',
+      siteUrl: 'https://x',
+    });
+    // biome-ignore lint/security/noSecrets: 한글 안내 문장을 비밀값으로 잘못 본다
+    const expected = '통계를 읽지 못했습니다(GoatCounter /stats/hits 실패: 429)';
+    expect(message.description).toContain(expected);
+  });
+});
+
 describe('buildDailyReport — 에이전트 묶음', () => {
   const base = { day: '2026-10-07', downloads: [], stats: null, siteUrl: 'https://x' };
   const stats = {

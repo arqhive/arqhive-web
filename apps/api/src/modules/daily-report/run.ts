@@ -8,20 +8,21 @@ import { buildDailyReport } from './message.ts';
 
 const SITE_URL = 'https://arqhive.vercel.app';
 
-/** GoatCounter 하루치. API 키가 없거나 실패하면 null(정산의 나머지는 그대로 보낸다) */
-async function readStats(env: ApiEnv, now: number): Promise<GoatCounterDay | null> {
+/**
+ * GoatCounter 하루치. 실패하면 이유 문자열(정산 메시지에 그대로 보인다, 나머지는 그대로 보낸다).
+ * 이유에는 키 값이 들어가지 않는다(요청 경로와 상태 코드뿐).
+ */
+async function readStats(env: ApiEnv, now: number): Promise<GoatCounterDay | string> {
   if (!env.GOATCOUNTER_API_KEY) {
-    return null;
+    return 'GOATCOUNTER_API_KEY 없음';
   }
   try {
     return await fetchGoatCounterDay(env.GOATCOUNTER_API_KEY, kstDayRange(now));
   } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
     // biome-ignore lint/suspicious/noConsole: 정산 실패 원인을 운영 로그로 남긴다
-    console.warn(
-      'daily report: goatcounter failed',
-      error instanceof Error ? error.message : error,
-    );
-    return null;
+    console.warn('daily report: goatcounter failed', reason);
+    return reason;
   }
 }
 
