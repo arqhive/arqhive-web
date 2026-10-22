@@ -115,6 +115,7 @@ sequenceDiagram
 
 - 라우트 파일(`app/(site)/…/page.tsx`)은 FSD의 화면을 다시 내보내고, Next.js만 읽는 설정(`metadata`, `revalidate`, `generateStaticParams`)만 둡니다.
 - **검색 노출**: 페이지마다 description·canonical·OG(`shared/lib/page-metadata.ts`), 패치 주소는 진열장 위 소개 띠(h1·소개)를 서버에서 그립니다. 등줄기·표지·목록 줄은 진짜 링크(`<a href>`)라 검색엔진이 패치 주소를 찾습니다.
+- **GitHub 릴리즈 읽기**: 저장소마다 마지막으로 제대로 읽은 값을 10분 기억합니다(`unstable_cache`). GitHub이 가끔 200과 빈 목록을 주므로(10/23) 빈 목록은 실패로 보고 다시 받고, 끝까지 실패하면 그 저장소만 직전 값을 씁니다(`@arqhive/shared`의 `fetchReleaseList`). 일일 정산은 그 패치를 그날 기록에서 뺍니다.
 - 서버 컴포넌트가 클라이언트 컴포넌트에 넘긴 값은 HTML 안의 페이지 데이터로 실립니다. 그래서 바로 안 보이는 큰 데이터(CHANGELOG 본문)는 넘기지 않고 누를 때 받습니다(4절).
 
 ## 4. 진열장과 케이스 열기

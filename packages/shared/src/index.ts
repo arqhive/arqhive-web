@@ -20,6 +20,7 @@ export { type ReleaseAssets, releasesUrl, sumLargestDownloads } from './download
 export type { Platform } from './platform.ts';
 export { PLATFORM_FULL_NAMES, PLATFORM_LABELS, PLATFORMS } from './platform.ts';
 export { platformSchema } from './platform-schema.ts';
+export { fetchReleaseList } from './release-list.ts';
 export {
   latestRelease,
   type ReleaseMeta,

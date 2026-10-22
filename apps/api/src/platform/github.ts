@@ -1,4 +1,5 @@
 import {
+  fetchReleaseList,
   latestRelease,
   type ReleaseAssets,
   type ReleaseMeta,
@@ -140,16 +141,12 @@ export async function fetchLatestStamp(
   if (token !== undefined) {
     requestHeaders.set('authorization', `Bearer ${token}`);
   }
-  try {
-    const response = await fetch(releasesUrl(repo), { headers: requestHeaders });
-    if (!response.ok) {
-      return null;
-    }
-    const latest = latestRelease((await response.json()) as ReleaseMeta[]);
-    return latest === undefined ? null : releaseStamp(latest);
-  } catch {
-    return null;
-  }
+  // 200과 빈 목록이 가끔 와서(10/23) 비면 다시 받는다(@arqhive/shared fetchReleaseList)
+  const releases = await fetchReleaseList<ReleaseMeta>(() =>
+    fetch(releasesUrl(repo), { headers: requestHeaders }),
+  );
+  const latest = releases === null ? undefined : latestRelease(releases);
+  return latest === undefined ? null : releaseStamp(latest);
 }
 
 /**
@@ -168,10 +165,9 @@ export async function fetchDownloadTotal(
   if (token !== undefined) {
     requestHeaders.set('authorization', `Bearer ${token}`);
   }
-  try {
-    const response = await fetch(releasesUrl(repo), { headers: requestHeaders });
-    return response.ok ? sumLargestDownloads((await response.json()) as ReleaseAssets[]) : null;
-  } catch {
-    return null;
-  }
+  // 빈 목록을 그대로 세면 다운로드 수 0이 그날 기록으로 저장된다. 비면 다시 받고, 끝까지 비면 null(그날 기록에서 뺀다)
+  const releases = await fetchReleaseList<ReleaseAssets>(() =>
+    fetch(releasesUrl(repo), { headers: requestHeaders }),
+  );
+  return releases === null ? null : sumLargestDownloads(releases);
 }
