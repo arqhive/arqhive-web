@@ -49,10 +49,13 @@ function VersionGuideLink() {
 
 /**
  * 원본 판 이름: 콘텐츠의 지역 코드(JP·US·EU, 둘이면 "US/EU")를 일본판·북미판·유럽판으로 읽는다.
- * 모르는 코드는 코드 뒤에 "판"만 붙인다.
+ * 모르는 코드는 코드 뒤에 "판"만 붙인다. 괄호 덧붙임은 그대로 뒤에 둔다("JP(Rev 1)" → 일본판(Rev 1)).
  */
 function RegionText({ region }: { readonly region: string }) {
-  return region
+  const noteStart = region.indexOf('(');
+  const codes = noteStart === -1 ? region : region.slice(0, noteStart);
+  const note = noteStart === -1 ? '' : region.slice(noteStart);
+  const names = codes
     .split('/')
     .map((code) => {
       if (code === 'JP') {
@@ -65,6 +68,7 @@ function RegionText({ region }: { readonly region: string }) {
     })
     .map((name) => `${name}판`)
     .join('·');
+  return `${names}${note}`;
 }
 
 /** 정보 칸 한 줄(이름 + 값) */
