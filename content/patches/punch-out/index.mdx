@@ -1,0 +1,48 @@
+---
+slug: "punch-out"
+titleKo: "펀치아웃!!"
+titleOriginal: "パンチアウト!!"
+titleEn: "Punch-Out!!"
+catalogNo: "ARQ-WII-005"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "R7PJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "wii"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "punch-out-korean-translation"
+baseRegion: "JP(Rev 1)"
+baseRequirements:
+  - region: "JP"
+    gameId: "R7PJ01"
+    dumpFormat: "ISO/WBFS (CISO·WIA·WDF 가능, RVZ·NKit 미지원)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "일본판 Rev 1. 북미판·유럽판 불가. 빈 공간 약 10GB"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "디스크 파일 단위 패처"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-01"
+translationScope: "메뉴, 닥 루이스의 조언·응원 대사, 트레이닝 자막, 튜토리얼, 선수 소개·도전 과제, 갤러리·영상 설명, 밸런스 Wii 보드 안내, 세이브·오류 메시지, 그림 글씨(타이틀 로고, 포스터, 손목 스트랩 안내 화면), 튜토리얼·데모·인트로 영상 속 로고 글씨, HOME 메뉴, Wii 메뉴 채널 배너·이름, 글꼴 2벌에 한글 넣고 영문·숫자·기호 다시 그림"
+compatibility:
+  - environment: "Dolphin"
+    status: "works"
+    note: null
+  - environment: "Wii U vWii"
+    status: "works"
+    note: "USB Loader GX"
+knownIssues:
+  - "실기(Wii·Wii U vWii)에서 메뉴를 뺀 대사·안내 글씨의 테두리가 조금 흐리게 보입니다. 일본어 원판도 똑같습니다. Dolphin에서는 내부 해상도를 높이면 또렷하게 보입니다."
+extraDownloads: []
+discArt: "./disc-art.webp"  # 타이틀 화면 스크린샷을 정사각형으로 자른 디스크 그림(로고 양끝이 원 안에 들게 조금 넓게 잡고 모자란 위아래는 점무늬를 거울로 이어 붙임)
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 상표·저작권은 Nintendo와 Next Level Games."
+summary: "Wii 「펀치아웃!!」 일본판을 원문 기준으로 번역한 한글 패치입니다. 메뉴와 닥 루이스의 대사, 튜토리얼, 그림 글씨까지 한글화했습니다."
+featured: false
+---
+
+Wii 「펀치아웃!!」 일본판을 원문 기준으로 번역한 한글 패치입니다. 메뉴와 닥 루이스의 대사, 튜토리얼, 그림 글씨까지 한글화했습니다. 원작에서도 영어인 문구(PRESS START, KO, 엔딩 크레딧 등)는 영어 그대로 두었습니다.
+
+## 적용하기
+
+ZIP을 풀고 원본 일본판 이미지를 패치하기.bat 위에 끌어다 놓습니다. 완료되면 같은 폴더에 Punch-Out!! (Korean) [R7PJ01].iso(WBFS 원본이면 .wbfs)가 생깁니다. 원본은 바뀌지 않습니다.
