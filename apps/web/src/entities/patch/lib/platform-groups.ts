@@ -56,6 +56,7 @@ export function usedGroups(items: readonly PatchCaseData[]) {
 /**
  * 최근 갱신된 배포 작품(최대 n개, 새로 나온 것 포함). 작업 중은 다운로드가 없어 뺀다.
  * 오늘(한국 시간)을 포함한 최근 2주(RECENT_DAYS일) 안에 갱신된 것만 고른다. 없으면 빈 목록.
+ * 순서는 날짜 → 같은 날이면 릴리즈 공개 시각(늦게 올린 것이 왼쪽) → 제목. 공개 시각은 GitHub를 못 읽으면 없다.
  * today는 바깥에서 넘긴다(계산을 순수하게 두어 테스트·서버 렌더링 시점과 무관하게 만든다).
  */
 export function recentlyUpdated(
@@ -71,6 +72,7 @@ export function recentlyUpdated(
     .toSorted(
       (a, b) =>
         b.latestReleaseDate.localeCompare(a.latestReleaseDate) ||
+        (b.latestPublishedAt ?? '').localeCompare(a.latestPublishedAt ?? '') ||
         a.titleKo.localeCompare(b.titleKo),
     )
     .slice(0, n);

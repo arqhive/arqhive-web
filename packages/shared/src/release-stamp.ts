@@ -20,6 +20,8 @@ interface ReleaseStamp {
   readonly version: string;
   /** 한국 날짜 "YYYY-MM-DD" */
   readonly date: string;
+  /** 공개 시각(GitHub 값 그대로, UTC ISO). 같은 날짜끼리 순서를 정할 때 쓴다 */
+  readonly publishedAt: string;
 }
 
 /** 한국 시간 = UTC + 9시간 */
@@ -40,12 +42,13 @@ function releaseStamp(
   release: Pick<ReleaseMeta, 'tag_name' | 'published_at'>,
 ): ReleaseStamp | null {
   const published = release.published_at === null ? Number.NaN : Date.parse(release.published_at);
-  if (release.tag_name.trim() === '' || Number.isNaN(published)) {
+  if (release.tag_name.trim() === '' || release.published_at === null || Number.isNaN(published)) {
     return null;
   }
   return {
     version: release.tag_name.trim(),
     date: new Date(published + KST_OFFSET_MS).toISOString().slice(0, DATE_LENGTH),
+    publishedAt: release.published_at,
   };
 }
 

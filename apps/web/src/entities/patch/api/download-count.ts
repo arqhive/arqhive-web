@@ -56,7 +56,8 @@ async function readReleaseInfo(
  * 다시 읽다가 던지면 Next.js가 옛 값을 그대로 돌려주고 캐시를 덮지 않는다(next/dist/.../unstable-cache.js,
  * 「Return the stale value on error」 10/23 확인). 그래서 GitHub이 잠깐 빈 목록을 줘도 그 저장소만 직전 값으로 남는다.
  */
-const cachedReleaseInfo = unstable_cache(readReleaseInfo, ['release-info-v1'], {
+// v2: latest에 publishedAt이 붙었다(11/1). 옛 모양으로 기억한 값을 쓰지 않게 키를 바꾼다
+const cachedReleaseInfo = unstable_cache(readReleaseInfo, ['release-info-v2'], {
   revalidate: GITHUB_CACHE_SECONDS,
 });
 

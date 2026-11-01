@@ -30,10 +30,12 @@ describe('releaseStamp', () => {
     expect(releaseStamp(release('v0.4', '2026-09-26T16:11:02Z'))).toStrictEqual({
       version: 'v0.4',
       date: '2026-09-27',
+      publishedAt: '2026-09-26T16:11:02Z',
     });
     expect(releaseStamp(release('v1.2f', '2026-10-02T14:09:39Z'))).toStrictEqual({
       version: 'v1.2f',
       date: '2026-10-02',
+      publishedAt: '2026-10-02T14:09:39Z',
     });
   });
 

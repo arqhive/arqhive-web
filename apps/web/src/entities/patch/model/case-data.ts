@@ -35,6 +35,8 @@ export type PatchCaseData = CaseContentData & {
   readonly downloadCount: number | null;
   /** 매체·버튼이 바로 받게 할 파일(최신 릴리즈, 서버가 붙인다). 모르면 null — 그때는 릴리즈 페이지로 보낸다 */
   readonly downloads: PatchDownloads | null;
+  /** 최신 릴리즈 공개 시각(UTC ISO, 서버가 붙인다). 최근 갱신 칸에서 같은 날짜끼리 순서를 정한다. 모르면 null */
+  readonly latestPublishedAt: string | null;
 };
 
 export function toCaseData(patch: Patch): PatchCaseData {
@@ -60,5 +62,6 @@ export function toCaseData(patch: Patch): PatchCaseData {
     fileCheck: patch.fileCheck,
     downloadCount: null,
     downloads: null,
+    latestPublishedAt: null,
   };
 }

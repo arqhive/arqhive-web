@@ -41,6 +41,7 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
       latestReleaseDate: info?.latest?.date ?? item.latestReleaseDate,
       downloadCount: info?.downloadCount ?? null,
       downloads: info?.downloads ?? null,
+      latestPublishedAt: info?.latest?.publishedAt ?? null,
     };
   });
   // CHANGELOG가 있는 패치 slug. 못 읽은 패치는 빠진다(단추가 숨겨짐)
