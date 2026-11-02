@@ -1,0 +1,48 @@
+---
+slug: "wario-world"
+titleKo: "와리오 월드"
+titleOriginal: "ワリオワールド"
+titleEn: "Wario World"
+catalogNo: "ARQ-GC-006"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "GWWJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "gc"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "wario-world-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "GWWJ01"
+    dumpFormat: "ISO/GCM (RVZ·GCZ·CISO·NKit은 Dolphin 등에서 ISO로 바꾼 뒤 적용)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "파일 단위 패처라 게임 파일만 같으면 이미지 해시가 달라도 적용. 북미판·유럽판 불가. 빈 공간 약 1.5GB"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "디스크 파일 단위 패처 (exe)"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-02"
+translationScope: "메뉴, 옵션, 스테이지·보물 이름, 요정 도움말, 마늘 자판기, 오프닝 이야기, 엔딩, 세이브·오류 메시지, GBA 연결 안내, 그림 글씨(목표 안내판, 타이틀 로고, 메모리 카드 배너), 한글과 영문·숫자·기호를 G마켓 산스 Bold로 맞춤"
+compatibility:
+  - environment: "Dolphin"
+    status: "works"
+    note: null
+  - environment: "Wii U vWii + Nintendont"
+    status: "works"
+    note: "USB Loader GX"
+knownIssues:
+  - "GBA를 연결해 즐기는 「메이드 인 와리오」 체험판은 한글화하지 않았습니다."
+extraDownloads: []
+discArt: "./disc-art.webp"  # 타이틀 화면 스크린샷을 GC 위 칸 비율(462×309)로 자른 디스크 그림(화면 높이 그대로, 한글 로고가 구멍 위에 오게)
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 G마켓 산스(SIL OFL 1.1). 상표·저작권은 Nintendo와 Treasure."
+summary: "게임큐브 일본판 「와리오 월드」를 원문 기준으로 번역한 한글 패치입니다. 메뉴와 요정 도움말, 오프닝·엔딩 이야기, 목표 안내판과 타이틀 로고까지 한글화했습니다."
+featured: false
+---
+
+게임큐브 일본판 「와리오 월드」를 원문 기준으로 번역한 한글 패치입니다. 메뉴와 요정 도움말, 오프닝·엔딩 이야기, 목표 안내판과 타이틀 로고까지 한글화했습니다. 원작에서도 영어인 문구(WARIO WORLD, 엔딩 크레디트 등)는 영어 그대로 두었습니다.
+
+## 적용하기
+
+ZIP을 풀고 WarioWorld_KO_Patcher.exe를 실행해 일본판 원본 이미지를 고른 뒤, 결과를 저장할 경로를 정하고 **한글 패치 적용**을 누릅니다. 원본은 바뀌지 않습니다.
