@@ -1,0 +1,48 @@
+---
+slug: "chibi-robo-wii"
+titleKo: "Wii로 즐기는 치비로보!"
+spineLines: ["Wii로 즐기는", "치비로보!"]  # 선반 등줄기 줄바꿈
+titleOriginal: "Wiiであそぶ ちびロボ!"
+titleEn: "New Play Control! Chibi-Robo!"
+catalogNo: "ARQ-WII-006"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "R24J"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "wii"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "new-play-control-chibi-robo-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "R24J01"
+    dumpFormat: "ISO/WBFS (CISO·WIA·WDF 가능, RVZ·NKit 미지원)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "북미판·유럽판·게임큐브판 불가. 파일 단위 패처라 게임 파일만 같으면 이미지 해시가 달라도 적용. 빈 공간 약 10GB(작업용 파일 포함)"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "디스크 파일 단위 패처"
+latestVersion: "v0.9"
+latestReleaseDate: "2026-11-04"
+translationScope: "대사 전체(본편·가족·장난감·이벤트·텔리 안내·톤피 저장 안내), 아이템·인형옷·레치커즈·칩 설명, 도움말, 치비컴 상점 화면, 지역 이름, 전광판 문구, 세이브·메모리 카드·프로그레시브 모드 등 시스템 메시지, 그림 글씨(타이틀 로고, 치비컴 로고, 건강·안전 안내, 버튼 안내, 마네 표기, 칩 아이콘, 비명 효과, 그램·센티·짐 표기, 디스크 배너), 노래방 영상 가사(TERIYAKI 블루스), 폰트에 한글 1,030자와 G마켓 산스 영문·숫자·기호 다시 그림"
+compatibility:
+  - environment: "Dolphin"
+    status: "works"
+    note: null
+  - environment: "Wii U vWii"
+    status: "works"
+    note: "USB Loader GX"
+knownIssues: []
+extraDownloads: []
+discArt: "./disc-art.webp"  # 타이틀 화면 스크린샷을 정사각형으로 자른 디스크 그림(로고가 원 안에 들게 조금 넓게 잡고 모자란 위아래는 배경 회색으로)
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 G마켓 산스(SIL OFL 1.1). 상표·저작권은 각 권리자(면책에 Nintendo, skip Ltd. 언급)."
+summary: "Wii 일본판 「Wii로 즐기는 치비로보!」를 원문 기준으로 번역한 한글 패치입니다. 대사와 메뉴, 아이템 설명, 전광판 문구, 그림 글씨와 HOME 메뉴까지 한글화했습니다."
+featured: false
+---
+
+Wii 일본판 「Wii로 즐기는 치비로보!」를 원문 기준으로 번역한 한글 패치입니다. 대사와 메뉴, 아이템 설명, 전광판 문구, 그림 글씨와 HOME 메뉴까지 한글화했습니다. 게임큐브판 「치비로보!」 패치는 따로 있습니다.
+
+## 적용하기
+
+ZIP을 풀고 원본 일본판 이미지를 패치하기.bat 위에 끌어다 놓습니다(또는 같은 폴더에 넣고 실행). 완료되면 같은 폴더에 Chibi-Robo! (Korean) [R24J01].iso(원본이 WBFS면 .wbfs)가 생깁니다. 원본은 바뀌지 않습니다.
