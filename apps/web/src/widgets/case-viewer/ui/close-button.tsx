@@ -5,13 +5,22 @@
  * - 데스크톱: 케이스가 오른쪽으로 펼쳐지므로(속지는 왼쪽) 케이스 오른쪽 위 = 펼친 전체의 오른쪽 위.
  * - 휴대폰: 속지가 케이스 위로 펼쳐지므로 케이스 높이 하나만큼 더 올라간 자리(펼친 전체의 오른쪽 위)에 둔다.
  *   위쪽 여백이 좁아(펼친 높이 88svh) 휴대폰에서는 단추를 조금 작게, 간격도 좁게 둔다.
+ * - spread(N64): 설명서·팩을 늘어놓는 묶음(CaseSpread) 안에 두므로, 묶음 바로 오른쪽 위에 붙는다.
  */
+/** 단추 자리: 케이스(위·왼쪽으로 펼침) 기준과 늘어놓은 묶음 기준 */
+const PLACEMENT = {
+  case: 'bottom-[calc(200%+0.25rem)] md:bottom-[calc(100%+0.5rem)]',
+  spread: 'bottom-[calc(100%+0.25rem)] md:bottom-[calc(100%+0.5rem)]',
+} as const;
+
 export function CloseButton({
   isVisible,
   onClick,
+  spread = false,
 }: {
   readonly isVisible: boolean;
   readonly onClick: () => void;
+  readonly spread?: boolean;
 }) {
   return (
     <button
@@ -19,8 +28,8 @@ export function CloseButton({
       onClick={onClick}
       aria-label="닫기"
       title="닫기"
-      className={`absolute right-0 bottom-[calc(200%+0.25rem)] z-20 flex size-8 items-center justify-center rounded-full border border-line bg-paper text-ink shadow-md transition-[opacity,background-color] duration-200 hover:bg-card focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2 motion-reduce:transition-none md:bottom-[calc(100%+0.5rem)] md:size-9 ${
-        isVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+      className={`absolute right-0 ${PLACEMENT[spread ? 'spread' : 'case']} z-20 flex size-8 items-center justify-center rounded-full border border-line bg-paper text-ink shadow-md transition-[opacity,background-color] duration-200 hover:bg-card focus-visible:outline-2 focus-visible:outline-stamp focus-visible:outline-offset-2 motion-reduce:transition-none md:size-9 ${
+        isVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
       <svg

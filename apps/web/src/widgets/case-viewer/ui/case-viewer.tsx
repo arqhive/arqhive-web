@@ -6,11 +6,14 @@ import {
   CaseFront,
   CaseInner,
   CaseOuterBox,
+  CaseSpread,
   CaseTray,
   hasOuterBox,
+  opensAsSpread,
   type PatchCaseData,
 } from '@/entities/patch';
 import { CLOSE_TEMPO } from '../lib/motion.ts';
+import type { CasePhase } from '../lib/phases.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
 import { useChangelog } from '../model/use-changelog.ts';
 import { useScrollLock } from '../model/use-scroll-lock.ts';
@@ -26,6 +29,90 @@ import { CloseButton } from './close-button.tsx';
 const MOBILE_MIN_WIDTH = 'max-md:min-w-[min(92vw,44svh)]';
 
 /**
+ * 책처럼 여는 케이스: 트레이(매체) 위에 표지가 겹쳐 있다가 위(휴대폰)·왼쪽(데스크톱)으로 넘어간다.
+ * 표지 앞면 = 케이스 앞면, 뒷면 = 속지(children, 미리 180도 돌려 둠).
+ */
+function CaseBook({
+  patch,
+  isOpen,
+  children,
+}: {
+  readonly patch: PatchCaseData;
+  readonly isOpen: boolean;
+  readonly children: ReactNode;
+}) {
+  return (
+    <>
+      {/* 트레이: 매체가 놓인 케이스 안쪽 */}
+      <div className="absolute inset-0">
+        <CaseTray patch={patch} isOpen={isOpen} />
+      </div>
+      <div
+        className={`absolute inset-0 origin-top transform-3d transition-transform delay-[calc(150ms*var(--case-tempo,1))] duration-[calc(900ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none md:origin-left ${
+          isOpen ? 'rotate-x-180 md:rotate-x-0 md:-rotate-y-180' : ''
+        }`}
+      >
+        <div className="absolute inset-0 backface-hidden">
+          <CaseFront patch={patch} />
+        </div>
+        <div className="absolute inset-0 rotate-x-180 backface-hidden md:rotate-x-0 md:rotate-y-180">
+          <CaseInner patch={patch}>{children}</CaseInner>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/**
+ * 케이스(caseRef) 안에 겹치는 것들: 열린 모습(책처럼 넘기기 또는 늘어놓기), 바깥 종이상자, 닫기 단추.
+ * 속지(패치 정보)는 여기서 만든다. onShowChangelog가 없으면 업데이트 내역 단추를 숨긴다.
+ */
+function CaseContents({
+  patch,
+  phase,
+  isSettled,
+  onClose,
+  onShowChangelog,
+}: {
+  readonly patch: PatchCaseData;
+  readonly phase: CasePhase;
+  readonly isSettled: boolean;
+  readonly onClose: () => void;
+  readonly onShowChangelog: (() => void) | undefined;
+}) {
+  const isOpen = phase === 'open';
+  const spread = opensAsSpread(CASE_SPECS[patch.platform]);
+  const liner = <CaseLiner patch={patch} onShowChangelog={onShowChangelog} />;
+  return (
+    <>
+      {spread ? (
+        <CaseSpread
+          patch={patch}
+          isOpen={isOpen}
+          closeButton={<CloseButton isVisible={isSettled} onClick={onClose} spread={true} />}
+        >
+          {liner}
+        </CaseSpread>
+      ) : (
+        <CaseBook patch={patch} isOpen={isOpen}>
+          {liner}
+        </CaseBook>
+      )}
+
+      {/* 바깥 종이상자(GC, 카트리지 상자): 케이스 전체를 덮고 있다가 뚜껑이 열리고 빠진다 */}
+      <CaseOuterBox
+        patch={patch}
+        lidOpen={phase !== 'closed'}
+        unboxed={phase === 'unboxed' || isOpen}
+      />
+
+      {/* 닫기 단추: 케이스 안에 두어 케이스가 날아오고 펼쳐질 때 함께 따라다닌다(늘어놓기는 묶음 안에 있다) */}
+      {spread ? null : <CloseButton isVisible={isSettled} onClick={onClose} />}
+    </>
+  );
+}
+
+/**
  * 케이스 열기 연출(진열장의 대표 장치). 누른 표지가 화면 가운데로 날아와 커진 뒤 열린다.
  *
  * - <dialog>.showModal(): 브라우저 기본 모달. 포커스 가두기, ESC(cancel 이벤트), 배경(::backdrop)을 기본 제공한다.
@@ -33,7 +120,8 @@ const MOBILE_MIN_WIDTH = 'max-md:min-w-[min(92vw,44svh)]';
  * - 열림 축: 데스크톱(md 이상)은 책처럼 왼쪽으로(rotateY), 휴대폰은 폭이 좁아 위로(rotateX) 연다.
  *   열리면 속지가 케이스 바깥(왼쪽·위쪽)으로 나오므로, 케이스를 반 칸만큼 옮겨 펼친 전체가 가운데 오게 한다.
  * - GC: 케이스가 종이상자에 들어 있다. 상자 뚜껑이 열리고(lid) 상자가 아래로 빠진 뒤(unboxed) 케이스가 열린다.
- * - SFC·GB·GBA: 같은 순서로 상자가 빠지면 카트리지와 설명서가 나오고, 설명서가 펼쳐진다.
+ * - SFC·GB·GBA·N64: 같은 순서로 상자가 빠지면, 표지를 넘기지 않고 설명서·팩을 상자에서 꺼내 늘어놓는다(CaseSpread).
+ *   N64는 뚜껑 대신 옆 날개가 열리고 상자가 옆으로 빠진다.
  * - 크기: Wii 케이스가 데스크톱 한 칸 최대 480×640(펼치면 960×640)이고, 다른 기종은 실물 높이 비율만큼 작다(viewerHeight).
  *   화면이 작으면 높이·폭 안에 맞춰 줄어든다.
  * - 속도: 연출 시간은 모두 `calc(시간 * var(--case-tempo, 1))`로 쓴다. 닫는 동안 dialog에 --case-tempo를
@@ -55,6 +143,8 @@ export function CaseViewer({
   readonly onClose: () => void;
 }) {
   const boxed = patch !== null && hasOuterBox(CASE_SPECS[patch.platform]);
+  // 늘어놓기(카트리지 상자): 케이스를 옮기거나 표지를 넘기지 않고, 상자 자리 가운데에 설명서·팩을 펼친다
+  const spread = patch !== null && opensAsSpread(CASE_SPECS[patch.platform]);
   const view = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
   const { phase } = view;
   // 케이스가 떠 있는 동안(날아오기부터 제자리로 돌아갈 때까지) 뒤 페이지 스크롤을 막는다
@@ -86,44 +176,18 @@ export function CaseViewer({
             <div
               ref={view.caseRef}
               className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} ${MOBILE_MIN_WIDTH} origin-top-left transition-transform duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${
-                isOpen ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
+                isOpen && !spread ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
               }`}
             >
-              {/* 트레이: 매체가 놓인 케이스 안쪽 */}
-              <div className="absolute inset-0">
-                <CaseTray patch={patch} isOpen={isOpen} />
-              </div>
-
-              {/* 표지: 위(휴대폰)·왼쪽(데스크톱)으로 넘어간다. 앞면=케이스 앞면, 뒷면=속지(미리 180도 돌려 둠) */}
-              <div
-                className={`absolute inset-0 origin-top transform-3d transition-transform delay-[calc(150ms*var(--case-tempo,1))] duration-[calc(900ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none md:origin-left ${
-                  isOpen ? 'rotate-x-180 md:rotate-x-0 md:-rotate-y-180' : ''
-                }`}
-              >
-                <div className="absolute inset-0 backface-hidden">
-                  <CaseFront patch={patch} />
-                </div>
-                <div className="absolute inset-0 rotate-x-180 backface-hidden md:rotate-x-0 md:rotate-y-180">
-                  <CaseInner patch={patch}>
-                    <CaseLiner
-                      patch={patch}
-                      onShowChangelog={
-                        loadChangelog === undefined ? undefined : () => setChangelogSlug(patch.slug)
-                      }
-                    />
-                  </CaseInner>
-                </div>
-              </div>
-
-              {/* 바깥 종이상자(GC만): 케이스 전체를 덮고 있다가 뚜껑이 열리고 아래로 빠진다 */}
-              <CaseOuterBox
+              <CaseContents
                 patch={patch}
-                lidOpen={phase !== 'closed'}
-                unboxed={phase === 'unboxed' || isOpen}
+                phase={phase}
+                isSettled={view.isSettled}
+                onClose={view.close}
+                onShowChangelog={
+                  loadChangelog === undefined ? undefined : () => setChangelogSlug(patch.slug)
+                }
               />
-
-              {/* 닫기 단추: 케이스 안에 두어 케이스가 날아오고 펼쳐질 때 함께 따라다닌다 */}
-              <CloseButton isVisible={view.isSettled} onClick={view.close} />
             </div>
           </div>
           {/* 업데이트 내역 모달: 3D로 회전하는 무대 바깥에 둔다(최상위 층에 뜨는 dialog라 위치는 화면 기준) */}

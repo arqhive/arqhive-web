@@ -145,7 +145,7 @@ sequenceDiagram
   C->>H: picked = 패치
   H->>D: showModal() → dialog에 포커스
   H->>D: 누른 자리에서 가운데로 날아옴(FLIP, Web Animations)
-  Note over D: GC·SFC·GB·GBA는 상자 뚜껑 → 상자 빠짐 → 펼침(단계 phase)
+  Note over D: GC는 상자 뚜껑 → 상자 빠짐 → 케이스 펼침(단계 phase)<br/>SFC·GB·GBA·N64는 뚜껑(N64는 옆 날개) → 상자 빠짐 → 설명서·팩을 꺼내 늘어놓음
   H->>H: 모든 transition이 끝나면 닫기 단추 보임
   U->>D: ESC · 빈 곳 · X
   H->>D: 1.5배 빠르게 덮고 원래 자리로 → close()

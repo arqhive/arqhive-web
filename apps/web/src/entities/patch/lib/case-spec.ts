@@ -1,5 +1,8 @@
 import type { Platform } from '@arqhive/shared';
 
+/** 옆 날개로 여는 상자 기종. 가로가 긴 N64 상자는 윗뚜껑 대신 오른쪽 옆면의 날개가 열리고, 상자는 옆으로 빠진다 */
+const SIDE_FLAP_PLATFORMS: ReadonlySet<Platform> = new Set<Platform>(['n64']);
+
 /**
  * 기종별 케이스 생김새. 실제 제품 로고·고유 디자인은 따라 하지 않고, 기종 느낌만 낸 일반 도형이다.
  *
@@ -13,7 +16,7 @@ import type { Platform } from '@arqhive/shared';
  * - GC 145×123(높이×폭, 등 14) → 높이 0.763배
  * - 3DS·NDS 116×131.75(등 12, 펼친 속지 275.5×116에서 계산) → 높이 0.611배, 가로가 조금 긴 정사각형에 가깝다
  * - SFC 상자 193×138(깊이 41) → 1.016배, GB 상자 129×129(깊이 27) → 0.679배, GBA 상자 약 130×130(깊이 29) → 0.684배
- * 실물 치수를 모르는 N64는 아직 예전 크기 그대로다.
+ * - N64 상자 127×177(가로가 긴 상자, 깊이 32) → 0.668배. 팩은 약 117×78이라 상자 폭의 66%다.
  */
 /** 킵 케이스 플라스틱 색 */
 export type CaseTone = 'white' | 'blue' | 'black' | 'charcoal';
@@ -50,8 +53,8 @@ export interface CaseSpec {
    * - keepcase: 실물처럼 그린 킵 케이스(keepcase.tsx, Wii·Wii U·3DS·NDS). 앞면에 표지를 인쇄한다.
    *   NDS(DSiWare 포함)는 3DS와 같은 구조에 차콜(짙은 회색) 플라스틱이다.
    * - boxed-keepcase: 종이상자(carton.tsx) 안에 든 킵 케이스(GC). 표지는 상자에 인쇄하고 케이스 앞면은 비어 있다.
-   * - carton: 종이상자에 카트리지와 설명서가 든 형태(SFC·GB·GBA). 상자 속 지지대는 그리지 않는다.
-   *   상자를 열면 카트리지가 나오고, 설명서를 펼치면 속지(패치 정보)가 보인다.
+   * - carton: 종이상자에 카트리지와 설명서가 든 형태(SFC·GB·GBA·N64). 상자 속 지지대는 그리지 않는다.
+   *   상자를 열면 설명서와 카트리지를 꺼내 늘어놓는다(opensAsSpread). N64 상자는 뚜껑 대신 옆 날개로 열린다(hasSideFlap).
    * - generic: 단색 면으로 그린 기본 케이스. 다른 기종도 실물 형태가 생기면 여기에 추가한다.
    */
   readonly form: 'keepcase' | 'boxed-keepcase' | 'carton' | 'generic';
@@ -66,6 +69,7 @@ export interface CaseSpec {
   /**
    * 최근 갱신 칸의 표지 높이. 칸 폭(cqw, 칸이 @container)에 비례한다.
    * Wii 표지가 칸 폭을 거의 채우는 높이(138cqw)를 기준으로 실물 높이 비율을 곱한다. 가장 넓은 SFC 상자도 칸 폭을 넘지 않는다.
+   * 가로가 긴 N64 상자만은 실물 비율(92.2cqw)이면 칸 폭을 넘으므로, 폭이 칸 폭과 같아지는 높이(100 ÷ 177/127)로 줄인다.
    */
   readonly faceHeight: string;
   /**
@@ -73,6 +77,8 @@ export interface CaseSpec {
    * 펼친 폭이 화면을 넘지 않게 vw 상한은 가로세로비로 다시 맞춘다.
    * 휴대폰은 위아래로 펼쳐 폭이 좁으므로 실물 비율 대신 모든 기종을 Wii와 같은 높이(44svh)로 두고(svh: 주소창이 펴졌을 때의 화면 높이라, 스크롤로 주소창이 접혀도 크기가 바뀌지 않는다),
    * 케이스 폭이 화면 폭의 약 86%를 넘지 않게 vw 상한만 가로세로비로 맞춘다(작게 줄이면 속지가 넘친다).
+   * 카트리지 상자(SFC·GB·GBA·N64)는 앞판을 넘기지 않고 설명서·팩을 꺼내 늘어놓으므로(case-spread.tsx) 상자 높이는 닫힌 상자에만 쓴다.
+   * 그래서 가로가 긴 N64 상자도 펼친 폭을 따질 필요 없이 상자만 화면 폭 안에 들어가면 된다.
    */
   readonly viewerHeight: string;
 }
@@ -152,15 +158,15 @@ export const CASE_SPECS = {
   },
   n64: {
     media: 'cart',
-    caseClass: 'bg-case-sfc text-case-sfc-ink',
-    mediaClass: 'w-[66%] aspect-[4/3]',
-    form: 'generic',
+    caseClass: 'bg-case-n64 text-case-n64-ink',
+    mediaClass: 'w-[66%] aspect-[117/80]',
+    form: 'carton',
     tone: null,
     holder: null,
-    aspect: 'aspect-[3/4]',
-    scale: 1,
-    faceHeight: 'h-[133cqw]',
-    viewerHeight: 'h-[min(44svh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
+    aspect: 'aspect-[177/127]',
+    scale: 0.668,
+    faceHeight: 'h-[71.75cqw]',
+    viewerHeight: 'h-[min(44svh,61vw)] md:h-[min(26.75rem,57dvh,41vw)]',
   },
   sfc: {
     media: 'cart',
@@ -207,12 +213,25 @@ export const DISC_PRINTS = {
   wiiu: { layout: 'plain', name: 'Wii U', holo: 'rainbow' },
 } as const satisfies Partial<Record<Platform, DiscPrint>>;
 
-/** 바깥 종이상자가 있는 형태인지(GC 킵 케이스, SFC·GB·GBA 카트리지). 열기 연출에 뚜껑·상자 빼기 단계가 붙는다 */
+/** 바깥 종이상자가 있는 형태인지(GC 킵 케이스, SFC·GB·GBA·N64 카트리지). 열기 연출에 뚜껑·상자 빼기 단계가 붙는다 */
 export function hasOuterBox(spec: CaseSpec): boolean {
   return spec.form === 'boxed-keepcase' || spec.form === 'carton';
+}
+
+/** 상자가 옆 날개로 열리는지(N64, 상자는 옆으로 빠진다). 아니면 윗뚜껑으로 열리고 아래로 빠진다 */
+export function hasSideFlap(platform: Platform): boolean {
+  return SIDE_FLAP_PLATFORMS.has(platform);
 }
 
 /** 모서리를 둥글리지 않는 형태인지(GC 킵 케이스와 그 상자 옆면, 사용자 요청 10/6). 다른 기종은 살짝 둥글다 */
 export function hasSquareCorners(spec: CaseSpec): boolean {
   return spec.form === 'boxed-keepcase';
+}
+
+/**
+ * 열면 설명서·카트리지를 상자에서 꺼내 늘어놓는지(카트리지 상자 SFC·GB·GBA·N64, 사용자 요청 11/05).
+ * 아니면 책처럼 앞판(표지)을 넘겨 안쪽 속지와 매체를 보인다(킵 케이스).
+ */
+export function opensAsSpread(spec: CaseSpec): boolean {
+  return spec.form === 'carton';
 }

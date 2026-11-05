@@ -91,6 +91,9 @@
   --color-case-3ds-ink: #202020;
   --color-case-nds: #f1f0ec;
   --color-case-nds-ink: #202020;
+  /* N64 상자: 밝은 회색(팩 #b8babe보다 밝게 두어 구분한다, 11/05 사용자 요청) */
+  --color-case-n64: #d6d7d9;
+  --color-case-n64-ink: #222428;
   --color-case-sfc: #dccdb0;
   --color-case-sfc-ink: #2e2418;
   --color-case-gb: #cfc8b9;

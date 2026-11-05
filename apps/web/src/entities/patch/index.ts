@@ -8,7 +8,9 @@ export {
   type CaseSpec,
   type CaseTone,
   hasOuterBox,
+  hasSideFlap,
   hasSquareCorners,
+  opensAsSpread,
 } from './lib/case-spec.ts';
 export {
   groupOf,
@@ -29,4 +31,5 @@ export { CaseCover } from './ui/case-cover.tsx';
 export { CaseFront, CaseInner, CaseOuterBox, CaseTray } from './ui/case-inside.tsx';
 export { CaseMedia } from './ui/case-media.tsx';
 export { CaseSpine } from './ui/case-spine.tsx';
+export { CaseSpread } from './ui/case-spread.tsx';
 export { TitleLines } from './ui/title-lines.tsx';

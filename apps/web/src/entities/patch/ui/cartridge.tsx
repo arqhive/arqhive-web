@@ -3,7 +3,7 @@ import type { PatchCaseData } from '../model/case-data.ts';
 import { ReleaseLink } from './release-link.tsx';
 
 /**
- * SFC·GB·GBA 카트리지(게임팩). 실물 사진의 생김새(몸통 윤곽, 라벨 자리, 홈, 나사)만 따르고 로고·각인은 그리지 않는다.
+ * SFC·GB·GBA·N64 카트리지(게임팩). 실물 사진의 생김새(몸통 윤곽, 라벨 자리, 홈, 나사)만 따르고 로고·각인은 그리지 않는다.
  * 윤곽이 네모가 아닌 부분(GB의 잘린 모서리, GBA의 턱)은 clip-path로 자른다. clip-path는 box-shadow도 잘라 내므로
  * 그림자는 바깥 래퍼의 drop-shadow로 준다.
  * 바깥 래퍼를 컨테이너로 두어 라벨 글자 크기를 **카트리지 폭** 기준으로 정한다.
@@ -154,10 +154,83 @@ function GbaCartridge({ patch }: { readonly patch: PatchCaseData }) {
   );
 }
 
+/** N64 몸통 윤곽(viewBox 117×80): 윗변은 가운데가 솟은 넓은 호, 위 모서리는 둥글고, 옆선은 바닥까지 곧다 */
+const N64_OUTLINE = 'M2.5 79 L2.5 20 Q2.5 12 10 11 Q58.5 -9 107 11 Q114.5 12 114.5 20 L114.5 79 Z';
+/** 라벨 윤곽: 윗변이 몸통 호를 따라 휘고 위 모서리가 둥글다 */
+const N64_LABEL =
+  'M29 18 Q29 12 35 11 Q58.5 3 82 11 Q88 12 88 18 L88 70 Q88 73 85 73 L32 73 Q29 73 29 70 Z';
+/** 날개 아래 음각선(왼쪽): 옆선에서 비스듬히 꺾여 들어와 바닥까지 내려간다. 오른쪽은 좌우를 뒤집어 쓴다 */
+const N64_NOTCH_SHADE = 'M2 60.8 L4.5 60.8 Q5.6 60.8 6.1 61.8 L7.3 64.6 Q7.6 65.4 7.6 66.4 L7.6 80';
+const N64_NOTCH_LIGHT = 'M2 61.4 L4.5 61.4 Q6 61.4 6.6 62.6 L7.8 65.2 Q8.1 66 8.1 67 L8.1 80';
+/** 클립 경로 id. 케이스 열기 화면은 한 번에 하나만 열리므로 고정 id로 충분하다 */
+const N64_CLIP_ID = 'n64-cart-body';
+
+/** 날개 아래 음각선 한 쌍(그늘 선 + 빛 선). flip이면 좌우를 뒤집어 오른쪽 날개에 쓴다 */
+function N64Notch({ flip = false }: { readonly flip?: boolean }) {
+  return (
+    <g transform={flip ? 'matrix(-1 0 0 1 117 0)' : undefined} fill="none">
+      <path d={N64_NOTCH_LIGHT} stroke="#eceef0" strokeWidth="0.6" />
+      <path d={N64_NOTCH_SHADE} stroke="#7f8185" strokeWidth="0.7" />
+    </g>
+  );
+}
+
+/**
+ * N64(정면 사진 기준, 약 117×78mm): 밝은 회색 팩. 곡선 윤곽이라 SVG로 그린다(사용자와 초안 확인 11/05).
+ * 가운데 판은 끝이 둥근 세로 홈 두 줄로만 나뉘고(위아래 끝까지 닿아 몸통 윤곽에서 잘림), 가운데에 위가 둥근 라벨,
+ * 양옆 날개 아래에 비스듬히 꺾인 음각선이 있다. 라벨에는 게임 이름만 쓴다.
+ */
+function N64Cartridge({ patch }: { readonly patch: PatchCaseData }) {
+  return (
+    <div className="absolute inset-0">
+      <svg aria-hidden="true" viewBox="0 0 117 80" className="absolute inset-0 size-full">
+        <defs>
+          <clipPath id={N64_CLIP_ID}>
+            <path d={N64_OUTLINE} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#${N64_CLIP_ID})`}>
+          <rect width="117" height="80" fill="#b8babe" />
+          <rect
+            x="23.3"
+            y="-2"
+            width="1.4"
+            height="84"
+            rx="0.7"
+            fill="#7f8185"
+            stroke="#e6e8ea"
+            strokeWidth="0.35"
+          />
+          <rect
+            x="92.3"
+            y="-2"
+            width="1.4"
+            height="84"
+            rx="0.7"
+            fill="#7f8185"
+            stroke="#e6e8ea"
+            strokeWidth="0.35"
+          />
+          <N64Notch />
+          <N64Notch flip={true} />
+        </g>
+        <path d={N64_OUTLINE} fill="none" stroke="#7d7f83" strokeWidth="0.6" />
+        <path d={N64_LABEL} fill="#f6f6f4" stroke="#9a9ca0" strokeWidth="0.4" />
+      </svg>
+      <div className="absolute inset-x-[26%] top-[16%] bottom-[10%] flex items-center justify-center text-center text-[#1e2a3a]">
+        <span className="break-keep font-bold font-title text-[6.5cqw] leading-tight">
+          {patch.titleKo}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 const CARTRIDGES = {
   sfc: SfcCartridge,
   gb: GbCartridge,
   gba: GbaCartridge,
+  n64: N64Cartridge,
 } as const;
 
 /**
