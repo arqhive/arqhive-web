@@ -8,11 +8,12 @@ import {
   type PlatformFilter,
   patchPath,
   pickOnPlainClick,
+  platformRank,
 } from '@/entities/patch';
 import { formatDate } from '@/shared/lib';
 
 /**
- * 목록 보기(시안 A 기록보관소의 촘촘한 표). 분류 번호 순으로 보여 준다.
+ * 목록 보기(시안 A 기록보관소의 촘촘한 표). 기종 칸 순서(PLATFORM_GROUPS) → 분류 번호 순으로 보여 준다.
  * 데스크톱(md 이상)은 표, 휴대폰은 한 줄 카드로 바뀐다(같은 데이터, 다른 배치).
  * 휴대폰 카드의 오른쪽 칸(배포 배지·기종)은 줄마다 폭이 달라서, 둘 다 오른쪽 끝에 맞춘다(justify-self-end).
  */
@@ -27,7 +28,11 @@ export function PatchTable({
 }) {
   const rows = items
     .filter((item) => matchesFilter(item, filter))
-    .toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
+    .toSorted(
+      (a, b) =>
+        platformRank(a.platform) - platformRank(b.platform) ||
+        a.catalogNo.localeCompare(b.catalogNo),
+    );
 
   return (
     <ul className="border-ink border-t-2">

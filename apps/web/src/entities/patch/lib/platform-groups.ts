@@ -7,18 +7,18 @@ const RECENT_DAYS = 14;
 
 /**
  * 기종 필터 칸. NDS와 DSiWare만 한 칸으로 묶고 나머지는 기종마다 따로 둔다(기획 문서 10장).
- * 선반 줄도 이 칸을 단위로 구성한다.
+ * 선반 줄·필터 단추·목록 보기도 이 순서를 따른다: 거치형(새 기종부터) → 휴대용(새 기종부터).
  */
 export const PLATFORM_GROUPS = [
-  { key: 'gc', label: 'GC', platforms: ['gc'] },
-  { key: 'wii', label: 'Wii', platforms: ['wii'] },
   { key: 'wiiu', label: 'Wii U', platforms: ['wiiu'] },
-  { key: '3ds', label: '3DS', platforms: ['3ds'] },
-  { key: 'nds', label: 'NDS·DSi', platforms: ['nds', 'dsiware'] },
+  { key: 'wii', label: 'Wii', platforms: ['wii'] },
+  { key: 'gc', label: 'GC', platforms: ['gc'] },
   { key: 'n64', label: 'N64', platforms: ['n64'] },
   { key: 'sfc', label: 'SFC', platforms: ['sfc'] },
-  { key: 'gb', label: 'GB', platforms: ['gb'] },
+  { key: '3ds', label: '3DS', platforms: ['3ds'] },
+  { key: 'nds', label: 'NDS·DSi', platforms: ['nds', 'dsiware'] },
   { key: 'gba', label: 'GBA', platforms: ['gba'] },
+  { key: 'gb', label: 'GB', platforms: ['gb'] },
 ] as const satisfies readonly { key: string; label: string; platforms: readonly Platform[] }[];
 
 export type PlatformGroupKey = (typeof PLATFORM_GROUPS)[number]['key'];
@@ -42,6 +42,14 @@ export function groupOf(platform: Platform): PlatformGroupKey {
     (g.platforms as readonly Platform[]).includes(platform),
   );
   return group?.key ?? 'gc';
+}
+
+/**
+ * 기종 순서. PLATFORM_GROUPS 순서대로 늘어놓은 기종 목록 안의 자리라, 한 칸 안에서도 적힌 순서(NDS → DSiWare)를 따른다.
+ * 목록 보기 정렬에 쓴다.
+ */
+export function platformRank(platform: Platform): number {
+  return PLATFORM_GROUPS.flatMap((g): readonly Platform[] => g.platforms).indexOf(platform);
 }
 
 export function matchesFilter(item: PatchCaseData, filter: PlatformFilter): boolean {

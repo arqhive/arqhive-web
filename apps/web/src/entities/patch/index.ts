@@ -16,6 +16,7 @@ export {
   PLATFORM_GROUPS,
   type PlatformFilter,
   type PlatformGroupKey,
+  platformRank,
   recentlyUpdated,
   toggleFilter,
   usedGroups,
