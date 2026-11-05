@@ -21,6 +21,7 @@ export {
   usedGroups,
 } from './lib/platform-groups.ts';
 export { type ReleaseStage, releaseStage } from './lib/release-stage.ts';
+export { compareTitle } from './lib/title-order.ts';
 export { type PatchCaseData, toCaseData } from './model/case-data.ts';
 export { type PickHandler, patchPath, pickOnPlainClick } from './model/pick.ts';
 export { CaseCover } from './ui/case-cover.tsx';

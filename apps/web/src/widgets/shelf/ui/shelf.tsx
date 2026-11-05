@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import {
   CaseSpine,
+  compareTitle,
   groupOf,
   matchesFilter,
   type PatchCaseData,
@@ -91,7 +92,10 @@ export function Shelf({
   const groups = PLATFORM_GROUPS.map((group) => ({
     key: group.key,
     label: group.label,
-    members: items.filter((item) => groupOf(item.platform) === group.key),
+    // 칸 안에서는 제목 순(영문 → 숫자 → 기호 → 한글)
+    members: items
+      .filter((item) => groupOf(item.platform) === group.key)
+      .toSorted((a, b) => compareTitle(a.titleKo, b.titleKo)),
   })).filter(({ members }) => members.length > 0);
   // 폭을 모르면 칸을 무한히 넓게 보고 한 줄로 만든 뒤, 아래에서 줄바꿈 흐름으로 펼친다.
   const rows: ShelfRow<PatchCaseData>[] = packRows(
