@@ -223,9 +223,12 @@ export function hasSideFlap(platform: Platform): boolean {
   return SIDE_FLAP_PLATFORMS.has(platform);
 }
 
-/** 모서리를 둥글리지 않는 형태인지(GC 킵 케이스와 그 상자 옆면, 사용자 요청 10/6). 다른 기종은 살짝 둥글다 */
+/**
+ * 모서리를 둥글리지 않는 형태인지. 종이상자는 모두 각지다: GC 상자와 그 옆면(10/6), SFC·GB·GBA·N64 상자와 등줄기(11/05).
+ * 플라스틱 킵 케이스(Wii·Wii U·3DS·NDS)만 살짝 둥글다.
+ */
 export function hasSquareCorners(spec: CaseSpec): boolean {
-  return spec.form === 'boxed-keepcase';
+  return spec.form === 'boxed-keepcase' || spec.form === 'carton';
 }
 
 /**

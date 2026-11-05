@@ -1,4 +1,4 @@
-import { CASE_SPECS, hasSideFlap, hasSquareCorners } from '../lib/case-spec.ts';
+import { CASE_SPECS, hasSideFlap } from '../lib/case-spec.ts';
 import type { PatchCaseData } from '../model/case-data.ts';
 import { CoverPrint } from './cover-print.tsx';
 
@@ -26,13 +26,10 @@ const SIDE_OPENING = {
   unboxed: 'translate-x-[75%]',
 } as const;
 
-/** 상자 앞면: 무광 종이에 표지 인쇄물 */
+/** 상자 앞면: 무광 종이에 표지 인쇄물. 종이상자는 모두 각지다(hasSquareCorners) */
 export function CartonFront({ patch }: { readonly patch: PatchCaseData }) {
   return (
-    // 종이상자 모서리는 살짝 둥글다(표지 폭 비례). GC 상자는 각지다.
-    <div
-      className={`relative size-full overflow-hidden ${hasSquareCorners(CASE_SPECS[patch.platform]) ? '' : 'rounded-[2cqw]'}`}
-    >
+    <div className="relative size-full overflow-hidden">
       <CoverPrint patch={patch} />
       <div className="paper-print pointer-events-none absolute inset-0" />
     </div>
