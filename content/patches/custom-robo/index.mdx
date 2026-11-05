@@ -17,7 +17,7 @@ baseRequirements:
     dumpFormat: "z64 (빅 엔디언)"
     md5: "a06d2e83cf2628915e8847f609474661"
     sha1: null
-    crc32: null
+    crc32: "F2FAE693"
     note: "일본판 16,777,216 바이트. .v64·.n64는 먼저 z64로 바꿉니다. 북미판·유럽판은 없는 게임입니다"
 patchMethod: "xdelta"
 patchMethodLabel: "xdelta 패치"
@@ -40,6 +40,9 @@ fileCheck:
     - label: "크기"
       original: "16,777,216 바이트"
       patched: "16,777,216 바이트"
+    - label: "CRC32"
+      original: "F2FAE693"
+      patched: "2FA135EE"
     - label: "MD5"
       original: "a06d2e83cf2628915e8847f609474661"
       patched: "1ec3edc346adbde6cecf89f49cd230db"
