@@ -4,8 +4,8 @@ import { kstDayNumber } from '@/shared/lib';
 import { PatchIntro } from './patch-intro.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
-/** 표지가 보이게 세워 둘 최근 갱신 작품 수(최대). 화면이 좁으면 FaceOutRow가 2~3개만 보여 준다 */
-const RECENT_COUNT = 4;
+/** 최근 갱신 표지 후보 수(넉넉히). 실제로는 FaceOutRow가 받침 선 길이에 들어가는 만큼만 보여 준다 */
+const RECENT_COUNT = 12;
 
 /**
  * 한글 패치 페이지(/korean-translation) = 진열장(FSD pages 층의 korean-translation 조각).
