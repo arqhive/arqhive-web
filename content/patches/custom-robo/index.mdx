@@ -1,0 +1,59 @@
+---
+slug: "custom-robo"
+titleKo: "커스텀 로보"
+titleOriginal: "カスタムロボ"
+titleEn: "Custom Robo"
+catalogNo: "ARQ-N64-001"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "NCXJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "n64"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "custom-robo-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "NCXJ"
+    dumpFormat: "z64 (빅 엔디언)"
+    md5: "a06d2e83cf2628915e8847f609474661"
+    sha1: null
+    crc32: null
+    note: "일본판 16,777,216 바이트. .v64·.n64는 먼저 z64로 바꿉니다. 북미판·유럽판은 없는 게임입니다"
+patchMethod: "xdelta"
+patchMethodLabel: "xdelta 패치"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-05"
+translationScope: "본편 대사, 선택지, 메뉴, 파츠 설명, 용어집·튜토리얼, 스테이지 설명, 저장 안내, 스태프 크레딧, 그림 글씨(타이틀 로고, 메뉴·지도·간판·포스터), 주인공 이름 한글 입력(이름 뒤 조사 자동 선택)"
+compatibility:
+  - environment: "RMG(Rosalie's Mupen GUI)"
+    status: "works"
+    note: null
+  - environment: "Wii U 버추얼 콘솔"
+    status: "works"
+    note: "UWUVCI 주입, 베이스 Paper Mario JP"
+knownIssues: []
+extraDownloads: []
+fileCheck:
+  source: "일본판(z64)"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "16,777,216 바이트"
+      patched: "16,777,216 바이트"
+    - label: "MD5"
+      original: "a06d2e83cf2628915e8847f609474661"
+      patched: "1ec3edc346adbde6cecf89f49cd230db"
+    - label: "SHA-256"
+      original: "9b66c00a983ceccccf17727731173d7c7eeef9f7c13faf44ae89e5d2b9f656c1"
+      patched: "f65e689cc11e9c7e310e9c442b5e0607a8be492155776f9b23807c8db8d197ca"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. Galmuri9·Galmuri11(quiple/Lee Minseo, OFL 1.1). 상표·저작권은 Nintendo와 Noise."
+summary: "닌텐도 64 일본판 「커스텀 로보」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨까지 한글화했고 주인공 이름도 한글로 넣을 수 있습니다."
+featured: false
+---
+
+닌텐도 64 일본판 「커스텀 로보」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨까지 한글화했고 주인공 이름도 한글로 넣을 수 있습니다. 이름 뒤 조사는 받침에 맞춰 자동으로 바뀝니다. 원작에서도 영어인 문구는 영어 그대로 두었습니다.
+
+## 적용하기
+
+NCXJ_KPatch_v1.0f.zip을 풀고 Delta Patcher나 xdelta UI로 일본판 원본 롬(z64)에 NCXJ_KPatch_v1.0f.xdelta를 적용합니다. 롬 크기(16MB)는 그대로이고 확장팩은 필요 없습니다. 결과 롬의 확인값을 표와 비교합니다.
