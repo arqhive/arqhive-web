@@ -13,9 +13,17 @@ import {
 import { CLOSE_TEMPO } from '../lib/motion.ts';
 import { useCaseDialog } from '../model/use-case-dialog.ts';
 import { useChangelog } from '../model/use-changelog.ts';
+import { useScrollLock } from '../model/use-scroll-lock.ts';
 import { CaseLiner } from './case-liner.tsx';
 import { ChangelogDialog } from './changelog-dialog.tsx';
 import { CloseButton } from './close-button.tsx';
+
+/**
+ * 휴대폰에서 케이스의 최소 폭. 위아래로 펼치는 휴대폰은 높이(44svh)에 실물 비율을 그대로 쓰면 케이스가 좁아
+ * 좌우 여백이 넓고 속지 글이 빽빽하다. 그래서 폭을 화면 폭의 92%까지(단, 케이스 높이보다 넓지는 않게) 넓힌다.
+ * 높이는 그대로이고, 원래 더 넓은 기종(3DS 등)은 원래 폭을 쓴다(min-width라 좁힐 때는 걸리지 않는다).
+ */
+const MOBILE_MIN_WIDTH = 'max-md:min-w-[min(92vw,44svh)]';
 
 /**
  * 케이스 열기 연출(진열장의 대표 장치). 누른 표지가 화면 가운데로 날아와 커진 뒤 열린다.
@@ -49,6 +57,8 @@ export function CaseViewer({
   const boxed = patch !== null && hasOuterBox(CASE_SPECS[patch.platform]);
   const view = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
   const { phase } = view;
+  // 케이스가 떠 있는 동안(날아오기부터 제자리로 돌아갈 때까지) 뒤 페이지 스크롤을 막는다
+  useScrollLock(view.isActive);
   const isOpen = phase === 'open';
   // 업데이트 내역 모달이 열린 작품. 모달은 케이스 위에 떠서, 케이스를 닫기 전에 늘 먼저 닫힌다
   const [changelogSlug, setChangelogSlug] = useState<string | null>(null);
@@ -75,7 +85,7 @@ export function CaseViewer({
           <div className="pointer-events-none flex size-full items-center justify-center perspective-[2400px]">
             <div
               ref={view.caseRef}
-              className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} origin-top-left transition-transform duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${
+              className={`pointer-events-auto relative ${CASE_SPECS[patch.platform].aspect} ${CASE_SPECS[patch.platform].viewerHeight} ${MOBILE_MIN_WIDTH} origin-top-left transition-transform duration-[calc(700ms*var(--case-tempo,1))] ease-out motion-reduce:transition-none ${
                 isOpen ? 'translate-y-1/2 md:translate-x-1/2 md:translate-y-0' : ''
               }`}
             >

@@ -69,9 +69,9 @@ export interface CaseSpec {
    */
   readonly faceHeight: string;
   /**
-   * 케이스 열기 화면의 케이스 높이. Wii 기준(휴대폰 44dvh·122vw, 데스크톱 40rem·86dvh·61vw)에 높이 비율을 곱하고,
+   * 케이스 열기 화면의 케이스 높이. Wii 기준(휴대폰 44svh·122vw, 데스크톱 40rem·86dvh·61vw)에 높이 비율을 곱하고,
    * 펼친 폭이 화면을 넘지 않게 vw 상한은 가로세로비로 다시 맞춘다.
-   * 휴대폰은 위아래로 펼쳐 폭이 좁으므로 실물 비율 대신 모든 기종을 Wii와 같은 높이(44dvh)로 두고,
+   * 휴대폰은 위아래로 펼쳐 폭이 좁으므로 실물 비율 대신 모든 기종을 Wii와 같은 높이(44svh)로 두고(svh: 주소창이 펴졌을 때의 화면 높이라, 스크롤로 주소창이 접혀도 크기가 바뀌지 않는다),
    * 케이스 폭이 화면 폭의 약 86%를 넘지 않게 vw 상한만 가로세로비로 맞춘다(작게 줄이면 속지가 넘친다).
    */
   readonly viewerHeight: string;
@@ -88,7 +88,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[123/145]',
     scale: 0.763,
     faceHeight: 'h-[105.3cqw]',
-    viewerHeight: 'h-[min(44dvh,100vw)] md:h-[min(30.5rem,66dvh,47vw)]',
+    viewerHeight: 'h-[min(44svh,100vw)] md:h-[min(30.5rem,66dvh,47vw)]',
   },
   wii: {
     media: 'disc',
@@ -100,7 +100,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[135/190]',
     scale: 1,
     faceHeight: 'h-[138cqw]',
-    viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
+    viewerHeight: 'h-[min(44svh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   wiiu: {
     media: 'disc',
@@ -112,7 +112,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[135/190]',
     scale: 1,
     faceHeight: 'h-[138cqw]',
-    viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
+    viewerHeight: 'h-[min(44svh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   '3ds': {
     media: 'cart',
@@ -124,7 +124,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[527/464]',
     scale: 0.611,
     faceHeight: 'h-[84.3cqw]',
-    viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
+    viewerHeight: 'h-[min(44svh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   nds: {
     media: 'cart',
@@ -136,7 +136,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[527/464]',
     scale: 0.611,
     faceHeight: 'h-[84.3cqw]',
-    viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
+    viewerHeight: 'h-[min(44svh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   dsiware: {
     media: 'cart',
@@ -148,7 +148,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[527/464]',
     scale: 0.611,
     faceHeight: 'h-[84.3cqw]',
-    viewerHeight: 'h-[min(44dvh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
+    viewerHeight: 'h-[min(44svh,75vw)] md:h-[min(24.375rem,52dvh,37vw)]',
   },
   n64: {
     media: 'cart',
@@ -160,7 +160,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[3/4]',
     scale: 1,
     faceHeight: 'h-[133cqw]',
-    viewerHeight: 'h-[min(44dvh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
+    viewerHeight: 'h-[min(44svh,122vw)] md:h-[min(40rem,86dvh,61vw)]',
   },
   sfc: {
     media: 'cart',
@@ -172,7 +172,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-[138/193]',
     scale: 1.016,
     faceHeight: 'h-[139.8cqw]',
-    viewerHeight: 'h-[min(44dvh,120vw)] md:h-[min(40.625rem,86dvh,60vw)]',
+    viewerHeight: 'h-[min(44svh,120vw)] md:h-[min(40.625rem,86dvh,60vw)]',
   },
   gb: {
     media: 'cart',
@@ -184,7 +184,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-square',
     scale: 0.679,
     faceHeight: 'h-[93.7cqw]',
-    viewerHeight: 'h-[min(44dvh,86vw)] md:h-[min(27.1875rem,58dvh,41vw)]',
+    viewerHeight: 'h-[min(44svh,86vw)] md:h-[min(27.1875rem,58dvh,41vw)]',
   },
   gba: {
     media: 'cart',
@@ -196,7 +196,7 @@ export const CASE_SPECS = {
     aspect: 'aspect-square',
     scale: 0.684,
     faceHeight: 'h-[94.4cqw]',
-    viewerHeight: 'h-[min(44dvh,86vw)] md:h-[min(27.375rem,58dvh,41vw)]',
+    viewerHeight: 'h-[min(44svh,86vw)] md:h-[min(27.375rem,58dvh,41vw)]',
   },
 } as const satisfies Record<Platform, CaseSpec>;
 

@@ -55,6 +55,7 @@ function useDismissHandlers(close: () => void, closed: NativeCloseArgs) {
  * 열기 화면의 큰 흐름. 화면(ui)이 쓰는 세 값을 여기서 끌어낸다.
  * - idle: 안 보임 / opening: 여는 중 / settled: 여는 연출이 다 끝남 / closing: 단계 되돌리는 중 / leaving: 제자리로 날아가는 중
  * - isShown(배경 어둡게): opening·settled·closing, isClosing(닫기 배율): closing·leaving, isSettled(닫기 단추): settled
+ * - isActive(뒤 페이지 스크롤 막기): idle 말고 전부
  */
 type DialogStage = 'idle' | 'opening' | 'settled' | 'closing' | 'leaving';
 
@@ -63,6 +64,7 @@ function stageFlags(stage: DialogStage) {
     isShown: stage === 'opening' || stage === 'settled' || stage === 'closing',
     isClosing: stage === 'closing' || stage === 'leaving',
     isSettled: stage === 'settled',
+    isActive: stage !== 'idle',
   };
 }
 
