@@ -1,0 +1,63 @@
+---
+slug: "chibi-robo-park-patrol"
+titleKo: "피워라! 치비로보!"
+spineLines: ["피워라!", "치비로보!"]  # 선반 등줄기 줄바꿈
+titleOriginal: "咲かせて！ちびロボ！"
+titleEn: "Chibi-Robo! Park Patrol"
+catalogNo: "ARQ-NDS-002"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "AJBJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "nds"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "chibi-robo-park-patrol-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "AJBJ"
+    dumpFormat: "NDS"
+    md5: "855bfa33d378bd5b42a2299f8f952bb6"
+    sha1: "b67dfdea892bb8f149ebe051d3be242a41f0ac54"
+    crc32: "B77D7EA5"
+    note: "67,108,864 바이트. 예: Sakasete! Chibi-Robo! (Japan).nds. 북미판·유럽판 불가"
+patchMethod: "bps-ips"
+patchMethodLabel: "BPS 패치"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-07"
+translationScope: "대사, 메뉴, 아이템·놀이기구 설명, 치비컴 화면, 도움말, 그림 글씨 520여 장(타이틀, 저장 화면, 치비컴·공원만들기 화면, 일시정지 창, 지도, 하루 결과, 아이콘 이름표), 이름 뒤 조사 자동 선택, DS 메뉴에 보이는 게임 이름"
+compatibility:
+  - environment: "melonDS"
+    status: "works"
+    note: null
+  - environment: "3DS + TWiLight Menu++"
+    status: "works"
+    note: null
+knownIssues: []
+extraDownloads: []
+fileCheck:
+  source: "일본판"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "67,108,864 바이트"
+      patched: "67,108,864 바이트"
+    - label: "CRC32"
+      original: "B77D7EA5"
+      patched: "2CB9A7B2"
+    - label: "MD5"
+      original: "855bfa33d378bd5b42a2299f8f952bb6"
+      patched: "3979f1089f9c03fe345365eb6988bcf9"
+    - label: "SHA-1"
+      original: "b67dfdea892bb8f149ebe051d3be242a41f0ac54"
+      patched: "34495e47a7b12ca3c264fd8da08356d2178e257e"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 갈무리(SIL OFL 1.1). 상표·저작권은 Nintendo와 skip Ltd."
+summary: "닌텐도 DS 일본판 「피워라! 치비로보!」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨 520여 장을 한글화했고 이름 뒤 조사도 받침에 맞춰 고릅니다."
+featured: false
+---
+
+닌텐도 DS 일본판 「피워라! 치비로보!」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨 520여 장을 한글화했습니다. 「%s」 자리에 들어가는 이름의 받침에 따라 을/를, 이/가 같은 조사를 게임이 알아서 고릅니다. 대사와 그림 글씨는 DS 도트 글꼴에 맞춘 갈무리로 썼습니다.
+
+## 적용하기
+
+AJBJ_KPatch_v1.0f.zip을 풀고 Rom Patcher JS나 Floating IPS로 원본 일본판 롬에 AJBJ_KPatch_v1.0f.bps를 적용합니다. 결과 롬의 확인값을 표와 비교합니다.
