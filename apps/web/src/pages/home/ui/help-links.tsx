@@ -53,7 +53,7 @@ export function HelpLinks() {
           </Link>
         }
       >
-        오역, 깨진 글자, 실행 문제를 알려 주시면 확인해 고칩니다.
+        오역, 깨진 글자, 실행 문제를 알려 주시면 확인해 수정합니다.
       </HelpCard>
     </ul>
   );
