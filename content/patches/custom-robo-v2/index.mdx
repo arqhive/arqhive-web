@@ -1,0 +1,63 @@
+---
+slug: "custom-robo-v2"
+titleKo: "커스텀 로보 V2"
+titleOriginal: "カスタムロボV2"
+titleEn: "Custom Robo V2"
+catalogNo: "ARQ-N64-002"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "NCZJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "n64"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "custom-robo-v2-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "NCZJ"
+    dumpFormat: "z64 (빅 엔디언)"
+    md5: "115118dd5e0f02d82ba1bf070a7b78f1"
+    sha1: null
+    crc32: "C8201454"
+    note: "일본판 16,777,216 바이트. .v64·.n64는 먼저 z64로 바꿉니다. 북미판·유럽판은 없는 게임입니다"
+patchMethod: "xdelta"
+patchMethodLabel: "xdelta 패치"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-09"
+translationScope: "본편 대사, 선택지, 메뉴, 파츠 설명, 도움말·조작 안내, 스테이지 설명, 저장 안내, 그림 글씨(타이틀 로고, 메뉴·승리 표시·조작 안내·간판), 주인공 이름 한글 입력(이름 뒤 조사 자동 선택)"
+compatibility:
+  - environment: "RMG(Rosalie's Mupen GUI)"
+    status: "works"
+    note: "세이브 종류는 16K EEPROM으로 맞춥니다(4K면 저장이 깨질 수 있음)"
+  - environment: "Wii U 버추얼 콘솔"
+    status: "works"
+    note: "UWUVCI 주입, 베이스 Mario Golf US"
+knownIssues:
+  - "파츠 이름·설명이 나오는 창이 너무 좁아서, 일부 파츠 이름은 띄어쓰기를 생략했고 파츠 설명은 문장 끝 마침표를 생략했습니다."
+extraDownloads: []
+fileCheck:
+  source: "일본판(z64)"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "16,777,216 바이트"
+      patched: "16,777,216 바이트"
+    - label: "CRC32"
+      original: "C8201454"
+      patched: "5A13917F"
+    - label: "MD5"
+      original: "115118dd5e0f02d82ba1bf070a7b78f1"
+      patched: "1f5415c7dcd2010be9bcc2d89c502f94"
+    - label: "SHA-256"
+      original: "60acf8dc7361f155ec8c987f75c6988ca1b0ccd36baefaffd67c24af6d21ace1"
+      patched: "13fd9e0be063d3f82d5cb26dc9fdddad60b9bb2ffa4a6865bf2e189bec36ea69"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. Galmuri11(quiple/Lee Minseo, OFL 1.1). 상표·저작권은 Nintendo와 Noise."
+summary: "닌텐도 64 일본판 「커스텀 로보 V2」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 1편 한글 패치와 용어·말투를 이어 맞췄고, 주인공 이름도 한글로 넣을 수 있습니다."
+featured: false
+---
+
+닌텐도 64 일본판 「커스텀 로보 V2」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨까지 한글화했고 1편 한글 패치와 용어·말투를 이어 맞췄습니다. 주인공 이름도 한글로 넣을 수 있고, 이름 뒤 조사는 받침에 맞춰 자동으로 바뀝니다. 원작에서도 영어인 문구는 영어 그대로 두었습니다.
+
+## 적용하기
+
+NCZJ_KPatch_v1.0f.zip을 풀고 Delta Patcher나 xdelta UI로 일본판 원본 롬(z64)에 NCZJ_KPatch_v1.0f.xdelta를 적용합니다. 롬 크기(16MB)는 그대로이고 확장팩은 필요 없습니다. 결과 롬의 확인값을 표와 비교합니다.
