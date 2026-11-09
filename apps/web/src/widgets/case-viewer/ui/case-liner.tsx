@@ -75,7 +75,7 @@ function RegionText({ region }: { readonly region: string }) {
 function Fact({ label, children }: { readonly label: string; readonly children: ReactNode }) {
   return (
     <div className="flex gap-[0.75em]">
-      {/* 칸 이름이 길면(알려진 문제) 낱말 단위로 줄을 바꾼다: "알려진 / 문제" */}
+      {/* 칸 이름이 길면(구동 확인·번역 범위) 낱말 단위로 줄을 바꾼다 */}
       <dt className="w-[4.5em] shrink-0 break-keep text-ink-sub">{label}</dt>
       <dd className="min-w-0 flex-1">{children}</dd>
     </div>
@@ -125,17 +125,22 @@ function LinerFacts({
       <Fact label="번역 범위">
         <span className="break-keep">{open ? (patch.translationScope ?? '-') : '-'}</span>
       </Fact>
-      <Fact label="알려진 문제">
-        {issues.length === 0 ? (
-          '-'
-        ) : (
-          <ul className="list-disc space-y-[0.25em] break-keep pl-[1em]">
-            {issues.map((issue) => (
-              <li key={issue}>{issue}</li>
-            ))}
-          </ul>
-        )}
-      </Fact>
+      {/* 알려진 문제는 문장이 길어서 칸 이름을 위에, 목록을 그 아래 전체 폭으로 둔다(11/09).
+          파일 이름처럼 끊을 곳 없는 긴 낱말은 폭이 모자랄 때만 중간에서 줄을 바꿔 가로 스크롤을 막는다(wrap-anywhere) */}
+      <div>
+        <dt className="text-ink-sub">알려진 문제</dt>
+        <dd className="mt-[0.25em]">
+          {issues.length === 0 ? (
+            '-'
+          ) : (
+            <ul className="list-disc space-y-[0.25em] break-keep pl-[1.25em] wrap-anywhere">
+              {issues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
+          )}
+        </dd>
+      </div>
     </dl>
   );
 }
