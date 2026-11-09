@@ -50,6 +50,19 @@ export function ReportCard({
           ))}
         </div>
       )}
+      {report.replies.map((reply) => (
+        <div key={reply.id} className="mt-4 border-ink-sub border-l-2 py-1 pl-3.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            <span className="font-bold text-ink">제작자 답변</span>
+            <time dateTime={reply.createdAt} className="font-num text-ink-sub">
+              {formatDate(reply.createdAt)}
+            </time>
+          </div>
+          <p className="mt-1.5 whitespace-pre-wrap break-keep text-ink/75 text-sm leading-relaxed">
+            {reply.text}
+          </p>
+        </div>
+      ))}
       <a
         href={report.url}
         target="_blank"

@@ -29,7 +29,7 @@ export function ReportBoard({
     setAdded((previous) =>
       previous.some((item) => item.id === report.id)
         ? previous
-        : [{ ...report, state: 'open' }, ...previous],
+        : [{ ...report, state: 'open', replies: [] }, ...previous],
     );
   }, []);
 
