@@ -1,0 +1,63 @@
+---
+slug: "okaeri-chibi-robo"
+titleKo: "어서와! 치비로보! 해피리치 대청소!"
+spineLines: ["어서와! 치비로보!", "해피리치 대청소!"]  # 선반 등줄기 줄바꿈
+titleOriginal: "おかえり！ちびロボ！ ハッピーリッチー大そうじ！"
+titleEn: "Okaeri! Chibi-Robo! Happy Rich Oosouji!"
+catalogNo: "ARQ-NDS-003"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "B62J"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "nds"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "okaeri-chibi-robo-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "B62J"
+    dumpFormat: "NDS"
+    md5: "b951a52b1a9e1fe4ea2b9be9e41989ff"
+    sha1: "d8a33d9757c25c54764ef9611b49cc16f82b55fe"
+    crc32: "30DEDCA9"
+    note: "67,108,864 바이트. 예: Okaeri! Chibi-Robo! - Happy Rich Oosouji! (Japan).nds. 일본에만 나온 게임입니다"
+patchMethod: "bps-ips"
+patchMethodLabel: "BPS 패치"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-11"
+translationScope: "대사, 메뉴, 아이템 설명, TV 쇼핑 화면, 도움말, 그림 글씨 680여 칸(타이틀, 치비 메뉴 아이콘 이름표, TV 쇼핑 상품 카드, 미니게임 안내 등), 이름·숫자 뒤 조사 자동 선택, DS 메뉴에 보이는 게임 이름"
+compatibility:
+  - environment: "melonDS"
+    status: "works"
+    note: null
+  - environment: "3DS + TWiLight Menu++"
+    status: "works"
+    note: null
+knownIssues: []
+extraDownloads: []
+fileCheck:
+  source: "일본판"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "67,108,864 바이트"
+      patched: "67,108,864 바이트"
+    - label: "CRC32"
+      original: "30DEDCA9"
+      patched: "928489A0"
+    - label: "MD5"
+      original: "b951a52b1a9e1fe4ea2b9be9e41989ff"
+      patched: "b4e8fa1ea8603dc67e6603bebb4e4ea7"
+    - label: "SHA-1"
+      original: "d8a33d9757c25c54764ef9611b49cc16f82b55fe"
+      patched: "e6127fb223e413d56e93ee74faa996074f3e6ac3"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 갈무리(SIL OFL 1.1). 상표·저작권은 Nintendo와 skip Ltd."
+summary: "닌텐도 DS 일본판 「어서와! 치비로보! 해피리치 대청소!」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨 680여 칸을 한글화했고 이름·숫자 뒤 조사도 받침에 맞춰 고릅니다."
+featured: false
+---
+
+닌텐도 DS 일본판 「어서와! 치비로보! 해피리치 대청소!」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, TV 쇼핑 화면, 그림 글씨 680여 칸을 한글화했습니다. 「%s」 자리에 들어가는 이름과 숫자의 받침에 따라 을/를, 이/가, 은/는, 과/와, (으)로 같은 조사를 게임이 알아서 고릅니다. 대사와 그림 글씨는 DS 도트 글꼴에 맞춘 갈무리로 썼습니다.
+
+## 적용하기
+
+B62J_KPatch_v1.0f.zip을 풀고 Rom Patcher JS나 Floating IPS로 원본 일본판 롬에 B62J_KPatch_v1.0f.bps를 적용합니다. 결과 롬의 확인값을 표와 비교합니다.
