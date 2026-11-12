@@ -1,0 +1,65 @@
+---
+slug: "custom-robo-gx"
+titleKo: "커스텀 로보 GX"
+titleOriginal: "カスタムロボGX"
+titleEn: "Custom Robo GX"
+catalogNo: "ARQ-GBA-002"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "ARJJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "gba"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "custom-robo-gx-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "ARJJ"
+    dumpFormat: "GBA"
+    md5: "ae35fb67a74c92a3f063408fd0bc4a29"
+    sha1: null
+    crc32: "F533DC13"
+    note: "8,388,608 바이트. 북미판·유럽판은 없는 게임입니다"
+patchMethod: "bps-ips"
+patchMethodLabel: "BPS 패치"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-13"
+translationScope: "본편 대사, 선택지, 메뉴, 로보·파츠 설명, 도움말, 아이템 설명, 지도 장소 이름, 대회 정보, 그림 글씨(타이틀 로고, 대회 카드·표·간판·메뉴), 주인공 이름 한글 입력(이름 뒤 조사 자동 선택)"
+compatibility:
+  - environment: "3DS open_agb_firm"
+    status: "works"
+    note: "세이브 설정 .ini 필요(zip 안의 CustomRoboGX_KO_v1.0f.ini를 롬과 같은 이름으로 바꿔 /3ds/open_agb_firm/saves/에 넣기)"
+  - environment: "mGBA"
+    status: "works"
+    note: null
+knownIssues:
+  - "칸이 모자란 곳은 일부 단어를 붙여 썼습니다."
+  - "GBA끼리 하는 통신 대전과 파츠 교환은 실제로 해 보지 못했습니다."
+notice: "README 내에 비밀번호 부분을 반드시 읽으세요!"  # zip 안의 README_KO.txt [비밀번호] 절
+extraDownloads: []
+fileCheck:
+  source: "일본판"
+  version: "v1.0f"
+  rows:
+    - label: "크기"
+      original: "8,388,608 바이트"
+      patched: "8,388,608 바이트"
+    - label: "CRC32"
+      original: "F533DC13"
+      patched: "45791FA5"
+    - label: "MD5"
+      original: "ae35fb67a74c92a3f063408fd0bc4a29"
+      patched: "1f1be44796c0967f44a6b0140347294d"
+    - label: "SHA-256"
+      original: "e445679a00f5862ec82a327807b9cb9b72d50608061413987383f8e8c86e8e7a"
+      patched: "011b18973221431aa477f5addea8ec7bf5f37337cf27567302bb5dc24ba83cd4"
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. Galmuri11(quiple/Lee Minseo, OFL 1.1). 상표·저작권은 Nintendo와 Noise."
+summary: "게임보이 어드밴스 일본판 「커스텀 로보 GX」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 1편·V2 한글 패치와 용어·말투를 이어 맞췄고, 주인공 이름도 한글로 넣을 수 있습니다."
+featured: false
+---
+
+게임보이 어드밴스 일본판 「커스텀 로보 GX」를 원문 기준으로 번역한 완성판(v1.0f) 패치입니다. 대사와 메뉴, 그림 글씨까지 한글화했고 1편·V2 한글 패치와 용어·말투를 이어 맞췄습니다. 주인공 이름도 한글로 넣을 수 있고, 이름 뒤 조사는 받침에 맞춰 자동으로 바뀝니다. 원작에서도 영어인 문구는 영어 그대로 두었습니다.
+
+## 적용하기
+
+ARJJ_KPatch_v1.0f.zip을 풀고 Floating IPS나 Rom Patcher JS로 일본판 원본 롬에 ARJJ_KPatch_v1.0f.bps를 적용합니다. 롬 크기(8MB)는 그대로입니다. 결과 롬의 확인값을 표와 비교합니다.
