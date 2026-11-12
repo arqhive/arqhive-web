@@ -104,6 +104,11 @@ function LinerFacts({
     <dl
       className={`mt-2 space-y-0.5 border-line border-t border-dashed pt-2 text-xs md:text-[1em] ${listClass}`}
     >
+      {/* 꼭 읽을 안내(콘텐츠 notice): 상태 줄 위에 굵게. 공개 패치에만 */}
+      {open && patch.notice !== undefined ? (
+        // dl 안에는 dt·dd·div만 둘 수 있어서 div로 감싼다
+        <div className="break-keep font-bold text-ink wrap-anywhere">{patch.notice}</div>
+      ) : null}
       <Fact label="상태">
         <StageText patch={patch} />
       </Fact>

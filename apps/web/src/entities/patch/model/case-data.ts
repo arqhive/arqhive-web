@@ -24,6 +24,7 @@ type CaseContentData = Pick<
   | 'patchMethodLabel'
   | 'translationScope'
   | 'knownIssues'
+  | 'notice'
   | 'compatibility'
   | 'discArt'
   | 'extraDownloads'
@@ -56,6 +57,7 @@ export function toCaseData(patch: Patch): PatchCaseData {
     patchMethodLabel: patch.patchMethodLabel,
     translationScope: patch.translationScope,
     knownIssues: patch.knownIssues,
+    notice: patch.notice,
     compatibility: patch.compatibility,
     discArt: patch.discArt,
     extraDownloads: patch.extraDownloads,

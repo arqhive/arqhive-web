@@ -67,6 +67,8 @@ const patches = defineCollection({
     translationScope: s.string().nullable(),
     compatibility: s.array(compatibility),
     knownIssues: s.array(s.string()),
+    // 속지 「상태」 줄 위에 굵게 띄우는 꼭 읽을 안내 한 줄(예: zip 안 README의 비밀번호 절). 링크 없이 글만
+    notice: s.string().optional(),
     // 패치 파일 말고 따로 받는 선택 파일(용량이 커서 릴리즈에 못 올린 것). note는 버튼 아래 작은 줄(받는 곳·크기)
     extraDownloads: s
       .array(s.object({ label: s.string(), note: s.string().optional(), url: s.string().url() }))
