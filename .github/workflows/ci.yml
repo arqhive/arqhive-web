@@ -74,7 +74,9 @@ jobs:
   # API 배포를 막지는 않는다(화면 문제는 web 쪽이고, web은 Vercel이 따로 배포한다).
   e2e:
     name: 화면 검사 (Playwright · Chromium · WebKit)
-    runs-on: ubuntu-latest
+    # ubuntu-latest가 26.04로 바뀌자 캐시한 WebKit이 24.04용 libicu74를 못 찾아 켜지지 않았다(11/13).
+    # Playwright가 26.04를 지원할 때까지 이 작업만 24.04에 고정한다
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
