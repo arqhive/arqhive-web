@@ -1,0 +1,50 @@
+---
+slug: "devils-third"
+titleKo: "데빌즈 서드"
+titleOriginal: "デビルズサード"
+titleEn: "Devil's Third"
+catalogNo: "ARQ-WIIU-006"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "ADNJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "wiiu"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "devils-third-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "0005000010138F00"
+    dumpFormat: "복호화한 게임 폴더(content\\DevilsThirdGame\\CookedWiiU에 Coalesced_JPN.bin 등)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "북미판(Devil's Third) 불가. Windows 10 이상"
+patchMethod: "wiiu-sdcafiine"
+patchMethodLabel: "파일 패처"
+latestVersion: "v1.0f"
+latestReleaseDate: "2026-11-19"
+translationScope: "솔로 플레이의 자막, 임무 목표, 메뉴, 설명문, 수집품 설명, 팁, 자막·메뉴 한글 글꼴(넥슨 워헤이븐). 온라인 멀티플레이 전용 문구는 제외"
+compatibility:
+  - environment: "Wii U Aroma + SDCafiine"
+    status: "works"
+    note: null
+  - environment: "Cemu 2.6"
+    status: "works"
+    note: "그래픽팩"
+knownIssues:
+  - "일부 그림 속 글씨는 일본어 그대로입니다."
+  - "온라인 멀티플레이 전용 문구는 번역하지 않았습니다."
+  - "온라인 기능은 서비스가 종료되어 검수하지 못했습니다."
+extraDownloads: []
+discArt: "./disc-art.webp"  # 타이틀 화면을 로고 중심 정사각형으로 잘라 디스크 전체를 덮게 한 그림(Wii U는 라벨 전체에 깐다. 가운데 구멍이 로고를 가려도 됨, 화면 밖 아래는 검정)
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·번역문·문서 MIT License. 글꼴 넥슨 워헤이븐(넥슨). 패처 동봉 도구 Python 3.13(PSF), pycryptodome(BSD), xdelta3 3.1.0(Apache-2.0). 상표·저작권은 Nintendo와 Valhalla Game Studios."
+summary: "Wii U 일본판 「데빌즈 서드」의 솔로 플레이 자막과 임무 목표, 메뉴, 설명문을 한글화한 완성판(v1.0f) 패치입니다. 번역은 영어 자막을 기준으로 했습니다."
+featured: false
+---
+
+Wii U 일본판 「데빌즈 서드」의 솔로 플레이 자막과 임무 목표, 메뉴, 설명문, 수집품 설명, 팁을 한글화한 완성판(v1.0f) 패치입니다. 번역은 영어 자막을 기준으로 했고, 자막과 메뉴에는 한글 글꼴(넥슨 워헤이븐)을 넣었습니다. 온라인 멀티플레이 전용 문구는 번역하지 않았습니다.
+
+## 적용하기
+
+ADNJ_KPatch_v1.0f.zip을 풀고, 일본판 게임 폴더(content 폴더가 들어 있는 폴더)를 패치하기.bat 위에 끌어다 놓습니다. 결과는 패처 폴더의 출력 폴더에 생기며 원본은 바뀌지 않습니다. Wii U 실기는 출력\sdcafiine 안의 내용을 SD 카드 wiiu\sdcafiine\에 복사하고, Cemu는 출력\cemu\DevilsThirdKR 폴더를 graphicPacks에 넣은 뒤 그래픽팩 설정에서 켭니다.
