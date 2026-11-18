@@ -1,0 +1,49 @@
+---
+slug: "game-and-wario"
+titleKo: "게임 & 와리오"
+titleOriginal: "ゲーム&ワリオ"
+titleEn: "Game & Wario"
+catalogNo: "ARQ-WIIU-007"  # 기종 안에서 저장소를 만든 순서
+downloadCode: "ASAJ"  # 릴리즈 파일 이름 앞부분([코드]_KPatch_[버전])
+platform: "wiiu"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "game-and-wario-korean-translation"
+baseRegion: "JP"
+baseRequirements:
+  - region: "JP"
+    gameId: "0005000010112D00"
+    dumpFormat: "복호화한 게임 폴더(content\\Common\\Msg\\JP_Japanese에 msbt.warc.fzip)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "패처가 원본 파일을 확인한다. 이미 패치한 파일·다른 판은 불가. 북미판(Game & Wario) 불가. Windows 10 이상"
+patchMethod: "wiiu-sdcafiine"
+patchMethodLabel: "파일 패처"
+latestVersion: "v0.9"
+latestReleaseDate: "2026-11-19"
+translationScope: "게임 속 대사, 메뉴, 설명문, 게임 카드·샤카퐁 설명, 그림 글씨(게임 제목 로고, 안내 그림 등. 일부는 북미판 그림 사용), 게임 글꼴에 한글(메이플스토리 Bold, 충주김생체, 둘기마요)"
+compatibility:
+  - environment: "Wii U Aroma + SDCafiine"
+    status: "works"
+    note: null
+  - environment: "Cemu"
+    status: "works"
+    note: "그래픽팩"
+knownIssues:
+  - "Wii U 실기에서 타이틀의 「시작」처럼 일부 글자는 본체 글꼴로 나옵니다. 본체 글꼴에 한글이 들어 있어야 보이고, 그렇지 않으면 ??로 보일 수 있습니다."
+  - "한글이 들어간 본체 글꼴은 이 패치에서 배포하지 않습니다."
+extraDownloads: []
+discArt: "./disc-art.webp"  # 타이틀 화면을 로고 중심 정사각형으로 잘라 디스크 전체를 덮게 한 그림(Wii U는 라벨 전체에 깐다. 가운데 구멍이 로고를 가려도 됨, 화면 밖 위는 로고 위 배경 줄을 거울로 이어 채움)
+screenshots: []  # 아직 없음 — 사이트에는 자리표시가 보인다
+credits: "제작: arqhive. 도구 코드·문서 MIT License. 글꼴 메이플스토리 Bold(넥슨), 충주김생체, 둘기마요. 패처 동봉 도구 Python 3.13(PSF), xdelta3 3.1.0(Apache-2.0). 상표·저작권은 Nintendo와 INTELLIGENT SYSTEMS."
+summary: "Wii U 일본판 「게임 & 와리오」의 대사와 메뉴, 설명문, 그림 글씨를 한글화한 v0.9 패치입니다. 게임 글꼴에 한글을 넣어 SDCafiine 또는 Cemu에서 씁니다."
+featured: false
+---
+
+Wii U 일본판 「게임 & 와리오」의 게임 속 대사와 메뉴, 설명문, 게임 카드·샤카퐁 설명을 한글화한 v0.9 패치입니다. 게임 제목 로고와 안내 그림 같은 그림 글씨도 한글로 바꿨고, 일부 그림은 북미판 그림을 썼습니다. 게임 글꼴에는 한글(메이플스토리 Bold, 충주김생체, 둘기마요)을 넣었습니다.
+
+## 적용하기
+
+ASAJ_KPatch_v0.9.zip을 풀고, 일본판 게임 폴더(content 폴더가 들어 있는 폴더)를 패치하기.bat 위에 끌어다 놓습니다. 결과는 패처 폴더의 출력 폴더에 생기며 원본은 바뀌지 않습니다. Wii U 실기는 출력\sdcafiine 안의 내용을 SD 카드 wiiu\sdcafiine\에 복사하고, Cemu는 출력\cemu\GameWarioKR 폴더를 graphicPacks에 넣은 뒤 그래픽팩 설정에서 Korean Patch를 켭니다.
