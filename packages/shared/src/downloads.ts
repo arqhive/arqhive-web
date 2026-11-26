@@ -8,6 +8,7 @@
 /** GitHub 릴리즈 응답에서 쓰는 부분 */
 interface ReleaseAssets {
   readonly assets: readonly {
+    readonly name?: string;
     // biome-ignore lint/style/useNamingConvention: GitHub API 응답의 필드 이름을 그대로 쓴다
     readonly download_count: number;
   }[];
@@ -17,10 +18,14 @@ interface ReleaseAssets {
 const RELEASES_PER_PAGE = 100;
 
 /** 릴리즈마다 가장 많이 받은 첨부 파일의 횟수를 더한다(첨부가 없는 릴리즈는 0) */
-function sumLargestDownloads(releases: readonly ReleaseAssets[]): number {
+function sumLargestDownloads(releases: readonly ReleaseAssets[], downloadCode?: string): number {
+  const prefix = downloadCode === undefined ? undefined : `${downloadCode}_KPatch_`;
   return releases.reduce(
     (sum, release) =>
-      sum + release.assets.reduce((max, asset) => Math.max(max, asset.download_count), 0),
+      sum +
+      release.assets
+        .filter((asset) => prefix === undefined || asset.name?.startsWith(prefix) === true)
+        .reduce((max, asset) => Math.max(max, asset.download_count), 0),
     0,
   );
 }

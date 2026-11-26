@@ -30,7 +30,7 @@ async function collectDownloads(env: ApiEnv, now: number): Promise<readonly Down
   const weekAgo = kstDay(now, WEEK_DAYS);
   const patches = [...RELEASED_REPOS.entries()];
   const totals = await Promise.all(
-    patches.map(([, repo]) => fetchDownloadTotal(env.GITHUB_ISSUES_TOKEN, repo)),
+    patches.map(([, repo]) => fetchDownloadTotal(env.GITHUB_ISSUES_TOKEN, repo, repo.countCode)),
   );
   const measured = patches.flatMap(([slug, repo], index) => {
     const total = totals[index];

@@ -12,6 +12,7 @@ export interface ReportReply {
 export interface Report {
   readonly id: number;
   readonly repo: string;
+  readonly slug?: string;
   readonly url: string;
   /** 이슈가 열려 있으면 open(확인 중), 닫혔으면 closed(반영됨) */
   readonly state: 'open' | 'closed';

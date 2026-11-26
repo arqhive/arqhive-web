@@ -16,11 +16,11 @@ import { ReportList } from './report-list.tsx';
 export function ReportBoard({
   games,
   reports,
-  titleOfRepo,
+  gameTitles,
 }: {
   readonly games: readonly GameOption[];
   readonly reports: readonly Report[];
-  readonly titleOfRepo: ReadonlyMap<string, string>;
+  readonly gameTitles: ReadonlyMap<string, string>;
 }) {
   const [added, setAdded] = useState<readonly Report[]>([]);
 
@@ -40,7 +40,7 @@ export function ReportBoard({
     // 제보 보내기(useMutation)가 쓰는 TanStack Query 제공자
     <QueryProvider>
       <ReportForm games={games} onSubmitted={onSubmitted} />
-      <ReportList reports={merged} titleOfRepo={titleOfRepo} />
+      <ReportList reports={merged} gameTitles={gameTitles} />
     </QueryProvider>
   );
 }

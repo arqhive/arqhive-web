@@ -156,6 +156,7 @@ export async function fetchLatestStamp(
 export async function fetchDownloadTotal(
   token: string | undefined,
   repo: Repo,
+  countCode?: string,
 ): Promise<number | null> {
   const requestHeaders = new Headers({
     accept: 'application/vnd.github+json',
@@ -169,5 +170,5 @@ export async function fetchDownloadTotal(
   const releases = await fetchReleaseList<ReleaseAssets>(() =>
     fetch(releasesUrl(repo), { headers: requestHeaders }),
   );
-  return releases === null ? null : sumLargestDownloads(releases);
+  return releases === null ? null : sumLargestDownloads(releases, countCode);
 }

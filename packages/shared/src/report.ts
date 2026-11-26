@@ -18,6 +18,7 @@ const REPORT_LABEL = '제보';
 
 const START = '<!-- arqhive-report:start -->';
 const END = '<!-- arqhive-report:end -->';
+const PATCH_SLUG = /^<!-- arqhive-report:patch ([a-z0-9-]+) -->/;
 const TITLE_LENGTH = 40;
 /** 이슈 본문 속 이미지 링크 ![…](https://…) */
 const IMAGE_LINK = /!\[[^\]]*\]\((https:\/\/[^)\s]+)\)/g;
@@ -36,7 +37,11 @@ function neutralizeMentions(text: string): string {
 }
 
 /** 이슈 제목·본문 만들기. 사용자 글은 인용(>)으로 넣어 마크다운 장난(제목·가짜 링크 꾸밈 등)을 줄인다 */
-function buildReportIssue(input: { readonly text: string; readonly imageUrls: readonly string[] }) {
+function buildReportIssue(input: {
+  readonly slug?: string;
+  readonly text: string;
+  readonly imageUrls: readonly string[];
+}) {
   const safe = neutralizeMentions(input.text.trim());
   const firstLine = safe.split('\n')[0] ?? '';
   const title = `[제보] ${firstLine.length > TITLE_LENGTH ? `${firstLine.slice(0, TITLE_LENGTH)}…` : firstLine}`;
@@ -47,7 +52,8 @@ function buildReportIssue(input: { readonly text: string; readonly imageUrls: re
   const images = input.imageUrls
     .map((url, index) => `![스크린샷 ${index + 1}](${url})`)
     .join('\n\n');
-  const body = [START, quoted, END, images, '---', '사이트 제보 양식으로 들어온 제보입니다.']
+  const patch = input.slug === undefined ? '' : `<!-- arqhive-report:patch ${input.slug} -->`;
+  const body = [patch, START, quoted, END, images, '---', '사이트 제보 양식으로 들어온 제보입니다.']
     .filter((part) => part !== '')
     .join('\n\n');
   return { title, body };
@@ -55,6 +61,7 @@ function buildReportIssue(input: { readonly text: string; readonly imageUrls: re
 
 /** 이슈 본문에서 사용자 글과 이미지 주소를 다시 꺼낸다. 형식이 다르면(사람이 GitHub에서 직접 쓴 이슈) 본문 전체를 글로 본다 */
 function parseReportBody(body: string): {
+  readonly slug?: string;
   readonly text: string;
   readonly images: readonly string[];
 } {
@@ -73,7 +80,8 @@ function parseReportBody(body: string): {
   const images = [...body.slice(end).matchAll(IMAGE_LINK)]
     .map((match) => match[1] ?? '')
     .filter(Boolean);
-  return { text, images };
+  const slug = PATCH_SLUG.exec(body)?.[1];
+  return slug === undefined ? { text, images } : { slug, text, images };
 }
 
 /**
@@ -85,6 +93,8 @@ interface SubmittedReport {
   readonly id: number;
   /** "owner/name" */
   readonly repo: string;
+  /** 같은 저장소의 여러 게임을 구별할 때 쓰는 패치 주소 */
+  readonly slug?: string;
   readonly url: string;
   readonly createdAt: string;
   readonly text: string;

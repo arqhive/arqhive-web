@@ -1,3 +1,4 @@
+import { repoHasMultipleReleasedPatches } from '@arqhive/content';
 import {
   fetchReleaseList,
   latestRelease,
@@ -41,8 +42,9 @@ async function readReleaseInfo(
     throw new Error(`GitHub 릴리즈를 못 읽음: ${owner}/${name}`);
   }
   const latest = latestRelease(releases);
+  const countCode = repoHasMultipleReleasedPatches({ owner, name }) ? downloadCode : undefined;
   return {
-    downloadCount: sumLargestDownloads(releases),
+    downloadCount: sumLargestDownloads(releases, countCode),
     downloads:
       latest === undefined || downloadCode === undefined
         ? null
