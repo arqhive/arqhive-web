@@ -1,0 +1,45 @@
+---
+slug: "prince-of-persia-sands-of-time"
+titleKo: "페르시아의 왕자: 시간의 모래"
+spineLines: ["페르시아의 왕자", "시간의 모래"]
+titleOriginal: "Prince of Persia: The Sands of Time"
+titleEn: "Prince of Persia: The Sands of Time"
+catalogNo: "ARQ-GC-009"
+downloadCode: "GPTE"
+platform: "gc"
+status: "released"
+repo:
+  owner: "arqhive"
+  name: "prince-of-persia-sands-of-time-korean-translation"
+baseRegion: "US"
+baseRequirements:
+  - region: "US"
+    gameId: "GPTE41"
+    dumpFormat: "ISO/GCM (CISO·WIA·WDF·GCZ는 동봉 도구로, RVZ는 DolphinTool 또는 Dolphin으로 ISO 변환. NKit은 표준 ISO로 복원)"
+    md5: null
+    sha1: null
+    crc32: null
+    note: "북미판 Rev 1 전용. Windows 10 이상(64비트) 필요. 이미지의 여유 영역이 달라도 게임 파일과 디스크 배치가 일치하면 적용 가능"
+patchMethod: "disc-file-patcher"
+patchMethodLabel: "디스크 파일 단위 패처"
+latestVersion: "v0.9"
+latestReleaseDate: "2026-11-27"
+translationScope: "컷신과 플레이 중 대사의 한국어 음성, 시작·일시 정지·설정 메뉴, 조작·전투 튜토리얼, 제작 과정·제작진 메뉴, 메모리 카드 안내. 메뉴와 안내에는 넥슨 워헤이븐 Regular 적용"
+compatibility:
+  - environment: "Dolphin"
+    status: "works"
+    note: "게임 설정에서 언어를 한국어로 선택"
+  - environment: "Wii U vWii + Nintendont"
+    status: "works"
+    note: "게임 설정에서 언어를 한국어로 선택"
+knownIssues:
+  - "타이틀 로고와 일부 화면 그래픽에는 영어 표기가 남아 있습니다."
+credits: "제작 arqhive. 원작 Ubisoft. 서체 넥슨 워헤이븐 Regular(넥슨)."
+summary: "게임큐브 북미판 Rev 1용 한국어 패치입니다. 컷신과 플레이 중 대사는 한국어 음성으로 재생되며, 메뉴와 튜토리얼도 한국어로 이용할 수 있습니다."
+---
+
+게임큐브 북미판 Rev 1의 컷신과 플레이 중 대사를 한국어 음성으로 들을 수 있습니다. 메뉴와 튜토리얼, 메모리 카드 안내를 한글화했습니다. 게임 설정에서는 언어를 `한국어`로 선택해 주세요.
+
+## 적용하기
+
+`GPTE_KPatch_v0.9.zip`의 압축을 풀고, 본인이 보유한 디스크에서 추출한 북미판 Rev 1 이미지를 `패치하기.bat` 위에 끌어다 놓습니다. 원본을 패처와 같은 폴더에 둔 뒤 배치 파일을 실행해도 됩니다. 원본과 같은 폴더에 이름 끝에 `(KOR)`이 붙은 이미지가 생성됩니다.
