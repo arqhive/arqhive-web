@@ -41,9 +41,13 @@ function escapeRegExp(text: string): string {
   return text.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
-function pickDownloads(assets: readonly ReleaseAsset[], code: string): PatchDownloads {
+function pickDownloads(
+  assets: readonly ReleaseAsset[],
+  code: string,
+  version?: string,
+): PatchDownloads {
   const pattern = new RegExp(
-    `^${escapeRegExp(code)}_KPatch_v[^_]+(?:_([A-Za-z0-9.-]+))?\\.([a-z0-9]+)$`,
+    `^${escapeRegExp(code)}_KPatch_(v[^_]+)(?:_([A-Za-z0-9.-]+))?\\.([a-z0-9]+)$`,
   );
   const files = assets.flatMap((asset) => {
     const match = pattern.exec(asset.name);
@@ -55,12 +59,16 @@ function pickDownloads(assets: readonly ReleaseAsset[], code: string): PatchDown
         name: asset.name,
         url: asset.browser_download_url,
         size: asset.size,
-        variant: match[1] ?? null,
-        extension: match[2] ?? '',
+        version: match[1],
+        variant: match[2] ?? null,
+        extension: match[3] ?? '',
       },
     ];
   });
-  const plain = files.filter((file) => file.variant === null);
+  // 같은 릴리즈에 이전 버전의 ZIP도 있으면 태그와 일치하는 파일을 우선한다.
+  const matchingVersion = files.filter((file) => file.version === version);
+  const candidates = matchingVersion.length > 0 ? matchingVersion : files;
+  const plain = candidates.filter((file) => file.variant === null);
   const main = plain.find((file) => file.extension === 'zip') ?? plain[0] ?? null;
   const toFile = (file: (typeof files)[number]): DownloadFile => ({
     name: file.name,
@@ -70,7 +78,7 @@ function pickDownloads(assets: readonly ReleaseAsset[], code: string): PatchDown
   });
   return {
     main: main === null ? null : toFile(main),
-    variants: files
+    variants: candidates
       .filter((file) => file.variant !== null && VARIANTS.has(file.variant))
       .map(toFile),
   };
