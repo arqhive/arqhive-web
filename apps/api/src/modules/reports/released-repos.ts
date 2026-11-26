@@ -1,4 +1,4 @@
-import { patches } from '@arqhive/content';
+import { patches, repoHasMultipleReleasedPatches } from '@arqhive/content';
 
 /**
  * 제보를 받을 수 있는 패치: 공개(released)된 것만. slug → 저장소(owner/name), 게임 이름.
@@ -7,12 +7,21 @@ import { patches } from '@arqhive/content';
  */
 export const RELEASED_REPOS: ReadonlyMap<
   string,
-  { readonly owner: string; readonly name: string; readonly title: string }
+  {
+    readonly owner: string;
+    readonly name: string;
+    readonly title: string;
+    readonly countCode: string | undefined;
+  }
 > = new Map(
   patches
     .filter((patch) => patch.status === 'released')
     .map((patch) => [
       patch.slug,
-      { owner: patch.repo.owner, name: patch.repo.name, title: patch.titleKo },
+      {
+        ...patch.repo,
+        title: patch.titleKo,
+        countCode: repoHasMultipleReleasedPatches(patch.repo) ? patch.downloadCode : undefined,
+      },
     ]),
 );

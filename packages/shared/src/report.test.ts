@@ -11,6 +11,13 @@ describe('neutralizeMentions', () => {
 });
 
 describe('buildReportIssue → parseReportBody', () => {
+  it('공유 저장소에서도 제보의 패치 주소를 읽는다', () => {
+    const slug = 'prince-of-persia-rival-swords';
+    const text = 'Wii판에서 발견한 문제입니다.';
+    const { body } = buildReportIssue({ slug, text, imageUrls: [] });
+    expect(parseReportBody(body)).toEqual({ slug, text, images: [] });
+  });
+
   it('만든 본문을 다시 읽으면 글과 이미지가 그대로 나온다', () => {
     const text = '3장 보스 대사가 잘려요.\n두 번째 줄';
     const urls = ['https://img.example/a.webp', 'https://img.example/b.webp'];

@@ -129,13 +129,14 @@ async function upload(
 /** 양식이 목록 맨 위에 바로 붙일 방금 만든 제보(목록 카드와 같은 모양) */
 function submitted(
   repo: { readonly owner: string; readonly name: string },
-  issue: { readonly url: string; readonly id: number },
+  issue: { readonly url: string; readonly id: number; readonly slug: string },
   text: string,
   images: readonly string[],
 ): SubmittedReport {
   return {
     id: issue.id,
     repo: `${repo.owner}/${repo.name}`,
+    slug: issue.slug,
     url: issue.url,
     createdAt: new Date().toISOString(),
     text: text.trim(),
@@ -180,7 +181,7 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
       await guard(c.env, form, c.req.header('cf-connecting-ip') ?? null);
       const { repo, slug, text, images } = await validate(c.env, form);
       const { urls: imageUrls, skipped } = await upload(c.env, images);
-      const issue = buildReportIssue({ text, imageUrls });
+      const issue = buildReportIssue({ slug, text, imageUrls });
       // 스크린샷을 저장 한도 때문에 뺐으면 양식이 알려 줄 수 있게 함께 돌려준다
       const imagesSkipped = skipped ? { imagesSkipped: true } : {};
       // 개발 중에는 공개 저장소에 시험 이슈가 생기지 않게 만들지 않는다(wrangler.jsonc의 REPORT_DRY_RUN)
@@ -199,7 +200,7 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
           url: reposUrl,
           ...imagesSkipped,
           // 시험이라 이슈 id가 없으므로 지금 시각을 id로 쓴다(목록 카드의 key가 겹치지 않으면 된다)
-          report: submitted(repo, { url: reposUrl, id: Date.now() }, text, imageUrls),
+          report: submitted(repo, { url: reposUrl, id: Date.now(), slug }, text, imageUrls),
           // 시험용: 만들었을 이슈 제목·본문(이미지 링크 포함)을 그대로 보여 준다
           dryRun: issue,
         });
@@ -220,7 +221,7 @@ export const reportsRoute = new Hono<{ Bindings: ApiEnv }>()
         ok: true,
         url,
         ...imagesSkipped,
-        report: submitted(repo, created, text, imageUrls),
+        report: submitted(repo, { ...created, slug }, text, imageUrls),
       });
     } catch (error) {
       const code: RejectCode = error instanceof Reject ? error.code : 'server';
