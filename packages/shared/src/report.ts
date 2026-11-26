@@ -94,7 +94,7 @@ interface SubmittedReport {
   /** "owner/name" */
   readonly repo: string;
   /** 같은 저장소의 여러 게임을 구별할 때 쓰는 패치 주소 */
-  readonly slug?: string;
+  readonly slug?: string | undefined;
   readonly url: string;
   readonly createdAt: string;
   readonly text: string;
