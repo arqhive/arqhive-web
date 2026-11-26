@@ -46,7 +46,7 @@ async function readReleaseInfo(
     downloads:
       latest === undefined || downloadCode === undefined
         ? null
-        : pickDownloads(latest.assets, downloadCode),
+        : pickDownloads(latest.assets, downloadCode, latest.tag_name.trim()),
     latest: latest === undefined ? null : releaseStamp(latest),
   };
 }
@@ -57,7 +57,7 @@ async function readReleaseInfo(
  * 「Return the stale value on error」 10/23 확인). 그래서 GitHub이 잠깐 빈 목록을 줘도 그 저장소만 직전 값으로 남는다.
  */
 // v2: latest에 publishedAt이 붙었다(11/1). 옛 모양으로 기억한 값을 쓰지 않게 키를 바꾼다
-const cachedReleaseInfo = unstable_cache(readReleaseInfo, ['release-info-v2'], {
+const cachedReleaseInfo = unstable_cache(readReleaseInfo, ['release-info-v3'], {
   revalidate: GITHUB_CACHE_SECONDS,
 });
 

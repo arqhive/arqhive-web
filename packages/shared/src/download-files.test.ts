@@ -46,4 +46,13 @@ describe('pickDownloads', () => {
     );
     expect(result.main).toBeNull();
   });
+
+  it('같은 게임 코드의 ZIP이 여러 버전이면 릴리즈 태그와 일치하는 ZIP을 고른다', () => {
+    const result = pickDownloads(
+      [asset('G2OE_KPatch_v1.0.zip'), asset('G2OE_KPatch_v0.9.zip')],
+      'G2OE',
+      'v0.9',
+    );
+    expect(result.main?.name).toBe('G2OE_KPatch_v0.9.zip');
+  });
 });
