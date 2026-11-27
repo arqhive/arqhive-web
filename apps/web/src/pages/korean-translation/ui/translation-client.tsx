@@ -1,33 +1,16 @@
 'use client';
 
-import { useCallback, useId, useRef, useState } from 'react';
-import {
-  type PatchCaseData,
-  type PickHandler,
-  type PlatformFilter,
-  patchPath,
-  toggleFilter,
-} from '@/entities/patch';
-import { SITE } from '@/shared/config';
+import { type ReactNode, useId, useState } from 'react';
+import { type PatchCaseData, type PlatformFilter, toggleFilter } from '@/entities/patch';
 import { QueryProvider } from '@/shared/query';
 import { CaseViewer } from '@/widgets/case-viewer';
 import { PatchTable } from '@/widgets/patch-table';
 import { FaceOutRow, Shelf } from '@/widgets/shelf';
 import { loadChangelog } from '../api/load-changelog.tsx';
+import { useShelfCase } from '../model/use-shelf-case.ts';
 import type { ViewMode } from '../model/view-mode.ts';
+import { PatchInstructionsDisclosure } from './patch-instructions-disclosure.tsx';
 import { TranslationToolbar } from './translation-toolbar.tsx';
-
-/** 진열장 주소. 케이스를 열면 패치 주소로, 닫으면 이 주소로 주소창만 바꾼다 */
-const SHELF_PATH = '/korean-translation';
-
-/**
- * 주소와 함께 탭 제목도 바꾼다(주소창만 바꾸면 제목은 그대로라서). 형식은 패치 페이지·진열장의 metadata 제목과 같다.
- * title이 null이면 진열장 제목.
- */
-function showAddress(path: string, title: string | null) {
-  globalThis.history.replaceState(null, '', path);
-  document.title = `${title === null ? '한글 패치' : `${title} 한글 패치`} · ${SITE.name}`;
-}
 
 /**
  * 진열장 화면의 상태를 갖는 클라이언트 부분.
@@ -41,40 +24,31 @@ export function TranslationClient({
   items,
   recent,
   changelogSlugs,
+  initialSlug,
+  initialInstructions,
 }: {
   readonly items: readonly PatchCaseData[];
   readonly recent: readonly PatchCaseData[];
   /** 업데이트 내역(CHANGELOG)이 있는 패치 slug. 없는 패치는 단추를 숨긴다. 내용은 누를 때 서버에서 받는다 */
   readonly changelogSlugs: readonly string[];
+  readonly initialSlug?: string | undefined;
+  readonly initialInstructions?: ReactNode;
 }) {
+  const initialPatch = items.find((item) => item.slug === initialSlug) ?? null;
   const [filter, setFilter] = useState<PlatformFilter>([]);
   const [view, setView] = useState<ViewMode>('shelf');
-  const [picked, setPicked] = useState<PatchCaseData | null>(null);
-  const originRef = useRef<HTMLElement | null>(null);
+  const { picked, readyToOpen, originRef, onPick, onClose } = useShelfCase(initialPatch);
   // 섹션 제목과 섹션을 잇는 id. useId는 서버·브라우저에서 같은 고유값을 만든다.
   const recentId = useId();
   const shelfId = useId();
 
-  const onPick: PickHandler = useCallback((item, element) => {
-    originRef.current = element;
-    element.style.visibility = 'hidden';
-    setPicked(item);
-    showAddress(patchPath(item.slug), item.titleKo);
-  }, []);
-
-  const onClose = useCallback(() => {
-    if (originRef.current !== null) {
-      originRef.current.style.visibility = '';
-    }
-    setPicked(null);
-    showAddress(SHELF_PATH, null);
-  }, []);
+  const isPrimaryCase = picked !== null && picked.slug === initialSlug;
 
   return (
     // 업데이트 내역 불러오기(CaseViewer의 useQuery)가 쓰는 TanStack Query 제공자
     <QueryProvider>
       <div className="space-y-10">
-        <h1 className="sr-only">한글 패치</h1>
+        {isPrimaryCase ? null : <h1 className="sr-only">한글 패치</h1>}
         {/* 최근 2주 안에 갱신된 패치가 없으면 이 칸은 통째로 보이지 않는다 */}
         {recent.length === 0 ? null : (
           <section aria-labelledby={recentId}>
@@ -105,7 +79,17 @@ export function TranslationClient({
 
         <CaseViewer
           patch={picked}
-          detailsHref={picked === null ? undefined : patchPath(picked.slug)}
+          readyToOpen={readyToOpen}
+          isPrimaryCase={isPrimaryCase}
+          instructions={
+            picked?.status === 'released' ? (
+              <PatchInstructionsDisclosure
+                key={picked.slug}
+                slug={picked.slug}
+                initial={isPrimaryCase ? initialInstructions : undefined}
+              />
+            ) : undefined
+          }
           loadChangelog={
             picked !== null && changelogSlugs.includes(picked.slug) ? loadChangelog : undefined
           }

@@ -69,14 +69,16 @@ function CaseBook({
  */
 function CaseContents({
   patch,
-  detailsHref,
+  instructions,
+  isPrimaryCase,
   phase,
   isSettled,
   onClose,
   onShowChangelog,
 }: {
   readonly patch: PatchCaseData;
-  readonly detailsHref: string | undefined;
+  readonly instructions: ReactNode;
+  readonly isPrimaryCase: boolean;
   readonly phase: CasePhase;
   readonly isSettled: boolean;
   readonly onClose: () => void;
@@ -85,7 +87,12 @@ function CaseContents({
   const isOpen = phase === 'open';
   const spread = opensAsSpread(CASE_SPECS[patch.platform]);
   const liner = (
-    <CaseLiner patch={patch} detailsHref={detailsHref} onShowChangelog={onShowChangelog} />
+    <CaseLiner
+      patch={patch}
+      instructions={instructions}
+      isPrimaryCase={isPrimaryCase}
+      onShowChangelog={onShowChangelog}
+    />
   );
   return (
     <>
@@ -133,14 +140,17 @@ function CaseContents({
  */
 export function CaseViewer({
   patch,
-  detailsHref,
+  readyToOpen,
+  instructions,
+  isPrimaryCase,
   loadChangelog,
   originRef,
   onClose,
 }: {
   readonly patch: PatchCaseData | null;
-  /** 진열장 케이스에서 작품의 상세 페이지를 열 때 사용한다. */
-  readonly detailsHref?: string | undefined;
+  readonly readyToOpen: boolean;
+  readonly instructions: ReactNode;
+  readonly isPrimaryCase: boolean;
   /**
    * 이 패치의 업데이트 내역(CHANGELOG)을 서버에서 그려 받아 오는 함수. 단추를 누를 때 부른다.
    * 없으면(CHANGELOG가 없는 패치) 속지의 "업데이트 내역 보기" 단추를 숨긴다.
@@ -152,7 +162,7 @@ export function CaseViewer({
   const boxed = patch !== null && hasOuterBox(CASE_SPECS[patch.platform]);
   // 늘어놓기(카트리지 상자): 케이스를 옮기거나 표지를 넘기지 않고, 상자 자리 가운데에 설명서·팩을 펼친다
   const spread = patch !== null && opensAsSpread(CASE_SPECS[patch.platform]);
-  const view = useCaseDialog(patch?.slug ?? null, boxed, originRef, onClose);
+  const view = useCaseDialog(readyToOpen ? (patch?.slug ?? null) : null, boxed, originRef, onClose);
   const { phase } = view;
   // 케이스가 떠 있는 동안(날아오기부터 제자리로 돌아갈 때까지) 뒤 페이지 스크롤을 막는다
   useScrollLock(view.isActive);
@@ -188,7 +198,8 @@ export function CaseViewer({
             >
               <CaseContents
                 patch={patch}
-                detailsHref={detailsHref}
+                instructions={instructions}
+                isPrimaryCase={isPrimaryCase}
                 phase={phase}
                 isSettled={view.isSettled}
                 onClose={view.close}

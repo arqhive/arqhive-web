@@ -35,34 +35,36 @@ test.describe('진열장', () => {
   });
 
   test('매체는 패치 파일(또는 최신 릴리즈 페이지)로 연결된다', async ({ page }) => {
-    await page.goto('/korean-translation');
-    await page.locator(`[data-slug="${SLUG}"]`).last().click();
+    await page.goto(`/korean-translation/${SLUG}`);
     const dialog = page.locator('dialog[open]');
     await expect(dialog).toBeVisible();
     // GitHub를 읽었으면 첨부 파일 주소, 못 읽었으면(한도 등) 최신 릴리즈 페이지로 간다
     const href = await dialog.locator('a[data-track="download"]').first().getAttribute('href');
     expect(href).toMatch(/\/releases\/(?:download\/[^/]+\/[A-Z0-9]+_KPatch_.+|latest)$/u);
-    await dialog.getByRole('link', { name: '패치 상세 보기' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` })).toBeVisible();
-    await expect(page.locator('dialog[open]')).toHaveCount(0);
   });
 });
 
 test.describe('패치 주소로 바로 들어오기', () => {
-  test('본문을 먼저 읽고 케이스를 열고 닫아도 상세 주소와 본문이 유지된다', async ({ page }) => {
+  test('진열장 위에 해당 케이스를 열고, 속지에서 적용 안내를 펼칠 수 있다', async ({ page }) => {
     const errors = collectErrors(page);
     await page.goto(`/korean-translation/${SLUG}`);
-    const title = page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` });
-    await expect(title).toBeVisible();
-    await expect(page.getByRole('heading', { name: '지원 원본판' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: '적용하기' })).toBeVisible();
-    await expect(page.locator('dialog[open]')).toHaveCount(0);
-    await page.getByRole('button', { name: '케이스 열기' }).click();
-    await expect(page.locator('dialog[open]')).toBeVisible();
+    const dialog = page.locator('dialog[open]');
+    await expect(dialog.getByRole('heading', { level: 1, name: TITLE })).toBeVisible();
+    const instructions = dialog.locator('details').filter({ hasText: '패치 적용 안내' });
+    await expect(instructions).not.toHaveAttribute('open');
+    await instructions.locator('summary').click();
+    await expect(instructions.getByRole('heading', { name: '적용하기' })).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(page.locator('dialog[open]')).toHaveCount(0);
-    await expect(title).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`/korean-translation/${SLUG}$`, 'u'));
+    await expect(dialog).toHaveCount(0);
+    await expect(page).toHaveURL(/\/korean-translation$/u);
+    await expect(page.locator('[data-spine="title"]').first()).toBeVisible();
     expect(errors).toStrictEqual([]);
+  });
+
+  test('작품별 적용 안내가 첫 HTML의 케이스 속지에 들어 있다', async ({ request }) => {
+    const response = await request.get(`/korean-translation/${SLUG}`);
+    expect(response.ok()).toBe(true);
+    const html = await response.text();
+    expect(html).toMatch(/<details[^>]*>[\s\S]*?<h3[^>]*>적용하기<\/h3>/u);
   });
 });

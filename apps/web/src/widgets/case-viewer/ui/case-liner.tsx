@@ -140,7 +140,6 @@ function LinerFacts({
  * - 설명문(summary)은 넣지 않는다(10/6 사용자 결정).
  * - 휴대폰: 케이스가 작아 속지 폭 비례로는 글자가 너무 작아지므로, 사이트 글자 크기(rem) 기준의 줄인 배치를 쓴다.
  *   작은 케이스는 제목을 한 단계 줄이고 맨 아래 안내 문구도 뺀다.
- * 전체 내용은 상세 페이지에서 본다.
  */
 /** 링크 글자 모양(속지 안 작은 밑줄 글자) */
 const LINK_CLASS =
@@ -186,17 +185,20 @@ function LinerLinks({
 
 export function CaseLiner({
   patch,
-  detailsHref,
+  instructions,
+  isPrimaryCase,
   onShowChangelog,
 }: {
   readonly patch: PatchCaseData;
-  readonly detailsHref?: string | undefined;
+  readonly instructions: ReactNode;
+  readonly isPrimaryCase: boolean;
   /** 있으면 원제 아래에 "업데이트 내역 보기" 단추를 두고, 누르면 부른다(업데이트 내역을 읽어 온 공개 작품만) */
   readonly onShowChangelog?: (() => void) | undefined;
 }) {
   const isReleased = patch.status === 'released';
   const compact = CASE_SPECS[patch.platform].scale < COMPACT_SCALE;
   const desk = DESKTOP[compact ? 'compact' : 'normal'];
+  const Title = isPrimaryCase ? 'h1' : 'h2';
 
   return (
     <div className="@container size-full">
@@ -211,34 +213,16 @@ export function CaseLiner({
           ) : null}
         </div>
         {/* 한글 제목이 먼저, 게임 원제는 그 아래 작게(10/6). 위 여백 em은 제목 자신의 큰 글자 기준이라 작게 둔다 */}
-        <h2
+        <Title
           className={`mt-1 shrink-0 break-keep font-bold font-title leading-snug ${compact ? 'text-base' : 'text-lg'} md:mt-[0.15em] ${desk.title}`}
         >
           <TitleLines patch={patch} />
-        </h2>
+        </Title>
         <span className="mt-1 line-clamp-2 shrink-0 text-ink-sub text-xs md:text-[1em]">
           {patch.titleOriginal}
         </span>
         {isReleased ? <LinerLinks patch={patch} onShowChangelog={onShowChangelog} /> : null}
-        {detailsHref === undefined ? null : (
-          <a
-            href={detailsHref}
-            onClick={(event) => {
-              if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-                return;
-              }
-              // 진열장이 주소창을 이미 상세 주소로 바꿔 둔 경우 본문을 새로 불러온다.
-              if (globalThis.location.pathname !== detailsHref) {
-                return;
-              }
-              event.preventDefault();
-              globalThis.location.reload();
-            }}
-            className={`mt-2 self-start text-xs md:text-[0.875em] ${LINK_CLASS}`}
-          >
-            패치 상세 보기
-          </a>
-        )}
+        {instructions}
         <LinerFacts patch={patch} listClass={desk.list} />
         {/* 롬 패치(BPS·IPS)에만 있다: 원본·패치 후 크기와 해시 표 */}
         {isReleased && patch.fileCheck !== undefined ? (

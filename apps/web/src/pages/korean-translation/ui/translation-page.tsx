@@ -1,6 +1,7 @@
-import { patches } from '@arqhive/content';
+import { type Patch, patches } from '@arqhive/content';
 import { fetchChangelog, fetchReleaseInfo, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
+import { PatchInstructions } from './patch-instructions.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
 /** 최근 갱신 표지 후보 수(넉넉히). 실제로는 FaceOutRow가 받침 선 길이에 들어가는 만큼만 보여 준다 */
@@ -16,7 +17,7 @@ const RECENT_COUNT = 12;
  * CHANGELOG는 "있는지"만 넘기고(단추 표시용), 내용은 단추를 누를 때 서버 함수(api/load-changelog)가 그려 보낸다.
  * 내용까지 미리 실으면 페이지 HTML의 대부분이 CHANGELOG 데이터가 되기 때문이다.
  */
-export async function TranslationPage() {
+export async function TranslationPage({ initialPatch }: { readonly initialPatch?: Patch }) {
   const sorted = patches.toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
   const released = (item: (typeof sorted)[number]) => item.status === 'released';
   const [releaseInfos, changelogs] = await Promise.all([
@@ -41,6 +42,10 @@ export async function TranslationPage() {
       items={items}
       recent={recentlyUpdated(items, RECENT_COUNT, today)}
       changelogSlugs={changelogSlugs}
+      initialSlug={initialPatch?.slug}
+      initialInstructions={
+        initialPatch?.status === 'released' ? <PatchInstructions patch={initialPatch} /> : undefined
+      }
     />
   );
 }

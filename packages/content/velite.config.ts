@@ -99,7 +99,7 @@ const patches = defineCollection({
     credits: s.string().nullable(),
     summary: s.string(),
     featured: s.boolean().default(false),
-    // 상세 페이지에서 기존 안내문을 읽기용 마크다운으로 표시한다.
+    // 케이스 속지의 적용 안내를 서버에서 마크다운으로 그린다.
     body: s.raw(),
   }),
 });
