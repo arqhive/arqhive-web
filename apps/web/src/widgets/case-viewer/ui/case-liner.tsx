@@ -1,7 +1,13 @@
 import { PLATFORM_LABELS } from '@arqhive/shared';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { CASE_SPECS, type PatchCaseData, releaseStage, TitleLines } from '@/entities/patch';
+import {
+  CASE_SPECS,
+  type PatchCaseData,
+  regionLabel,
+  releaseStage,
+  TitleLines,
+} from '@/entities/patch';
 import { FileCheck } from './file-check.tsx';
 
 /** 이 비율보다 작은 케이스(3DS·NDS·GB·GBA)는 속지가 좁아서 글자를 줄인다 */
@@ -45,30 +51,6 @@ function VersionGuideLink() {
       버전 가이드
     </Link>
   );
-}
-
-/**
- * 원본 판 이름: 콘텐츠의 지역 코드(JP·US·EU, 둘이면 "US/EU")를 일본판·북미판·유럽판으로 읽는다.
- * 모르는 코드는 코드 뒤에 "판"만 붙인다. 괄호 덧붙임은 그대로 뒤에 둔다("JP(Rev 1)" → 일본판(Rev 1)).
- */
-function RegionText({ region }: { readonly region: string }) {
-  const noteStart = region.indexOf('(');
-  const codes = noteStart === -1 ? region : region.slice(0, noteStart);
-  const note = noteStart === -1 ? '' : region.slice(noteStart);
-  const names = codes
-    .split('/')
-    .map((code) => {
-      if (code === 'JP') {
-        return '일본';
-      }
-      if (code === 'US') {
-        return '북미';
-      }
-      return code === 'EU' ? '유럽' : code;
-    })
-    .map((name) => `${name}판`)
-    .join('·');
-  return `${names}${note}`;
 }
 
 /** 정보 칸 한 줄(이름 + 값) */
@@ -122,7 +104,7 @@ function LinerFacts({
           '-'
         )}
       </Fact>
-      <Fact label="원본">{open ? <RegionText region={patch.baseRegion} /> : '-'}</Fact>
+      <Fact label="원본">{open ? regionLabel(patch.baseRegion) : '-'}</Fact>
       <Fact label="방식">{open ? patch.patchMethodLabel : '-'}</Fact>
       <Fact label="구동 확인">
         <span className="break-keep">{verified.length === 0 ? '-' : verified.join(', ')}</span>
@@ -204,9 +186,11 @@ function LinerLinks({
 
 export function CaseLiner({
   patch,
+  detailsHref,
   onShowChangelog,
 }: {
   readonly patch: PatchCaseData;
+  readonly detailsHref?: string | undefined;
   /** 있으면 원제 아래에 "업데이트 내역 보기" 단추를 두고, 누르면 부른다(업데이트 내역을 읽어 온 공개 작품만) */
   readonly onShowChangelog?: (() => void) | undefined;
 }) {
@@ -236,6 +220,25 @@ export function CaseLiner({
           {patch.titleOriginal}
         </span>
         {isReleased ? <LinerLinks patch={patch} onShowChangelog={onShowChangelog} /> : null}
+        {detailsHref === undefined ? null : (
+          <a
+            href={detailsHref}
+            onClick={(event) => {
+              if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+                return;
+              }
+              // 진열장이 주소창을 이미 상세 주소로 바꿔 둔 경우 본문을 새로 불러온다.
+              if (globalThis.location.pathname !== detailsHref) {
+                return;
+              }
+              event.preventDefault();
+              globalThis.location.reload();
+            }}
+            className={`mt-2 self-start text-xs md:text-[0.875em] ${LINK_CLASS}`}
+          >
+            패치 상세 보기
+          </a>
+        )}
         <LinerFacts patch={patch} listClass={desk.list} />
         {/* 롬 패치(BPS·IPS)에만 있다: 원본·패치 후 크기와 해시 표 */}
         {isReleased && patch.fileCheck !== undefined ? (

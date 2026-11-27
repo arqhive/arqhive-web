@@ -27,6 +27,8 @@ test('선택 파일 버튼: 갈래 버튼(CIA·LayeredFS)이 있는 패치에서
   // 10/10: 갈래 버튼을 그리는 분기가 extraDownloads를 빠뜨려 Azahar 폰트 버튼이 안 보였다
   const errors = collectErrors(page);
   await page.goto('/korean-translation/kid-icarus-uprising');
+  await expect(page.locator('main a[data-track="download-extra"]')).toContainText('Azahar');
+  await page.getByRole('button', { name: '케이스 열기' }).click();
   const extra = page.locator('dialog[open] a[data-track="download-extra"]');
   await expect(extra).toBeVisible();
   await expect(extra).toContainText('Azahar');

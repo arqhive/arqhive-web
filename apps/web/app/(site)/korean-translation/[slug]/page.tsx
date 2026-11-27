@@ -1,8 +1,8 @@
-// "/korean-translation/<slug>" 주소: 진열장을 그리고, 주소의 패치 케이스를 선반 자리에서 꺼내 바로 연다.
-// 화면은 진열장(/korean-translation)과 같고, 어느 패치를 열지(initialSlug)만 넘긴다.
+// "/korean-translation/<slug>" 주소: 작품별 패치 안내를 보여 준다.
 import { patches } from '@arqhive/content';
 import type { Metadata } from 'next';
-import { TranslationPage } from '@/pages/korean-translation';
+import { notFound } from 'next/navigation';
+import { PatchDetailPage } from '@/pages/korean-translation';
 import { pageMetadata } from '@/shared/lib';
 
 /** 패치 주소는 빌드할 때 모두 미리 만든다(패치 수만큼). 목록에 없는 주소는 404 */
@@ -35,5 +35,9 @@ export default async function TranslationSlugRoute({
   params,
 }: PageProps<'/korean-translation/[slug]'>) {
   const { slug } = await params;
-  return <TranslationPage initialSlug={slug} />;
+  const patch = patches.find((candidate) => candidate.slug === slug);
+  if (patch === undefined) {
+    notFound();
+  }
+  return <PatchDetailPage patch={patch} />;
 }

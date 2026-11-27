@@ -23,6 +23,7 @@ export {
   toggleFilter,
   usedGroups,
 } from './lib/platform-groups.ts';
+export { regionLabel } from './lib/region-label.ts';
 export { type ReleaseStage, releaseStage } from './lib/release-stage.ts';
 export { compareTitle } from './lib/title-order.ts';
 export { type PatchCaseData, toCaseData } from './model/case-data.ts';
@@ -32,4 +33,5 @@ export { CaseFront, CaseInner, CaseOuterBox, CaseTray } from './ui/case-inside.t
 export { CaseMedia } from './ui/case-media.tsx';
 export { CaseSpine } from './ui/case-spine.tsx';
 export { CaseSpread } from './ui/case-spread.tsx';
+export { PatchDownloadLinks } from './ui/release-link.tsx';
 export { TitleLines } from './ui/title-lines.tsx';

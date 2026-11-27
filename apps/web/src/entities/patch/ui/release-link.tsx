@@ -33,6 +33,77 @@ function sizeLabel(bytes: number): string {
   return `${(bytes / BYTES_PER_MB).toFixed(1)}MB`;
 }
 
+/** 상세 페이지의 다운로드 링크. 케이스에서와 같은 릴리즈 파일과 대체 주소를 쓴다. */
+function PatchDownloadLinks({ patch }: { readonly patch: PatchCaseData }) {
+  const main = patch.downloads?.main;
+  const files = main ? [main] : (patch.downloads?.variants ?? []);
+  const button =
+    'block w-full bg-ink px-4 py-3 text-paper transition-colors hover:bg-stamp hover:text-on-stamp focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stamp';
+
+  return (
+    <div className="space-y-3">
+      {files.length === 0 ? (
+        <a
+          href={releasePage(patch)}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="download"
+          data-track-patch={patch.slug}
+          className={button}
+        >
+          최신 릴리즈 열기 <span aria-hidden="true">↗</span>
+        </a>
+      ) : (
+        files.map((file) => (
+          <a
+            key={file.name}
+            href={file.url}
+            data-track="download"
+            data-track-patch={patch.slug}
+            data-track-file={file.name}
+            className={button}
+          >
+            <span className="block font-bold">
+              {file.variant === null
+                ? '패치 파일 받기'
+                : `${VARIANT_LABELS[file.variant] ?? file.variant} 받기`}
+            </span>
+            <span className="block font-num text-xs wrap-anywhere">
+              {file.name} · {sizeLabel(file.size)}
+            </span>
+          </a>
+        ))
+      )}
+      {patch.extraDownloads.map((extra) => (
+        <a
+          key={extra.url}
+          href={extra.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="download-extra"
+          data-track-patch={patch.slug}
+          className="block break-keep border border-line px-4 py-2 text-sm hover:border-ink"
+        >
+          <span className="block font-bold">{extra.label} ↗</span>
+          {extra.note ? <span className="block text-ink-sub text-xs">{extra.note}</span> : null}
+        </a>
+      ))}
+      {files.length > 0 ? (
+        <a
+          href={releasePage(patch)}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-track="release-notes"
+          data-track-patch={patch.slug}
+          className="inline-block text-sm underline underline-offset-4 hover:text-stamp"
+        >
+          GitHub 릴리즈 노트 <span aria-hidden="true">↗</span>
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 /** 받는 방식이 다른 두 벌(CIA·LayeredFS)을 나란히 놓는 버튼 */
 function DownloadChoices({
   patch,
@@ -216,3 +287,5 @@ export function ReleaseHint({
   );
   return <div className={className}>{hint}</div>;
 }
+
+export { PatchDownloadLinks };

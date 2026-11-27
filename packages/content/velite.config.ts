@@ -99,7 +99,8 @@ const patches = defineCollection({
     credits: s.string().nullable(),
     summary: s.string(),
     featured: s.boolean().default(false),
-    body: s.mdx(),
+    // 상세 페이지에서 기존 안내문을 읽기용 마크다운으로 표시한다.
+    body: s.raw(),
   }),
 });
 

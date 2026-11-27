@@ -1,7 +1,6 @@
 import { patches } from '@arqhive/content';
 import { fetchChangelog, fetchReleaseInfo, recentlyUpdated, toCaseData } from '@/entities/patch';
 import { kstDayNumber } from '@/shared/lib';
-import { PatchIntro } from './patch-intro.tsx';
 import { TranslationClient } from './translation-client.tsx';
 
 /** 최근 갱신 표지 후보 수(넉넉히). 실제로는 FaceOutRow가 받침 선 길이에 들어가는 만큼만 보여 준다 */
@@ -12,17 +11,13 @@ const RECENT_COUNT = 12;
  *
  * 서버 컴포넌트에서 콘텐츠를 읽고, 진열장에 필요한 필드만 골라(toCaseData) 클라이언트 컴포넌트로 넘긴다.
  * 작품 순서는 분류 번호 순이다(기종 안에서 저장소를 만든 순서).
- * initialSlug(패치 주소로 들어왔을 때)가 있으면 그 패치 케이스를 처음부터 열어 보여 주고,
- * 진열장 위에 그 패치의 소개 띠(h1·소개)를 서버에서 그린다(검색엔진이 읽는 본문). 진열장 주소에서는 제목을 화면 낭독기용으로만 둔다.
  * 공개 작품은 GitHub 릴리즈(다운로드 수·직접 다운로드 파일·최신 버전과 날짜)와 CHANGELOG.md를 함께 읽는다(작품마다 동시에, 결과는 10분 캐시).
  * 버전·날짜는 릴리즈 값이 먼저이고 콘텐츠 값은 예비값이다. 작업 중인 작품은 읽지 않는다.
  * CHANGELOG는 "있는지"만 넘기고(단추 표시용), 내용은 단추를 누를 때 서버 함수(api/load-changelog)가 그려 보낸다.
  * 내용까지 미리 실으면 페이지 HTML의 대부분이 CHANGELOG 데이터가 되기 때문이다.
  */
-export async function TranslationPage({ initialSlug }: { readonly initialSlug?: string }) {
-  const sorted = patches
-    .map((patch) => toCaseData(patch))
-    .toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
+export async function TranslationPage() {
+  const sorted = patches.toSorted((a, b) => a.catalogNo.localeCompare(b.catalogNo));
   const released = (item: (typeof sorted)[number]) => item.status === 'released';
   const [releaseInfos, changelogs] = await Promise.all([
     Promise.all(
@@ -33,17 +28,7 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
     Promise.all(sorted.map((item) => (released(item) ? fetchChangelog(item.repo) : null))),
   ]);
   // 버전·날짜는 GitHub 최신 릴리즈가 먼저, 못 읽으면 콘텐츠 값(패치 저장소에 릴리즈만 올려도 표시가 따라온다)
-  const items = sorted.map((item, index) => {
-    const info = releaseInfos[index];
-    return {
-      ...item,
-      latestVersion: info?.latest?.version ?? item.latestVersion,
-      latestReleaseDate: info?.latest?.date ?? item.latestReleaseDate,
-      downloadCount: info?.downloadCount ?? null,
-      downloads: info?.downloads ?? null,
-      latestPublishedAt: info?.latest?.publishedAt ?? null,
-    };
-  });
+  const items = sorted.map((patch, index) => toCaseData(patch, releaseInfos[index]));
   // CHANGELOG가 있는 패치 slug. 못 읽은 패치는 빠진다(단추가 숨겨짐)
   const changelogSlugs = sorted
     .filter((_item, index) => Boolean(changelogs[index]))
@@ -51,23 +36,10 @@ export async function TranslationPage({ initialSlug }: { readonly initialSlug?: 
 
   // "오늘"은 서버가 페이지를 그리는 시각(한국 시간). 라우트(app/(site)/page.tsx)의 revalidate 주기마다 다시 그린다.
   const today = kstDayNumber(new Date());
-  const introPatch = patches.find((patch) => patch.slug === initialSlug);
-  const introItem = items.find((item) => item.slug === initialSlug);
-  // 소개 띠도 케이스와 같은 버전·날짜를 쓴다
-  const intro =
-    introPatch === undefined || introItem === undefined
-      ? undefined
-      : {
-          ...introPatch,
-          latestVersion: introItem.latestVersion,
-          latestReleaseDate: introItem.latestReleaseDate,
-        };
   return (
     <TranslationClient
-      intro={intro === undefined ? undefined : <PatchIntro patch={intro} />}
       items={items}
       recent={recentlyUpdated(items, RECENT_COUNT, today)}
-      initialSlug={initialSlug}
       changelogSlugs={changelogSlugs}
     />
   );

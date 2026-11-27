@@ -69,12 +69,14 @@ function CaseBook({
  */
 function CaseContents({
   patch,
+  detailsHref,
   phase,
   isSettled,
   onClose,
   onShowChangelog,
 }: {
   readonly patch: PatchCaseData;
+  readonly detailsHref: string | undefined;
   readonly phase: CasePhase;
   readonly isSettled: boolean;
   readonly onClose: () => void;
@@ -82,7 +84,9 @@ function CaseContents({
 }) {
   const isOpen = phase === 'open';
   const spread = opensAsSpread(CASE_SPECS[patch.platform]);
-  const liner = <CaseLiner patch={patch} onShowChangelog={onShowChangelog} />;
+  const liner = (
+    <CaseLiner patch={patch} detailsHref={detailsHref} onShowChangelog={onShowChangelog} />
+  );
   return (
     <>
       {spread ? (
@@ -129,11 +133,14 @@ function CaseContents({
  */
 export function CaseViewer({
   patch,
+  detailsHref,
   loadChangelog,
   originRef,
   onClose,
 }: {
   readonly patch: PatchCaseData | null;
+  /** 진열장 케이스에서 작품의 상세 페이지를 열 때 사용한다. */
+  readonly detailsHref?: string | undefined;
   /**
    * 이 패치의 업데이트 내역(CHANGELOG)을 서버에서 그려 받아 오는 함수. 단추를 누를 때 부른다.
    * 없으면(CHANGELOG가 없는 패치) 속지의 "업데이트 내역 보기" 단추를 숨긴다.
@@ -181,6 +188,7 @@ export function CaseViewer({
             >
               <CaseContents
                 patch={patch}
+                detailsHref={detailsHref}
                 phase={phase}
                 isSettled={view.isSettled}
                 onClose={view.close}

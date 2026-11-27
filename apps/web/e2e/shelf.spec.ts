@@ -35,25 +35,34 @@ test.describe('진열장', () => {
   });
 
   test('매체는 패치 파일(또는 최신 릴리즈 페이지)로 연결된다', async ({ page }) => {
-    await page.goto(`/korean-translation/${SLUG}`);
+    await page.goto('/korean-translation');
+    await page.locator(`[data-slug="${SLUG}"]`).last().click();
     const dialog = page.locator('dialog[open]');
     await expect(dialog).toBeVisible();
     // GitHub를 읽었으면 첨부 파일 주소, 못 읽었으면(한도 등) 최신 릴리즈 페이지로 간다
     const href = await dialog.locator('a[data-track="download"]').first().getAttribute('href');
     expect(href).toMatch(/\/releases\/(?:download\/[^/]+\/[A-Z0-9]+_KPatch_.+|latest)$/u);
+    await dialog.getByRole('link', { name: '패치 상세 보기' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` })).toBeVisible();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
   });
 });
 
 test.describe('패치 주소로 바로 들어오기', () => {
-  test('소개 띠(h1)와 케이스가 보이고, 케이스를 닫으면 소개 띠가 사라진다', async ({ page }) => {
+  test('본문을 먼저 읽고 케이스를 열고 닫아도 상세 주소와 본문이 유지된다', async ({ page }) => {
     const errors = collectErrors(page);
     await page.goto(`/korean-translation/${SLUG}`);
-    const intro = page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` });
-    await expect(intro).toBeVisible();
+    const title = page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` });
+    await expect(title).toBeVisible();
+    await expect(page.getByRole('heading', { name: '지원 원본판' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '적용하기' })).toBeVisible();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+    await page.getByRole('button', { name: '케이스 열기' }).click();
     await expect(page.locator('dialog[open]')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.locator('dialog[open]')).toHaveCount(0);
-    await expect(intro).toHaveCount(0);
+    await expect(title).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`/korean-translation/${SLUG}$`, 'u'));
     expect(errors).toStrictEqual([]);
   });
 });
