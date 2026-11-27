@@ -23,6 +23,7 @@ export {
   toggleFilter,
   usedGroups,
 } from './lib/platform-groups.ts';
+export { regionLabel } from './lib/region-label.ts';
 export { type ReleaseStage, releaseStage } from './lib/release-stage.ts';
 export { compareTitle } from './lib/title-order.ts';
 export { type PatchCaseData, toCaseData } from './model/case-data.ts';

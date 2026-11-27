@@ -45,15 +45,26 @@ test.describe('진열장', () => {
 });
 
 test.describe('패치 주소로 바로 들어오기', () => {
-  test('소개 띠(h1)와 케이스가 보이고, 케이스를 닫으면 소개 띠가 사라진다', async ({ page }) => {
+  test('진열장 위에 해당 케이스를 열고, 속지에서 적용 안내를 펼칠 수 있다', async ({ page }) => {
     const errors = collectErrors(page);
     await page.goto(`/korean-translation/${SLUG}`);
-    const intro = page.getByRole('heading', { level: 1, name: `${TITLE} 한글 패치` });
-    await expect(intro).toBeVisible();
-    await expect(page.locator('dialog[open]')).toBeVisible();
+    const dialog = page.locator('dialog[open]');
+    await expect(dialog.getByRole('heading', { level: 1, name: TITLE })).toBeVisible();
+    const instructions = dialog.locator('details').filter({ hasText: '패치 적용 안내' });
+    await expect(instructions).not.toHaveAttribute('open');
+    await instructions.locator('summary').click();
+    await expect(instructions.getByRole('heading', { name: '적용하기' })).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(page.locator('dialog[open]')).toHaveCount(0);
-    await expect(intro).toHaveCount(0);
+    await expect(dialog).toHaveCount(0);
+    await expect(page).toHaveURL(/\/korean-translation$/u);
+    await expect(page.locator('[data-spine="title"]').first()).toBeVisible();
     expect(errors).toStrictEqual([]);
+  });
+
+  test('작품별 적용 안내가 첫 HTML의 케이스 속지에 들어 있다', async ({ request }) => {
+    const response = await request.get(`/korean-translation/${SLUG}`);
+    expect(response.ok()).toBe(true);
+    const html = await response.text();
+    expect(html).toMatch(/<details[^>]*>[\s\S]*?<h3[^>]*>적용하기<\/h3>/u);
   });
 });

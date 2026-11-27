@@ -1,9 +1,12 @@
 // "/korean-translation" 주소의 페이지: 한글 패치 진열장(기종별 책장·목록·최근 갱신).
 // 화면의 실제 내용은 src/pages/korean-translation에 있다.
 import type { Metadata } from 'next';
+import { TranslationPage } from '@/pages/korean-translation';
 import { pageMetadata } from '@/shared/lib';
 
-export { TranslationPage as default } from '@/pages/korean-translation';
+export default function TranslationShelfRoute() {
+  return <TranslationPage />;
+}
 
 /** 탭 제목: 루트 레이아웃의 template("%s · arqhive")에 넣어 "한글 패치 · arqhive"가 된다. 검색 설명, 대표 주소 */
 export const metadata: Metadata = pageMetadata({

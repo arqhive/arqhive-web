@@ -1,7 +1,13 @@
 import { PLATFORM_LABELS } from '@arqhive/shared';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { CASE_SPECS, type PatchCaseData, releaseStage, TitleLines } from '@/entities/patch';
+import {
+  CASE_SPECS,
+  type PatchCaseData,
+  regionLabel,
+  releaseStage,
+  TitleLines,
+} from '@/entities/patch';
 import { FileCheck } from './file-check.tsx';
 
 /** 이 비율보다 작은 케이스(3DS·NDS·GB·GBA)는 속지가 좁아서 글자를 줄인다 */
@@ -45,30 +51,6 @@ function VersionGuideLink() {
       버전 가이드
     </Link>
   );
-}
-
-/**
- * 원본 판 이름: 콘텐츠의 지역 코드(JP·US·EU, 둘이면 "US/EU")를 일본판·북미판·유럽판으로 읽는다.
- * 모르는 코드는 코드 뒤에 "판"만 붙인다. 괄호 덧붙임은 그대로 뒤에 둔다("JP(Rev 1)" → 일본판(Rev 1)).
- */
-function RegionText({ region }: { readonly region: string }) {
-  const noteStart = region.indexOf('(');
-  const codes = noteStart === -1 ? region : region.slice(0, noteStart);
-  const note = noteStart === -1 ? '' : region.slice(noteStart);
-  const names = codes
-    .split('/')
-    .map((code) => {
-      if (code === 'JP') {
-        return '일본';
-      }
-      if (code === 'US') {
-        return '북미';
-      }
-      return code === 'EU' ? '유럽' : code;
-    })
-    .map((name) => `${name}판`)
-    .join('·');
-  return `${names}${note}`;
 }
 
 /** 정보 칸 한 줄(이름 + 값) */
@@ -122,7 +104,7 @@ function LinerFacts({
           '-'
         )}
       </Fact>
-      <Fact label="원본">{open ? <RegionText region={patch.baseRegion} /> : '-'}</Fact>
+      <Fact label="원본">{open ? regionLabel(patch.baseRegion) : '-'}</Fact>
       <Fact label="방식">{open ? patch.patchMethodLabel : '-'}</Fact>
       <Fact label="구동 확인">
         <span className="break-keep">{verified.length === 0 ? '-' : verified.join(', ')}</span>
@@ -158,7 +140,6 @@ function LinerFacts({
  * - 설명문(summary)은 넣지 않는다(10/6 사용자 결정).
  * - 휴대폰: 케이스가 작아 속지 폭 비례로는 글자가 너무 작아지므로, 사이트 글자 크기(rem) 기준의 줄인 배치를 쓴다.
  *   작은 케이스는 제목을 한 단계 줄이고 맨 아래 안내 문구도 뺀다.
- * 전체 내용은 상세 페이지에서 본다.
  */
 /** 링크 글자 모양(속지 안 작은 밑줄 글자) */
 const LINK_CLASS =
@@ -204,15 +185,20 @@ function LinerLinks({
 
 export function CaseLiner({
   patch,
+  instructions,
+  isPrimaryCase,
   onShowChangelog,
 }: {
   readonly patch: PatchCaseData;
+  readonly instructions: ReactNode;
+  readonly isPrimaryCase: boolean;
   /** 있으면 원제 아래에 "업데이트 내역 보기" 단추를 두고, 누르면 부른다(업데이트 내역을 읽어 온 공개 작품만) */
   readonly onShowChangelog?: (() => void) | undefined;
 }) {
   const isReleased = patch.status === 'released';
   const compact = CASE_SPECS[patch.platform].scale < COMPACT_SCALE;
   const desk = DESKTOP[compact ? 'compact' : 'normal'];
+  const Title = isPrimaryCase ? 'h1' : 'h2';
 
   return (
     <div className="@container size-full">
@@ -227,15 +213,16 @@ export function CaseLiner({
           ) : null}
         </div>
         {/* 한글 제목이 먼저, 게임 원제는 그 아래 작게(10/6). 위 여백 em은 제목 자신의 큰 글자 기준이라 작게 둔다 */}
-        <h2
+        <Title
           className={`mt-1 shrink-0 break-keep font-bold font-title leading-snug ${compact ? 'text-base' : 'text-lg'} md:mt-[0.15em] ${desk.title}`}
         >
           <TitleLines patch={patch} />
-        </h2>
+        </Title>
         <span className="mt-1 line-clamp-2 shrink-0 text-ink-sub text-xs md:text-[1em]">
           {patch.titleOriginal}
         </span>
         {isReleased ? <LinerLinks patch={patch} onShowChangelog={onShowChangelog} /> : null}
+        {instructions}
         <LinerFacts patch={patch} listClass={desk.list} />
         {/* 롬 패치(BPS·IPS)에만 있다: 원본·패치 후 크기와 해시 표 */}
         {isReleased && patch.fileCheck !== undefined ? (

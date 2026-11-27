@@ -99,7 +99,8 @@ const patches = defineCollection({
     credits: s.string().nullable(),
     summary: s.string(),
     featured: s.boolean().default(false),
-    body: s.mdx(),
+    // 케이스 속지의 적용 안내를 서버에서 마크다운으로 그린다.
+    body: s.raw(),
   }),
 });
 
